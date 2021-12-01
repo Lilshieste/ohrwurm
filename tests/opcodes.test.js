@@ -17,13 +17,10 @@ describe('BR', () => {
 describe('AND', () => {
   it('should set (N)egative flag properly after bitwise-AND', () => {
     const system = createSystem();
-    const write = writeToMemory(system.memory);
-    const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
+
     system.cpu.A = initialA;
-    system.cpu.PC = initialPC;
-    write(initialPC, operand);
     
     OpCodes.AND(direct(operand))(system);
     expect(system.cpu.A).toBe(initialA & operand);
@@ -33,14 +30,10 @@ describe('AND', () => {
 
   it('should set (Z)ero flag properly after bitwise-AND', () => {
     const system = createSystem();
-    const write = writeToMemory(system.memory);
-    const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b00000000;
 
     system.cpu.A = initialA;
-    system.cpu.PC = initialPC;
-    write(initialPC, operand);
     
     OpCodes.AND(direct(operand))(system);
     expect(system.cpu.A).toBe(initialA & operand);

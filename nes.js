@@ -3,6 +3,8 @@ const {
   absoluteX,
   absoluteY,
   immediate,
+  indexedIndirect,
+  indirectIndexed,
   zeroPage,
   zeroPageX,
 } = require('./addressing');
@@ -42,7 +44,7 @@ const INSTRUCTION_SET = [
   OpCode.NotImplemented, // $1e 	ASL $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $20 	JSR $NNNN	Absolute 	- - - - - - - 
-  OpCode.NotImplemented, // $21 	AND ($NN,X)	Indexed Indirect 	- Z- - - - N
+  OpCode.AND(indexedIndirect), // $21 	AND ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.NotImplemented, // $24 	BIT $NN	Zero Page 	- Z- - - VN
@@ -58,7 +60,7 @@ const INSTRUCTION_SET = [
   OpCode.NotImplemented, // $2e 	ROL $NNNN	Absolute 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $30 	BMI $NN	Relative 	- - - - - - - 
-  OpCode.NotImplemented, // $31 	AND ($NN),Y	Indirect Indexed 	- Z- - - - N
+  OpCode.AND(indirectIndexed), // $31 	AND ($NN),Y	Indirect Indexed 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
