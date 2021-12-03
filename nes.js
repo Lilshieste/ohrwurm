@@ -108,35 +108,35 @@ const INSTRUCTION_SET = [
   OpCode.NotImplemented, // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $60 	RTS 	Implied 	- - - - - - - 
-  OpCode.NotImplemented, // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
+  OpCode.ADC(indexedIndirect), // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $65 	ADC $NN	Zero Page 	CZ- - - VN
+  OpCode.ADC(zeroPage), // $65 	ADC $NN	Zero Page 	CZ- - - VN
   OpCode.NotImplemented, // $66 	ROR $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $68 	PLA 	Implied 	- Z- - - - N
-  OpCode.NotImplemented, // $69 	ADC #$NN	Immediate 	CZ- - - VN
+  OpCode.ADC(immediate), // $69 	ADC #$NN	Immediate 	CZ- - - VN
   OpCode.NotImplemented, // $6a 	ROR A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $6c 	JMP $NN	Indirect 	- - - - - - - 
-  OpCode.NotImplemented, // $6d 	ADC $NNNN	Absolute 	CZ- - - VN
+  OpCode.ADC(absolute), // $6d 	ADC $NNNN	Absolute 	CZ- - - VN
   OpCode.NotImplemented, // $6e 	ROR $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $70 	BVS $NN	Relative 	- - - - - - - 
-  OpCode.NotImplemented, // $71 	ADC ($NN),Y	Indirect Indexed 	CZ- - - VN
+  OpCode.ADC(indirectIndexed), // $71 	ADC ($NN),Y	Indirect Indexed 	CZ- - - VN
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $75 	ADC $NN,X	Zero Page,X 	CZ- - - VN
+  OpCode.ADC(zeroPageX), // $75 	ADC $NN,X	Zero Page,X 	CZ- - - VN
   OpCode.NotImplemented, // $76 	ROR $NN,X	Zero Page,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $78 	SEI 	Implied 	- - I- - - - 
-  OpCode.NotImplemented, // $79 	ADC $NNNN,Y	Absolute,Y 	CZ- - - VN
+  OpCode.ADC(absoluteY), // $79 	ADC $NNNN,Y	Absolute,Y 	CZ- - - VN
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $7d 	ADC $NNNN,X	Absolute,X 	CZ- - - VN
+  OpCode.ADC(absoluteX), // $7d 	ADC $NNNN,X	Absolute,X 	CZ- - - VN
   OpCode.NotImplemented, // $7e 	ROR $NNNN	Absolute 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
