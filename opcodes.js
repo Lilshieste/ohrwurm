@@ -228,6 +228,51 @@ OpCodes.JMP = (addressingMode) => (system) => {
 	});
 };
 
+OpCodes.LDA = (addressingMode) => (system) => {
+	addressingMode(system, context => {
+		system.cpu.A = context.operand;
+		system.cpu.N = isNegativeBitSet(system.cpu.A);
+		system.cpu.Z = isZero(system.cpu.A);
+	});
+};
+
+OpCodes.LDX = (addressingMode) => (system) => {
+	addressingMode(system, context => {
+		system.cpu.X = context.operand;
+		system.cpu.N = isNegativeBitSet(system.cpu.X);
+		system.cpu.Z = isZero(system.cpu.X);
+	});
+};
+
+OpCodes.LDY = (addressingMode) => (system) => {
+	addressingMode(system, context => {
+		system.cpu.Y = context.operand;
+		system.cpu.N = isNegativeBitSet(system.cpu.Y);
+		system.cpu.Z = isZero(system.cpu.Y);
+	});
+};
+
+OpCodes.LSR = (addressingMode) => (system) => {
+	addressingMode(system, context => {
+		const result = (context.operand >> 1);
+		system.cpu.N = false;
+		system.cpu.Z = isZero(result);
+		system.cpu.C = isNthBitSet(context.operand, 0);
+
+		context.operand = result;
+	});
+};
+
+OpCodes.NOP = () => {};
+
+OpCodes.ORA = (addressingMode) => (system) => {
+	addressingMode(system, context => {
+		system.cpu.A |= context.operand;
+		system.cpu.N = isNegativeBitSet(system.cpu.A);
+		system.cpu.Z = isZero(system.cpu.A);
+	});
+};
+
 OpCodes.SEC = (system) => {
 	system.cpu.C = true;
 };

@@ -16,35 +16,35 @@ const zeroPageX = Modes.zeroPageX(peek, poke);
 
 const INSTRUCTION_SET = [
   OpCode.BRK, // $00 	BRK 	Implied 	- - - - - - - 
-  OpCode.NotImplemented, // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
+  OpCode.ORA(indexedIndirect), // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $05 	ORA $NN	Zero Page 	- Z- - - - N
+  OpCode.ORA(Modes.zeroPage), // $05 	ORA $NN	Zero Page 	- Z- - - - N
   OpCode.ASL(zeroPage), // $06 	ASL $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $08 	PHP 	Implied 	- - - - - - - 
-  OpCode.NotImplemented, // $09 	ORA #$NN	Immediate 	- Z- - - - N
+  OpCode.ORA(immediate), // $09 	ORA #$NN	Immediate 	- Z- - - - N
   OpCode.ASL(accumulator), // $0a 	ASL A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $0d 	ORA $NNNN	Absolute 	- Z- - - - N
+  OpCode.ORA(absolute), // $0d 	ORA $NNNN	Absolute 	- Z- - - - N
   OpCode.ASL(absolute), // $0e 	ASL $NNNN	Absolute 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.BPL(relative), // $10 	BPL $NN	Relative 	- - - - - - - 
-  OpCode.NotImplemented, // $11 	ORA ($NN),Y	Indirect Indexed 	- Z- - - - N
+  OpCode.ORA(indirectIndexed), // $11 	ORA ($NN),Y	Indirect Indexed 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $15 	ORA $NN,X	Zero Page,X 	- Z- - - - N
+  OpCode.ORA(zeroPageX), // $15 	ORA $NN,X	Zero Page,X 	- Z- - - - N
   OpCode.ASL(zeroPageX), // $16 	ASL $NN,X	Zero Page,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.CLC, // $18 	CLC 	Implied 	C- - - - - - 
-  OpCode.NotImplemented, // $19 	ORA $NNNN,Y	Absolute,Y 	- Z- - - - N
+  OpCode.ORA(absoluteY), // $19 	ORA $NNNN,Y	Absolute,Y 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $1d 	ORA $NNNN,X	Absolute,X 	- Z- - - - N
+  OpCode.ORA(absoluteX), // $1d 	ORA $NNNN,X	Absolute,X 	- Z- - - - N
   OpCode.ASL(absoluteX), // $1e 	ASL $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $20 	JSR $NNNN	Absolute 	- - - - - - - 
@@ -85,15 +85,15 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.EOR(zeroPage), // $45 	EOR $NN	Zero Page 	- Z- - - - N
-  OpCode.NotImplemented, // $46 	LSR $NN	Zero Page 	CZ- - - - N
+  OpCode.LSR(zeroPage), // $46 	LSR $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $48 	PHA 	Implied 	- - - - - - - 
   OpCode.EOR(immediate), // $49 	EOR #$NN	Immediate 	- Z- - - - N
-  OpCode.NotImplemented, // $4a 	LSR A	Accumulator 	CZ- - - - N
+  OpCode.LSR(accumulator), // $4a 	LSR A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.JMP(absolute), // $4c 	JMP $NNNN	Absolute 	- - - - - - - 
   OpCode.EOR(absolute), // $4d 	EOR $NNNN	Absolute 	- Z- - - - N
-  OpCode.NotImplemented, // $4e 	LSR $NNNN	Absolute 	CZ- - - - N
+  OpCode.LSR(absolute), // $4e 	LSR $NNNN	Absolute 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.BVC(relative), // $50 	BVC $NN	Relative 	- - - - - - - 
   OpCode.EOR(indirectIndexed), // $51 	EOR ($NN),Y	Indirect Indexed 	- Z- - - - N
@@ -101,7 +101,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.EOR(zeroPageX), // $55 	EOR $NN,X	Zero Page,X 	- Z- - - - N
-  OpCode.NotImplemented, // $56 	LSR $NN,X	Zero Page,X 	CZ- - - - N
+  OpCode.LSR(zeroPageX), // $56 	LSR $NN,X	Zero Page,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.CLI, // $58 	CLI 	Implied 	- - I- - - - 
   OpCode.EOR(absoluteY), // $59 	EOR $NNNN,Y	Absolute,Y 	- Z- - - - N
@@ -109,7 +109,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.EOR(absoluteX), // $5d 	EOR $NNNN,X	Absolute,X 	- Z- - - - N
-  OpCode.NotImplemented, // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
+  OpCode.LSR(absoluteX), // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $60 	RTS 	Implied 	- - - - - - - 
   OpCode.ADC(indexedIndirect), // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
@@ -175,37 +175,37 @@ const INSTRUCTION_SET = [
   OpCode.NotImplemented, // $9d 	STA $NNNN,X	Absolute,X 	- - - - - - - 
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $a0 	LDY #$NN	Immediate 	- Z- - - - N
-  OpCode.NotImplemented, // $a1 	LDA ($NN,X)	Indexed Indirect 	- Z- - - - N
-  OpCode.NotImplemented, // $a2 	LDX #$NN	Immediate 	- Z- - - - N
+  OpCode.LDY(immediate), // $a0 	LDY #$NN	Immediate 	- Z- - - - N
+  OpCode.LDA(indexedIndirect), // $a1 	LDA ($NN,X)	Indexed Indirect 	- Z- - - - N
+  OpCode.LDX(immediate), // $a2 	LDX #$NN	Immediate 	- Z- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $a4 	LDY $NN	Zero Page 	- Z- - - - N
-  OpCode.NotImplemented, // $a5 	LDA $NN	Zero Page 	- Z- - - - N
-  OpCode.NotImplemented, // $a6 	LDX $NN	Zero Page 	- Z- - - - N
+  OpCode.LDY(zeroPage), // $a4 	LDY $NN	Zero Page 	- Z- - - - N
+  OpCode.LDA(zeroPage), // $a5 	LDA $NN	Zero Page 	- Z- - - - N
+  OpCode.LDX(zeroPage), // $a6 	LDX $NN	Zero Page 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $a8 	TAY 	Implied 	- Z- - - - N
-  OpCode.NotImplemented, // $a9 	LDA #$NN	Immediate 	- Z- - - - N
+  OpCode.LDA(immediate), // $a9 	LDA #$NN	Immediate 	- Z- - - - N
   OpCode.NotImplemented, // $aa 	TAX 	Implied 	- Z- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $ac 	LDY $NNNN	Absolute 	- Z- - - - N
-  OpCode.NotImplemented, // $ad 	LDA $NNNN	Absolute 	- Z- - - - N
-  OpCode.NotImplemented, // $ae 	LDX $NNNN	Absolute 	- Z- - - - N
+  OpCode.LDY(absolute), // $ac 	LDY $NNNN	Absolute 	- Z- - - - N
+  OpCode.LDA(absolute), // $ad 	LDA $NNNN	Absolute 	- Z- - - - N
+  OpCode.LDX(absolute), // $ae 	LDX $NNNN	Absolute 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.BCS(relative), // $b0 	BCS $NN	Relative 	- - - - - - - 
-  OpCode.NotImplemented, // $b1 	LDA ($NN),Y	Indirect Indexed 	- Z- - - - N
+  OpCode.LDA(indirectIndexed), // $b1 	LDA ($NN),Y	Indirect Indexed 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $b4 	LDY $NN,X	Zero Page,X 	- Z- - - - N
-  OpCode.NotImplemented, // $b5 	LDA $NN,X	Zero Page,X 	- Z- - - - N
-  OpCode.NotImplemented, // $b6 	LDX $NN,Y	Zero Page,Y 	- Z- - - - N
+  OpCode.LDY(zeroPageX), // $b4 	LDY $NN,X	Zero Page,X 	- Z- - - - N
+  OpCode.LDA(zeroPageX), // $b5 	LDA $NN,X	Zero Page,X 	- Z- - - - N
+  OpCode.LDX(Modes.zeroPageY), // $b6 	LDX $NN,Y	Zero Page,Y 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.CLV, // $b8 	CLV 	Implied 	- - - - - V- 
-  OpCode.NotImplemented, // $b9 	LDA $NNNN,Y	Absolute,Y 	- Z- - - - N
+  OpCode.LDA(absoluteY), // $b9 	LDA $NNNN,Y	Absolute,Y 	- Z- - - - N
   OpCode.NotImplemented, // $ba 	TSX 	Implied 	- Z- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $bc 	LDY $NNNN,X	Absolute,X 	- Z- - - - N
-  OpCode.NotImplemented, // $bd 	LDA $NNNN,X	Absolute,X 	- Z- - - - N
-  OpCode.NotImplemented, // $be 	LDX $NNNN,Y	Absolute,Y 	- Z- - - - N
+  OpCode.LDY(absoluteX), // $bc 	LDY $NNNN,X	Absolute,X 	- Z- - - - N
+  OpCode.LDA(absoluteX), // $bd 	LDA $NNNN,X	Absolute,X 	- Z- - - - N
+  OpCode.LDX(absoluteY), // $be 	LDX $NNNN,Y	Absolute,Y 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.CPY(immediate), // $c0 	CPY #$NN	Immediate 	CZ- - - - N
   OpCode.CMP(indexedIndirect), // $c1 	CMP ($NN,X)	Indexed Indirect 	CZ- - - - N
@@ -249,7 +249,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.INX, // $e8 	INX 	Implied 	- Z- - - - N
   OpCode.NotImplemented, // $e9 	SBC #$NN	Immediate 	CZ- - - VN
-  OpCode.NotImplemented, // $ea 	NOP 	Implied 	- - - - - - - 
+  OpCode.NOP, // $ea 	NOP 	Implied 	- - - - - - - 
   OpCode.Unofficial,
   OpCode.CPX(absolute), // $ec 	CPX $NNNN	Absolute 	CZ- - - - N
   OpCode.NotImplemented, // $ed 	SBC $NNNN	Absolute 	CZ- - - VN

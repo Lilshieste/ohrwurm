@@ -118,7 +118,7 @@ describe('ASL', () => {
     expect(system.cpu.N).toBe(true);
   });
 
-  it('should set (Z)ero flag properly after adding shifting the operand', () => {
+  it('should set (Z)ero flag properly after shifting the operand', () => {
     const system = createSystem();
     const operand = 0b10000000;
 
@@ -715,6 +715,158 @@ describe('JMP', () => {
     
     OpCodes.JMP(direct(operand))(system);
     expect(system.cpu.PC).toBe(operand);
+  });
+});
+
+describe('LDA', () => {
+  it('should load operand into accumulator', () => {
+    const system = createSystem();
+    const operand = 0xa;
+
+    OpCodes.LDA(direct(operand))(system);
+    expect(system.cpu.A).toBe(operand);
+  });
+
+  it('should set (N)egative flag properly after loading operand into accumulator', () => {
+    const system = createSystem();
+    const operand = 0b10000000;
+
+    OpCodes.LDA(direct(operand))(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after loading operand into accumulator', () => {
+    const system = createSystem();
+    const operand = 0b00000000;
+
+    OpCodes.LDA(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('LDX', () => {
+  it('should load operand into X', () => {
+    const system = createSystem();
+    const operand = 0xa;
+
+    OpCodes.LDX(direct(operand))(system);
+    expect(system.cpu.X).toBe(operand);
+  });
+
+  it('should set (N)egative flag properly after loading operand into X', () => {
+    const system = createSystem();
+    const operand = 0b10000000;
+
+    OpCodes.LDX(direct(operand))(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after loading operand into X', () => {
+    const system = createSystem();
+    const operand = 0b00000000;
+
+    OpCodes.LDX(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('LDY', () => {
+  it('should load operand into Y', () => {
+    const system = createSystem();
+    const operand = 0xa;
+
+    OpCodes.LDY(direct(operand))(system);
+    expect(system.cpu.Y).toBe(operand);
+  });
+
+  it('should set (N)egative flag properly after loading operand into Y', () => {
+    const system = createSystem();
+    const operand = 0b10000000;
+
+    OpCodes.LDY(direct(operand))(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after loading operand into Y', () => {
+    const system = createSystem();
+    const operand = 0b00000000;
+
+    OpCodes.LDY(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('LSR', () => {
+  it('should shift the operand right by one bit', () => {
+    const system = createSystem();
+    const initial =  0b00101000;
+    const expected = 0b00010100;
+    const context = { operand: initial };
+
+    OpCodes.LSR(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+
+  it('should clear the (N)egative flag after shifting the operand', () => {
+    const system = createSystem();
+
+    system.cpu.N = true;
+
+    OpCodes.LSR(direct(0b10000000))(system);
+    expect(system.cpu.N).toBe(false);
+  });
+
+  it('should set (Z)ero flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b00000000;
+
+    OpCodes.LSR(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+
+  it('should set (C)arry flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b00000001;
+
+    OpCodes.LSR(direct(operand))(system);
+    expect(system.cpu.C).toBe(true);
+  });
+});
+
+describe('NOP', () => {
+  it('should good n you?', () => {
+    const system = createSystem();
+
+    OpCodes.NOP(system);
+    expect(system).toStrictEqual(createSystem());
+  });
+});
+
+describe('ORA', () => {
+  it('should set (N)egative flag properly after bitwise-OR', () => {
+    const system = createSystem();
+    const initialA = 0b11110000;
+    const operand = 0b10100000;
+
+    system.cpu.A = initialA;
+    
+    OpCodes.ORA(direct(operand))(system);
+    expect(system.cpu.A).toBe(initialA | operand);
+    expect(system.cpu.N).toBe(true);
+    expect(system.cpu.Z).toBe(false);
+  });
+
+  it('should set (Z)ero flag properly after bitwise-OR', () => {
+    const system = createSystem();
+    const initialA = 0b00000000;
+    const operand = 0b00000000;
+
+    system.cpu.A = initialA;
+    
+    OpCodes.ORA(direct(operand))(system);
+    expect(system.cpu.A).toBe(initialA | operand);
+    expect(system.cpu.N).toBe(false);
+    expect(system.cpu.Z).toBe(true);
   });
 });
 
