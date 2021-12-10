@@ -1,4 +1,4 @@
-const { readFromMemory } = require('./memory');
+const { readFromMemory, writeToMemory } = require('./memory');
 
 const createMemory = () => ({
   APU: new Array(0x0018).fill(0),
@@ -34,6 +34,10 @@ const peek = (system, address) => {
   return readFromMemory(system.memory)(address || system.cpu.PC);
 };
 
+const poke = (system, address, byte) => {
+  writeToMemory(system.memory)(address, byte);
+};
+
 const read = (system) => {
   return readFromMemory(system.memory)(system.cpu.PC++);
 };
@@ -43,5 +47,6 @@ module.exports = {
   createMemory,
   createSystem,
   peek,
+  poke,
   read,
 };
