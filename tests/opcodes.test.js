@@ -870,6 +870,185 @@ describe('ORA', () => {
   });
 });
 
+describe('ROL', () => {
+  it('should shift the operand left by one bit', () => {
+    const system = createSystem();
+    const initial =   0b00010100;
+    const expected =  0b00101000;
+    const context = { operand: initial };
+
+    OpCodes.ROL(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+
+  it('should shift the carry-in to bit 0', () => {
+    const system = createSystem();
+    const initial =   0b00000000;
+    const expected =  0b00000001;
+    const context = { operand: initial };
+
+    system.cpu.C = true;
+
+    OpCodes.ROL(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b01110000;
+
+    OpCodes.ROL(direct(operand))(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b10000000;
+
+    OpCodes.ROL(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+
+  it('should set (C)arry flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b11111111;
+
+    OpCodes.ROL(direct(operand))(system);
+    expect(system.cpu.C).toBe(true);
+  });
+});
+
+describe('ROR', () => {
+  it('should shift the operand right by one bit', () => {
+    const system = createSystem();
+    const initial =  0b00101000;
+    const expected = 0b00010100;
+    const context = { operand: initial };
+
+    OpCodes.ROR(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+
+  it('should shift the carry-in to bit 7', () => {
+    const system = createSystem();
+    const initial =   0b00000000;
+    const expected =  0b10000000;
+    const context = { operand: initial };
+
+    system.cpu.C = true;
+
+    OpCodes.ROR(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+
+  it('should clear the (N)egative flag after shifting the operand', () => {
+    const system = createSystem();
+
+    system.cpu.N = true;
+
+    OpCodes.ROR(direct(0b10000000))(system);
+    expect(system.cpu.N).toBe(false);
+  });
+
+  it('should set (Z)ero flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b00000000;
+
+    OpCodes.ROR(direct(operand))(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+
+  it('should set (C)arry flag properly after shifting the operand', () => {
+    const system = createSystem();
+    const operand = 0b00000001;
+
+    OpCodes.ROR(direct(operand))(system);
+    expect(system.cpu.C).toBe(true);
+  });
+});
+
+describe('SBC', () => {
+  it('should subtracting the operand from the accumulator and the not of the (C)arry flag', () => {
+    const system = createSystem();
+    const initialA = 0b11110001;
+    const operand1 = 0b01100000;
+    const expected = 0b10010000;
+
+    system.cpu.A = initialA;
+
+    OpCodes.SBC(direct(operand1))(system);
+    expect(system.cpu.A).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after subtracting the operand from the accumulator', () => {
+    const system = createSystem();
+    const initialA = 0b11110000;
+    const operand1 = 0b01100000;
+    const expected = 0b10010000;
+
+    system.cpu.A = initialA;
+    system.cpu.C = true;
+
+    OpCodes.SBC(direct(operand1))(system);
+    expect(system.cpu.A).toBe(expected);
+    expect(system.cpu.N).toBe(true);
+    expect(system.cpu.Z).toBe(false);
+    expect(system.cpu.C).toBe(false);
+    expect(system.cpu.V).toBe(false);
+  });
+
+  it('should set (Z)ero flag properly after subtracting the operand from the accumulator', () => {
+    const system = createSystem();
+    const initialA = 0b11111111;
+    const operand1 = 0b11111111;
+    const expected = 0b00000000;
+
+    system.cpu.A = initialA;
+    system.cpu.C = true;
+    
+    OpCodes.SBC(direct(operand1))(system);
+    expect(system.cpu.A).toBe(expected);
+    expect(system.cpu.N).toBe(false);
+    expect(system.cpu.Z).toBe(true);
+    expect(system.cpu.C).toBe(false);
+    expect(system.cpu.V).toBe(true);
+  });
+
+  it('should set (C)arry flag properly after subtracting the operand from the accumulator', () => {
+    const system = createSystem();
+    const initialA = 0b00000000;
+    const operand1 = 0b00000001;
+    const expected = 0b11111111;
+
+    system.cpu.A = initialA;
+    system.cpu.C = true;
+    
+    OpCodes.SBC(direct(operand1))(system);
+    expect(system.cpu.A).toBe(expected); 
+    expect(system.cpu.N).toBe(true);
+    expect(system.cpu.Z).toBe(false);
+    expect(system.cpu.C).toBe(true);
+    expect(system.cpu.V).toBe(true);
+  });
+
+  it('should set o(V)erflow flag properly after subtracting the operand from the accumulator', () => {
+    const system = createSystem();
+    const initialA = 0b00000000;
+    const operand1 = 0b00000001;
+    const expected = 0b11111111;
+
+    system.cpu.A = initialA;
+    system.cpu.C = true;
+    
+    OpCodes.SBC(direct(operand1))(system);
+    expect(system.cpu.A).toBe(expected);
+    expect(system.cpu.N).toBe(true);
+    expect(system.cpu.Z).toBe(false);
+    expect(system.cpu.C).toBe(true);
+    expect(system.cpu.V).toBe(true);
+  });
+});
+
 describe('SEC', () => {
   it('should set the (C)arry flag', () => {
     const system = createSystem();
@@ -897,5 +1076,175 @@ describe('SEI', () => {
     
     OpCodes.SEI(system);
     expect(system.cpu.I).toBe(true);
+  });
+});
+
+describe('STA', () => {
+  it('should store accumulator contents in operand', () => {
+    const system = createSystem();
+    const operand = 0xa;
+    const context = { operand };
+    const expected = 42;
+
+    system.cpu.A = expected;
+
+    OpCodes.STA(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+});
+
+describe('STX', () => {
+  it('should store X contents in operand', () => {
+    const system = createSystem();
+    const operand = 0xa;
+    const context = { operand };
+    const expected = 42;
+
+    system.cpu.X = expected;
+
+    OpCodes.STX(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+});
+
+describe('STY', () => {
+  it('should store Y contents in operand', () => {
+    const system = createSystem();
+    const operand = 0xa;
+    const context = { operand };
+    const expected = 42;
+
+    system.cpu.Y = expected;
+
+    OpCodes.STY(directContext(context))(system);
+    expect(context.operand).toBe(expected);
+  });
+});
+
+describe('TAX', () => {
+  it('should transfer accumulator contents to X', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.cpu.A = expected;
+
+    OpCodes.TAX(system);
+    expect(system.cpu.X).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after transferring contents', () => {
+    const system = createSystem();
+    const A = 0b10000000;
+
+    system.cpu.A = A;
+
+    OpCodes.TAX(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after transferring contents', () => {
+    const system = createSystem();
+    const A = 0b00000000;
+
+    system.cpu.A = A;
+
+    OpCodes.TAX(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('TAY', () => {
+  it('should transfer accumulator contents to Y', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.cpu.A = expected;
+
+    OpCodes.TAY(system);
+    expect(system.cpu.Y).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after transferring contents', () => {
+    const system = createSystem();
+    const A = 0b10000000;
+
+    system.cpu.A = A;
+
+    OpCodes.TAY(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after transferring contents', () => {
+    const system = createSystem();
+    const A = 0b00000000;
+
+    system.cpu.A = A;
+
+    OpCodes.TAY(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('TXA', () => {
+  it('should transfer X contents to accumulator', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.cpu.X = expected;
+
+    OpCodes.TXA(system);
+    expect(system.cpu.A).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after transferring contents', () => {
+    const system = createSystem();
+    const X = 0b10000000;
+
+    system.cpu.X = X;
+
+    OpCodes.TXA(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after transferring contents', () => {
+    const system = createSystem();
+    const X = 0b00000000;
+
+    system.cpu.X = X;
+
+    OpCodes.TXA(system);
+    expect(system.cpu.Z).toBe(true);
+  });
+});
+
+describe('TYA', () => {
+  it('should transfer Y contents to accumulator', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.cpu.Y = expected;
+
+    OpCodes.TYA(system);
+    expect(system.cpu.A).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after transferring contents', () => {
+    const system = createSystem();
+    const Y = 0b10000000;
+
+    system.cpu.Y = Y;
+
+    OpCodes.TYA(system);
+    expect(system.cpu.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after transferring contents', () => {
+    const system = createSystem();
+    const Y = 0b00000000;
+
+    system.cpu.Y = Y;
+
+    OpCodes.TYA(system);
+    expect(system.cpu.Z).toBe(true);
   });
 });
