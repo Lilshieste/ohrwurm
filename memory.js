@@ -40,9 +40,8 @@ const push = ({ memory, registers }, value) => {
 };
 
 const pull = ({ memory, registers }) => {
-  const result = memory.RAM[registers.SP];
   registers.SP = registers.SP === 0x01FF ? 0x0100 : ++registers.SP;
-  return result;
+  return memory.RAM[registers.SP];
 };
 
 module.exports = {

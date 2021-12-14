@@ -203,12 +203,12 @@ describe('Memory', () => {
       system.registers = createRegisters();
     });
 
-    it('should return value at current stack pointer', () => {
+    it('should return value at current stack pointer + 1 (since the stack pointer points to the next "available" space)', () => {
       const expected =  42;
       const startingSP = 0x0122;
 
       system.registers.SP = startingSP;
-      memory.RAM[startingSP] = expected;
+      memory.RAM[startingSP + 1] = expected;
 
       const actual = pull(system);
       expect(actual).toBe(expected);

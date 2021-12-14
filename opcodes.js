@@ -106,6 +106,7 @@ OpCodes.BPL = (addressingMode) => (system) => {
 
 OpCodes.BRK = (system) => {
 	system.registers.B = true;
+	// TODO: still need to push PC (+2) and status to stack
 };
 
 OpCodes.BVC = (addressingMode) => (system) => {
