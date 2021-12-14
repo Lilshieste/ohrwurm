@@ -1,18 +1,19 @@
-const Modes = require('./addressingModes');
+const Mode = require('./addressingModes');
 const OpCode = require('./opcodes');
 const { peek, poke } = require('./memory');
 
-const absolute = Modes.absolute(peek, poke);
-const absoluteX = Modes.absoluteX(peek, poke);
-const absoluteY = Modes.absoluteY(peek);
-const accumulator = Modes.accumulator;
-const immediate = Modes.immediate(peek);
-const indirect = Modes.indirect(peek);
-const indexedIndirect = Modes.indexedIndirect(peek);
-const indirectIndexed = Modes.indirectIndexed(peek);
-const relative = Modes.relative(peek);
-const zeroPage = Modes.zeroPage(peek, poke);
-const zeroPageX = Modes.zeroPageX(peek, poke);
+const absolute = Mode.absolute(peek, poke);
+const absoluteX = Mode.absoluteX(peek, poke);
+const absoluteY = Mode.absoluteY(peek);
+const accumulator = Mode.accumulator;
+const immediate = Mode.immediate(peek);
+const indirect = Mode.indirect(peek);
+const indexedIndirect = Mode.indexedIndirect(peek);
+const indirectIndexed = Mode.indirectIndexed(peek);
+const relative = Mode.relative(peek);
+const zeroPage = Mode.zeroPage(peek, poke);
+const zeroPageX = Mode.zeroPageX(peek, poke);
+const zeroPageY = Mode.zeroPageY(peek);
 
 const INSTRUCTION_SET = [
   OpCode.BRK, // $00 	BRK 	Implied 	- - - - - - - 
@@ -20,7 +21,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.ORA(Modes.zeroPage), // $05 	ORA $NN	Zero Page 	- Z- - - - N
+  OpCode.ORA(zeroPage), // $05 	ORA $NN	Zero Page 	- Z- - - - N
   OpCode.ASL(zeroPage), // $06 	ASL $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.NotImplemented, // $08 	PHP 	Implied 	- - - - - - - 
@@ -165,7 +166,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.STY(zeroPageX), // $94 	STY $NN,X	Zero Page,X 	- - - - - - - 
   OpCode.STA(zeroPageX), // $95 	STA $NN,X	Zero Page,X 	- - - - - - - 
-  OpCode.STX(Modes.zeroPageY), // $96 	STX $NN,Y	Zero Page,Y 	- - - - - - - 
+  OpCode.STX(zeroPageY), // $96 	STX $NN,Y	Zero Page,Y 	- - - - - - - 
   OpCode.Unofficial,
   OpCode.TYA, // $98 	TYA 	Implied 	- Z- - - - N
   OpCode.STA(absoluteY), // $99 	STA $NNNN,Y	Absolute,Y 	- - - - - - - 
@@ -197,7 +198,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.LDY(zeroPageX), // $b4 	LDY $NN,X	Zero Page,X 	- Z- - - - N
   OpCode.LDA(zeroPageX), // $b5 	LDA $NN,X	Zero Page,X 	- Z- - - - N
-  OpCode.LDX(Modes.zeroPageY), // $b6 	LDX $NN,Y	Zero Page,Y 	- Z- - - - N
+  OpCode.LDX(zeroPageY), // $b6 	LDX $NN,Y	Zero Page,Y 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.CLV, // $b8 	CLV 	Implied 	- - - - - V- 
   OpCode.LDA(absoluteY), // $b9 	LDA $NNNN,Y	Absolute,Y 	- Z- - - - N
