@@ -11,14 +11,14 @@ describe('ADC', () => {
     const operand1 = 0b01100000;
     const expected = 0b11010000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
 
     OpCodes.ADC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
-    expect(system.cpu.C).toBe(false);
-    expect(system.cpu.V).toBe(false);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.C).toBe(false);
+    expect(system.registers.V).toBe(false);
   });
 
   it('should set (Z)ero flag properly after adding operand to the accumulator', () => {
@@ -27,14 +27,14 @@ describe('ADC', () => {
     const operand1 = 0b00000001;
     const expected = 0b00000000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.ADC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(true);
-    expect(system.cpu.C).toBe(true);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(true);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.V).toBe(true);
   });
 
   it('should set (C)arry flag properly after adding operand to the accumulator', () => {
@@ -43,15 +43,15 @@ describe('ADC', () => {
     const operand1 = 0b00000001;
     const expected = 0b00000001; // Include the carry-in
 
-    system.cpu.A = initialA;
-    system.cpu.C = true;
+    system.registers.A = initialA;
+    system.registers.C = true;
     
     OpCodes.ADC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected); 
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(false);
-    expect(system.cpu.C).toBe(true);
-    expect(system.cpu.V).toBe(false);
+    expect(system.registers.A).toBe(expected); 
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.V).toBe(false);
   });
 
   it('should set o(V)erflow flag properly after adding operand to the accumulator', () => {
@@ -60,14 +60,14 @@ describe('ADC', () => {
     const operand1 = 0b10000000;
     const expected = 0b00000000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.ADC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(true);
-    expect(system.cpu.C).toBe(true);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(true);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.V).toBe(true);
   });
 });
 
@@ -77,12 +77,12 @@ describe('AND', () => {
     const initialA = 0b11110000;
     const operand = 0b10100000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.AND(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA & operand);
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.A).toBe(initialA & operand);
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
   });
 
   it('should set (Z)ero flag properly after bitwise-AND', () => {
@@ -90,12 +90,12 @@ describe('AND', () => {
     const initialA = 0b11110000;
     const operand = 0b00000000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.AND(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA & operand);
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.A).toBe(initialA & operand);
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -115,7 +115,7 @@ describe('ASL', () => {
     const operand = 0b01110000;
 
     OpCodes.ASL(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after shifting the operand', () => {
@@ -123,7 +123,7 @@ describe('ASL', () => {
     const operand = 0b10000000;
 
     OpCodes.ASL(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 
   it('should set (C)arry flag properly after shifting the operand', () => {
@@ -131,23 +131,23 @@ describe('ASL', () => {
     const operand = 0b11111111;
 
     OpCodes.ASL(direct(operand))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
   });
 });
 
 describe('BCC', () => {
   it('should add the operand to the Program Counter if the (C)arry flag is not set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.C = true;
+    system.registers.C = true;
     OpCodes.BCC(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.C = false;
+    system.registers.C = false;
     OpCodes.BCC(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -155,16 +155,16 @@ describe('BCC', () => {
 describe('BCS', () => {
   it('should add the operand to the Program Counter if the (C)arry flag is set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.C = false;
+    system.registers.C = false;
     OpCodes.BCS(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.C = true;
+    system.registers.C = true;
     OpCodes.BCS(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -172,16 +172,16 @@ describe('BCS', () => {
 describe('BEQ', () => {
   it('should add the operand to the Program Counter if the (Z)ero flag is not set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.Z = false;
+    system.registers.Z = false;
     OpCodes.BEQ(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.Z = true;
+    system.registers.Z = true;
     OpCodes.BEQ(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -192,10 +192,10 @@ describe('BIT', () => {
     const A =       0b11110000;
     const operand = 0b10100000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
     
     OpCodes.BIT(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after bitwise-AND between accumulator and operand', () => {
@@ -203,10 +203,10 @@ describe('BIT', () => {
     const A =       0b00110000;
     const operand = 0b01000011;
 
-    system.cpu.A = A;
+    system.registers.A = A;
     
     OpCodes.BIT(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 
   it('should set o(V)erflow flag properly after bitwise-AND between accumulator and operand', () => {
@@ -214,26 +214,26 @@ describe('BIT', () => {
     const A =       0b01000000;
     const operand = 0b01010000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
     
     OpCodes.BIT(direct(operand))(system);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.V).toBe(true);
   });
 });
 
 describe('BMI', () => {
   it('should add the operand to the Program Counter if the (N)egative flag is set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.N = false;
+    system.registers.N = false;
     OpCodes.BMI(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.N = true;
+    system.registers.N = true;
     OpCodes.BMI(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -241,16 +241,16 @@ describe('BMI', () => {
 describe('BNE', () => {
   it('should add the operand to the Program Counter if the (Z)ero flag is set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.Z = true;
+    system.registers.Z = true;
     OpCodes.BNE(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.Z = false;
+    system.registers.Z = false;
     OpCodes.BNE(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -258,16 +258,16 @@ describe('BNE', () => {
 describe('BPL', () => {
   it('should add the operand to the Program Counter if the (N)egative flag is not set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.N = true;
+    system.registers.N = true;
     OpCodes.BPL(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.N = false;
+    system.registers.N = false;
     OpCodes.BPL(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -278,23 +278,23 @@ describe('BRK', () => {
     
     OpCodes.BRK(system);
 
-    expect(system.cpu.B).toBe(true);
+    expect(system.registers.B).toBe(true);
   });
 });
 
 describe('BVC', () => {
   it('should add the operand to the Program Counter if the o(V)erflow flag is not set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.V = true;
+    system.registers.V = true;
     OpCodes.BVC(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.V = false;
+    system.registers.V = false;
     OpCodes.BVC(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -302,16 +302,16 @@ describe('BVC', () => {
 describe('BVS', () => {
   it('should add the operand to the Program Counter if the o(V)erflow flag is set', () => {
     const system = createSystem();
-    const startingPC = system.cpu.PC;
+    const startingPC = system.registers.PC;
     const operand = 0xa;
     
-    system.cpu.V = false;
+    system.registers.V = false;
     OpCodes.BVS(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC);
+    expect(system.registers.PC).toBe(startingPC);
 
-    system.cpu.V = true;
+    system.registers.V = true;
     OpCodes.BVS(direct(operand))(system);
-    expect(system.cpu.PC).toBe(startingPC + operand);
+    expect(system.registers.PC).toBe(startingPC + operand);
 
   });
 });
@@ -319,40 +319,40 @@ describe('BVS', () => {
 describe('CLC', () => {
   it('should clear the (C)arry flag', () => {
     const system = createSystem();
-    system.cpu.C = true;
+    system.registers.C = true;
     
     OpCodes.CLC(system);
-    expect(system.cpu.C).toBe(false);
+    expect(system.registers.C).toBe(false);
   });
 });
 
 describe('CLD', () => {
   it('should clear the (D)ecimal mode flag', () => {
     const system = createSystem();
-    system.cpu.D = true;
+    system.registers.D = true;
     
     OpCodes.CLD(system);
-    expect(system.cpu.D).toBe(false);
+    expect(system.registers.D).toBe(false);
   });
 });
 
 describe('CLI', () => {
   it('should clear the (I)nterrupt disable flag', () => {
     const system = createSystem();
-    system.cpu.I = true;
+    system.registers.I = true;
     
     OpCodes.CLI(system);
-    expect(system.cpu.I).toBe(false);
+    expect(system.registers.I).toBe(false);
   });
 });
 
 describe('CLV', () => {
   it('should clear the o(V)erflow flag', () => {
     const system = createSystem();
-    system.cpu.V = true;
+    system.registers.V = true;
     
     OpCodes.CLV(system);
-    expect(system.cpu.V).toBe(false);
+    expect(system.registers.V).toBe(false);
   });
 });
 
@@ -361,48 +361,48 @@ describe('CMP', () => {
     const system = createSystem();
     const A = 0xF;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.CMP(direct(A - 1))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CMP(direct(A))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CMP(direct(A + 1))(system);
-    expect(system.cpu.C).toBe(false);
+    expect(system.registers.C).toBe(false);
   });
   
   it('should set (N)egative flag if A < operand', () => {
     const system = createSystem();
     const A = 0xF;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.CMP(direct(A - 1))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CMP(direct(A))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CMP(direct(A + 1))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag if A === operand', () => {
     const system = createSystem();
     const A = 0xF;
 
-    system.cpu.A = A;
+    system.registers.A = A;
     
     OpCodes.CMP(direct(A - 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
 
     OpCodes.CMP(direct(A))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
 
     OpCodes.CMP(direct(A + 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
   });
 });
 
@@ -411,48 +411,48 @@ describe('CPX', () => {
     const system = createSystem();
     const X = 0xF;
 
-    system.cpu.X = X;
+    system.registers.X = X;
 
     OpCodes.CPX(direct(X - 1))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CPX(direct(X))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CPX(direct(X + 1))(system);
-    expect(system.cpu.C).toBe(false);
+    expect(system.registers.C).toBe(false);
   });
   
   it('should set (N)egative flag if X < operand', () => {
     const system = createSystem();
     const X = 0xF;
 
-    system.cpu.X = X;
+    system.registers.X = X;
 
     OpCodes.CPX(direct(X - 1))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CPX(direct(X))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CPX(direct(X + 1))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag if X === operand', () => {
     const system = createSystem();
     const X = 0xF;
 
-    system.cpu.X = X;
+    system.registers.X = X;
     
     OpCodes.CPX(direct(X - 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
 
     OpCodes.CPX(direct(X))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
 
     OpCodes.CPX(direct(X + 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
   });
 });
 
@@ -461,48 +461,48 @@ describe('CPY', () => {
     const system = createSystem();
     const Y = 0xF;
 
-    system.cpu.Y = Y;
+    system.registers.Y = Y;
 
     OpCodes.CPY(direct(Y - 1))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CPY(direct(Y))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
 
     OpCodes.CPY(direct(Y + 1))(system);
-    expect(system.cpu.C).toBe(false);
+    expect(system.registers.C).toBe(false);
   });
   
   it('should set (N)egative flag if Y < operand', () => {
     const system = createSystem();
     const Y = 0xF;
 
-    system.cpu.Y = Y;
+    system.registers.Y = Y;
 
     OpCodes.CPY(direct(Y - 1))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CPY(direct(Y))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
 
     OpCodes.CPY(direct(Y + 1))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag if Y === operand', () => {
     const system = createSystem();
     const Y = 0xF;
 
-    system.cpu.Y = Y;
+    system.registers.Y = Y;
     
     OpCodes.CPY(direct(Y - 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
 
     OpCodes.CPY(direct(Y))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
 
     OpCodes.CPY(direct(Y + 1))(system);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.Z).toBe(false);
   });
 });
 
@@ -521,14 +521,14 @@ describe('DEC', () => {
     const system = createSystem();
 
     OpCodes.DEC(direct(0))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after decrementing the operand', () => {
     const system = createSystem();
 
     OpCodes.DEC(direct(1))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -538,28 +538,28 @@ describe('DEX', () => {
     const initial =   0b00010101;
     const expected =  0b00010100;
     
-    system.cpu.X = initial;
+    system.registers.X = initial;
 
     OpCodes.DEX(system);
-    expect(system.cpu.X).toBe(expected);
+    expect(system.registers.X).toBe(expected);
   });
 
   it('should set (N)egative flag properly after decrementing X', () => {
     const system = createSystem();
 
-    system.cpu.X = 0;
+    system.registers.X = 0;
 
     OpCodes.DEX(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after decrementing X', () => {
     const system = createSystem();
 
-    system.cpu.X = 1;
+    system.registers.X = 1;
 
     OpCodes.DEX(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -569,28 +569,28 @@ describe('DEY', () => {
     const initial =   0b00010101;
     const expected =  0b00010100;
     
-    system.cpu.Y = initial;
+    system.registers.Y = initial;
 
     OpCodes.DEY(system);
-    expect(system.cpu.Y).toBe(expected);
+    expect(system.registers.Y).toBe(expected);
   });
 
   it('should set (N)egative flag properly after decrementing Y', () => {
     const system = createSystem();
 
-    system.cpu.Y = 0;
+    system.registers.Y = 0;
 
     OpCodes.DEY(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after decrementing Y', () => {
     const system = createSystem();
 
-    system.cpu.Y = 1;
+    system.registers.Y = 1;
 
     OpCodes.DEY(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -600,11 +600,11 @@ describe('EOR', () => {
     const initialA =  0b11111111;
     const operand =   0b01111110;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.EOR(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA ^ operand);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.A).toBe(initialA ^ operand);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after bitwise-XOR', () => {
@@ -612,11 +612,11 @@ describe('EOR', () => {
     const initialA =  0b11010010;
     const operand =   0b11010010;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.EOR(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA ^ operand);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.A).toBe(initialA ^ operand);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -635,14 +635,14 @@ describe('INC', () => {
     const system = createSystem();
 
     OpCodes.INC(direct(127))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after incrementing the operand', () => {
     const system = createSystem();
 
     OpCodes.INC(direct(255))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -652,28 +652,28 @@ describe('INX', () => {
     const initial =   0b00010101;
     const expected =  0b00010110;
     
-    system.cpu.X = initial;
+    system.registers.X = initial;
 
     OpCodes.INX(system);
-    expect(system.cpu.X).toBe(expected);
+    expect(system.registers.X).toBe(expected);
   });
 
   it('should set (N)egative flag properly after incrementing X', () => {
     const system = createSystem();
 
-    system.cpu.X = 127;
+    system.registers.X = 127;
 
     OpCodes.INX(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after incrementing X', () => {
     const system = createSystem();
 
-    system.cpu.X = 255;
+    system.registers.X = 255;
 
     OpCodes.INX(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -683,28 +683,28 @@ describe('INY', () => {
     const initial =   0b00010101;
     const expected =  0b00010110;
     
-    system.cpu.Y = initial;
+    system.registers.Y = initial;
 
     OpCodes.INY(system);
-    expect(system.cpu.Y).toBe(expected);
+    expect(system.registers.Y).toBe(expected);
   });
 
   it('should set (N)egative flag properly after incrementing Y', () => {
     const system = createSystem();
 
-    system.cpu.Y = 127;
+    system.registers.Y = 127;
 
     OpCodes.INY(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after incrementing Y', () => {
     const system = createSystem();
 
-    system.cpu.Y = 255;
+    system.registers.Y = 255;
 
     OpCodes.INY(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -714,7 +714,7 @@ describe('JMP', () => {
     const operand = 0xdead;
     
     OpCodes.JMP(direct(operand))(system);
-    expect(system.cpu.PC).toBe(operand);
+    expect(system.registers.PC).toBe(operand);
   });
 });
 
@@ -724,7 +724,7 @@ describe('LDA', () => {
     const operand = 0xa;
 
     OpCodes.LDA(direct(operand))(system);
-    expect(system.cpu.A).toBe(operand);
+    expect(system.registers.A).toBe(operand);
   });
 
   it('should set (N)egative flag properly after loading operand into accumulator', () => {
@@ -732,7 +732,7 @@ describe('LDA', () => {
     const operand = 0b10000000;
 
     OpCodes.LDA(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after loading operand into accumulator', () => {
@@ -740,7 +740,7 @@ describe('LDA', () => {
     const operand = 0b00000000;
 
     OpCodes.LDA(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -750,7 +750,7 @@ describe('LDX', () => {
     const operand = 0xa;
 
     OpCodes.LDX(direct(operand))(system);
-    expect(system.cpu.X).toBe(operand);
+    expect(system.registers.X).toBe(operand);
   });
 
   it('should set (N)egative flag properly after loading operand into X', () => {
@@ -758,7 +758,7 @@ describe('LDX', () => {
     const operand = 0b10000000;
 
     OpCodes.LDX(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after loading operand into X', () => {
@@ -766,7 +766,7 @@ describe('LDX', () => {
     const operand = 0b00000000;
 
     OpCodes.LDX(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -776,7 +776,7 @@ describe('LDY', () => {
     const operand = 0xa;
 
     OpCodes.LDY(direct(operand))(system);
-    expect(system.cpu.Y).toBe(operand);
+    expect(system.registers.Y).toBe(operand);
   });
 
   it('should set (N)egative flag properly after loading operand into Y', () => {
@@ -784,7 +784,7 @@ describe('LDY', () => {
     const operand = 0b10000000;
 
     OpCodes.LDY(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after loading operand into Y', () => {
@@ -792,7 +792,7 @@ describe('LDY', () => {
     const operand = 0b00000000;
 
     OpCodes.LDY(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -810,10 +810,10 @@ describe('LSR', () => {
   it('should clear the (N)egative flag after shifting the operand', () => {
     const system = createSystem();
 
-    system.cpu.N = true;
+    system.registers.N = true;
 
     OpCodes.LSR(direct(0b10000000))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
   });
 
   it('should set (Z)ero flag properly after shifting the operand', () => {
@@ -821,7 +821,7 @@ describe('LSR', () => {
     const operand = 0b00000000;
 
     OpCodes.LSR(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 
   it('should set (C)arry flag properly after shifting the operand', () => {
@@ -829,7 +829,7 @@ describe('LSR', () => {
     const operand = 0b00000001;
 
     OpCodes.LSR(direct(operand))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
   });
 });
 
@@ -848,12 +848,12 @@ describe('ORA', () => {
     const initialA = 0b11110000;
     const operand = 0b10100000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.ORA(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA | operand);
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
+    expect(system.registers.A).toBe(initialA | operand);
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
   });
 
   it('should set (Z)ero flag properly after bitwise-OR', () => {
@@ -861,12 +861,12 @@ describe('ORA', () => {
     const initialA = 0b00000000;
     const operand = 0b00000000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
     
     OpCodes.ORA(direct(operand))(system);
-    expect(system.cpu.A).toBe(initialA | operand);
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.A).toBe(initialA | operand);
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -887,7 +887,7 @@ describe('ROL', () => {
     const expected =  0b00000001;
     const context = { operand: initial };
 
-    system.cpu.C = true;
+    system.registers.C = true;
 
     OpCodes.ROL(directContext(context))(system);
     expect(context.operand).toBe(expected);
@@ -898,7 +898,7 @@ describe('ROL', () => {
     const operand = 0b01110000;
 
     OpCodes.ROL(direct(operand))(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after shifting the operand', () => {
@@ -906,7 +906,7 @@ describe('ROL', () => {
     const operand = 0b10000000;
 
     OpCodes.ROL(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 
   it('should set (C)arry flag properly after shifting the operand', () => {
@@ -914,7 +914,7 @@ describe('ROL', () => {
     const operand = 0b11111111;
 
     OpCodes.ROL(direct(operand))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
   });
 });
 
@@ -935,7 +935,7 @@ describe('ROR', () => {
     const expected =  0b10000000;
     const context = { operand: initial };
 
-    system.cpu.C = true;
+    system.registers.C = true;
 
     OpCodes.ROR(directContext(context))(system);
     expect(context.operand).toBe(expected);
@@ -944,10 +944,10 @@ describe('ROR', () => {
   it('should clear the (N)egative flag after shifting the operand', () => {
     const system = createSystem();
 
-    system.cpu.N = true;
+    system.registers.N = true;
 
     OpCodes.ROR(direct(0b10000000))(system);
-    expect(system.cpu.N).toBe(false);
+    expect(system.registers.N).toBe(false);
   });
 
   it('should set (Z)ero flag properly after shifting the operand', () => {
@@ -955,7 +955,7 @@ describe('ROR', () => {
     const operand = 0b00000000;
 
     OpCodes.ROR(direct(operand))(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 
   it('should set (C)arry flag properly after shifting the operand', () => {
@@ -963,7 +963,7 @@ describe('ROR', () => {
     const operand = 0b00000001;
 
     OpCodes.ROR(direct(operand))(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
   });
 });
 
@@ -974,10 +974,10 @@ describe('SBC', () => {
     const operand1 = 0b01100000;
     const expected = 0b10010000;
 
-    system.cpu.A = initialA;
+    system.registers.A = initialA;
 
     OpCodes.SBC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
+    expect(system.registers.A).toBe(expected);
   });
 
   it('should set (N)egative flag properly after subtracting the operand from the accumulator', () => {
@@ -986,15 +986,15 @@ describe('SBC', () => {
     const operand1 = 0b01100000;
     const expected = 0b10010000;
 
-    system.cpu.A = initialA;
-    system.cpu.C = true;
+    system.registers.A = initialA;
+    system.registers.C = true;
 
     OpCodes.SBC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
-    expect(system.cpu.C).toBe(false);
-    expect(system.cpu.V).toBe(false);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.C).toBe(false);
+    expect(system.registers.V).toBe(false);
   });
 
   it('should set (Z)ero flag properly after subtracting the operand from the accumulator', () => {
@@ -1003,15 +1003,15 @@ describe('SBC', () => {
     const operand1 = 0b11111111;
     const expected = 0b00000000;
 
-    system.cpu.A = initialA;
-    system.cpu.C = true;
+    system.registers.A = initialA;
+    system.registers.C = true;
     
     OpCodes.SBC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(false);
-    expect(system.cpu.Z).toBe(true);
-    expect(system.cpu.C).toBe(false);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(false);
+    expect(system.registers.Z).toBe(true);
+    expect(system.registers.C).toBe(false);
+    expect(system.registers.V).toBe(true);
   });
 
   it('should set (C)arry flag properly after subtracting the operand from the accumulator', () => {
@@ -1020,15 +1020,15 @@ describe('SBC', () => {
     const operand1 = 0b00000001;
     const expected = 0b11111111;
 
-    system.cpu.A = initialA;
-    system.cpu.C = true;
+    system.registers.A = initialA;
+    system.registers.C = true;
     
     OpCodes.SBC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected); 
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
-    expect(system.cpu.C).toBe(true);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.A).toBe(expected); 
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.V).toBe(true);
   });
 
   it('should set o(V)erflow flag properly after subtracting the operand from the accumulator', () => {
@@ -1037,45 +1037,45 @@ describe('SBC', () => {
     const operand1 = 0b00000001;
     const expected = 0b11111111;
 
-    system.cpu.A = initialA;
-    system.cpu.C = true;
+    system.registers.A = initialA;
+    system.registers.C = true;
     
     OpCodes.SBC(direct(operand1))(system);
-    expect(system.cpu.A).toBe(expected);
-    expect(system.cpu.N).toBe(true);
-    expect(system.cpu.Z).toBe(false);
-    expect(system.cpu.C).toBe(true);
-    expect(system.cpu.V).toBe(true);
+    expect(system.registers.A).toBe(expected);
+    expect(system.registers.N).toBe(true);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.V).toBe(true);
   });
 });
 
 describe('SEC', () => {
   it('should set the (C)arry flag', () => {
     const system = createSystem();
-    system.cpu.C = false;
+    system.registers.C = false;
     
     OpCodes.SEC(system);
-    expect(system.cpu.C).toBe(true);
+    expect(system.registers.C).toBe(true);
   });
 });
 
 describe('SED', () => {
   it('should set the (D)ecimal mode flag', () => {
     const system = createSystem();
-    system.cpu.D = false;
+    system.registers.D = false;
     
     OpCodes.SED(system);
-    expect(system.cpu.D).toBe(true);
+    expect(system.registers.D).toBe(true);
   });
 });
 
 describe('SEI', () => {
   it('should set the (I)nterrupt disable flag', () => {
     const system = createSystem();
-    system.cpu.I = false;
+    system.registers.I = false;
     
     OpCodes.SEI(system);
-    expect(system.cpu.I).toBe(true);
+    expect(system.registers.I).toBe(true);
   });
 });
 
@@ -1086,7 +1086,7 @@ describe('STA', () => {
     const context = { operand };
     const expected = 42;
 
-    system.cpu.A = expected;
+    system.registers.A = expected;
 
     OpCodes.STA(directContext(context))(system);
     expect(context.operand).toBe(expected);
@@ -1100,7 +1100,7 @@ describe('STX', () => {
     const context = { operand };
     const expected = 42;
 
-    system.cpu.X = expected;
+    system.registers.X = expected;
 
     OpCodes.STX(directContext(context))(system);
     expect(context.operand).toBe(expected);
@@ -1114,7 +1114,7 @@ describe('STY', () => {
     const context = { operand };
     const expected = 42;
 
-    system.cpu.Y = expected;
+    system.registers.Y = expected;
 
     OpCodes.STY(directContext(context))(system);
     expect(context.operand).toBe(expected);
@@ -1126,30 +1126,30 @@ describe('TAX', () => {
     const system = createSystem();
     const expected = 42;
 
-    system.cpu.A = expected;
+    system.registers.A = expected;
 
     OpCodes.TAX(system);
-    expect(system.cpu.X).toBe(expected);
+    expect(system.registers.X).toBe(expected);
   });
 
   it('should set (N)egative flag properly after transferring contents', () => {
     const system = createSystem();
     const A = 0b10000000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.TAX(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after transferring contents', () => {
     const system = createSystem();
     const A = 0b00000000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.TAX(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -1158,30 +1158,30 @@ describe('TAY', () => {
     const system = createSystem();
     const expected = 42;
 
-    system.cpu.A = expected;
+    system.registers.A = expected;
 
     OpCodes.TAY(system);
-    expect(system.cpu.Y).toBe(expected);
+    expect(system.registers.Y).toBe(expected);
   });
 
   it('should set (N)egative flag properly after transferring contents', () => {
     const system = createSystem();
     const A = 0b10000000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.TAY(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after transferring contents', () => {
     const system = createSystem();
     const A = 0b00000000;
 
-    system.cpu.A = A;
+    system.registers.A = A;
 
     OpCodes.TAY(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -1190,30 +1190,30 @@ describe('TXA', () => {
     const system = createSystem();
     const expected = 42;
 
-    system.cpu.X = expected;
+    system.registers.X = expected;
 
     OpCodes.TXA(system);
-    expect(system.cpu.A).toBe(expected);
+    expect(system.registers.A).toBe(expected);
   });
 
   it('should set (N)egative flag properly after transferring contents', () => {
     const system = createSystem();
     const X = 0b10000000;
 
-    system.cpu.X = X;
+    system.registers.X = X;
 
     OpCodes.TXA(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after transferring contents', () => {
     const system = createSystem();
     const X = 0b00000000;
 
-    system.cpu.X = X;
+    system.registers.X = X;
 
     OpCodes.TXA(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });
 
@@ -1222,29 +1222,29 @@ describe('TYA', () => {
     const system = createSystem();
     const expected = 42;
 
-    system.cpu.Y = expected;
+    system.registers.Y = expected;
 
     OpCodes.TYA(system);
-    expect(system.cpu.A).toBe(expected);
+    expect(system.registers.A).toBe(expected);
   });
 
   it('should set (N)egative flag properly after transferring contents', () => {
     const system = createSystem();
     const Y = 0b10000000;
 
-    system.cpu.Y = Y;
+    system.registers.Y = Y;
 
     OpCodes.TYA(system);
-    expect(system.cpu.N).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after transferring contents', () => {
     const system = createSystem();
     const Y = 0b00000000;
 
-    system.cpu.Y = Y;
+    system.registers.Y = Y;
 
     OpCodes.TYA(system);
-    expect(system.cpu.Z).toBe(true);
+    expect(system.registers.Z).toBe(true);
   });
 });

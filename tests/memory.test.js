@@ -1,13 +1,14 @@
 const {
-  readFromMemory,
-  writeToMemory,
+  peek,
+  poke,
+  pull,
+  push,
 } = require('../memory');
-const { createMemory } = require('../system');
+const { createSystem, createRegisters } = require('../system');
 
 describe('Memory', () => {
-  const memory = createMemory();
-  const read = readFromMemory(memory);
-  const write = writeToMemory(memory);
+  const system = createSystem();
+  const memory = system.memory;
 
   const RAM_START = 1;
   const RAM_END = 2;
@@ -19,10 +20,14 @@ describe('Memory', () => {
   const APU_TEST_MODE_END = 8;
   const CARTRIDGE_START = 9;
   const CARTRIDGE_END = 10;
+  const STACK_START =  11;
+  const STACK_END = 12;
 
   beforeEach(() => {
     memory.RAM[0] = RAM_START;
     memory.RAM[memory.RAM.length - 1] = RAM_END;
+    memory.RAM[0x01FF] = STACK_START;
+    memory.RAM[0x0100] = STACK_END;
 
     memory.PPU[0] = PPU_START;
     memory.PPU[memory.PPU.length - 1] = PPU_END;
@@ -37,91 +42,96 @@ describe('Memory', () => {
     memory.Cartridge[memory.Cartridge.length - 1] = CARTRIDGE_END;
   });
 
-  describe('read', () => {
+  describe('peek', () => {
     it('should map $0000-$07FF to internal RAM', () => {
-      expect(read(0x0)).toBe(RAM_START);
-      expect(read(0x07FF)).toBe(RAM_END);
+      expect(peek(system, 0x0)).toBe(RAM_START);
+      expect(peek(system, 0x07FF)).toBe(RAM_END);
     });
   
     it('should mirror internal RAM to $0800-$0FFF', () => {
-      expect(read(0x0800)).toBe(RAM_START);
-      expect(read(0x0FFF)).toBe(RAM_END);
+      expect(peek(system, 0x0800)).toBe(RAM_START);
+      expect(peek(system, 0x0FFF)).toBe(RAM_END);
     });
   
     it('should mirror internal RAM to $1000-$17FF', () => {
-      expect(read(0x1000)).toBe(RAM_START);
-      expect(read(0x17FF)).toBe(RAM_END);
+      expect(peek(system, 0x1000)).toBe(RAM_START);
+      expect(peek(system, 0x17FF)).toBe(RAM_END);
     });
   
     it('should mirror internal RAM to $1800-$1FFF', () => {
-      expect(read(0x1800)).toBe(RAM_START);
-      expect(read(0x1FFF)).toBe(RAM_END);
+      expect(peek(system, 0x1800)).toBe(RAM_START);
+      expect(peek(system, 0x1FFF)).toBe(RAM_END);
+    });
+
+    it('should designate second page of internal RAM ($0100-$01FF) as the stack', () => {
+      expect(peek(system, 0x01FF)).toBe(STACK_START);
+      expect(peek(system, 0x0100)).toBe(STACK_END);
     });
   
     it('should map $2000-$2007 to PPU', () => {
-      expect(read(0x2000)).toBe(PPU_START);
-      expect(read(0x2007)).toBe(PPU_END);
+      expect(peek(system, 0x2000)).toBe(PPU_START);
+      expect(peek(system, 0x2007)).toBe(PPU_END);
     });
   
     it('should mirror PPU to $2008-$3FFF (repeating every 8 bytes)', () => {
       for(let i = 0x2008; i <=0x3FFF; i += 8) {
-        expect(read(i)).toBe(PPU_START);
-        expect(read(i + 7)).toBe(PPU_END);
+        expect(peek(system, i)).toBe(PPU_START);
+        expect(peek(system, i + 7)).toBe(PPU_END);
       }
     });
   
     it('should map $4000-$4017 to APU', () => {
-      expect(read(0x4000)).toBe(APU_START);
-      expect(read(0x4017)).toBe(APU_END);
+      expect(peek(system, 0x4000)).toBe(APU_START);
+      expect(peek(system, 0x4017)).toBe(APU_END);
     });
   
     it('should map $4018-$401F to APU Test Mode', () => {
-      expect(read(0x4018)).toBe(APU_TEST_MODE_START);
-      expect(read(0x401F)).toBe(APU_TEST_MODE_END);
+      expect(peek(system, 0x4018)).toBe(APU_TEST_MODE_START);
+      expect(peek(system, 0x401F)).toBe(APU_TEST_MODE_END);
     });
   
     it('should map $4020-$FFFF to Cartridge space', () => {
-      expect(read(0x4020)).toBe(CARTRIDGE_START);
-      expect(read(0xFFFF)).toBe(CARTRIDGE_END);
+      expect(peek(system, 0x4020)).toBe(CARTRIDGE_START);
+      expect(peek(system, 0xFFFF)).toBe(CARTRIDGE_END);
     });
   });
 
-  describe('write', () => {
+  describe('poke', () => {
     it('should map $0000-$07FF to internal RAM', () => {
-      write(0x0000, -RAM_START);
-      write(0x07FF, -RAM_END);
+      poke(system, 0x0000, -RAM_START);
+      poke(system, 0x07FF, -RAM_END);
 
       expect(memory.RAM[0]).toBe(-RAM_START);
       expect(memory.RAM[memory.RAM.length - 1]).toBe(-RAM_END);
     });
   
     it('should mirror internal RAM to $0800-$0FFF', () => {
-      write(0x0800, -RAM_START);
-      write(0x0FFF, -RAM_END);
+      poke(system, 0x0800, -RAM_START);
+      poke(system, 0x0FFF, -RAM_END);
 
       expect(memory.RAM[0]).toBe(-RAM_START);
       expect(memory.RAM[memory.RAM.length - 1]).toBe(-RAM_END);
     });
   
     it('should mirror internal RAM to $1000-$17FF', () => {
-      write(0x1000, -RAM_START);
-      write(0x17FF, -RAM_END);
+      poke(system, 0x1000, -RAM_START);
+      poke(system, 0x17FF, -RAM_END);
 
       expect(memory.RAM[0]).toBe(-RAM_START);
       expect(memory.RAM[memory.RAM.length - 1]).toBe(-RAM_END);
     });
   
     it('should mirror internal RAM to $1800-$1FFF', () => {
-      write(0x1800, -RAM_START);
-      write(0x1FFF, -RAM_END);
+      poke(system, 0x1800, -RAM_START);
+      poke(system, 0x1FFF, -RAM_END);
 
       expect(memory.RAM[0]).toBe(-RAM_START);
       expect(memory.RAM[memory.RAM.length - 1]).toBe(-RAM_END);
     });
   
     it('should map $2000-$2007 to PPU', () => {
-      write(0x2000, -PPU_START);
-      write(0x2007, -PPU_END);
+      poke(system, 0x2000, -PPU_START);
+      poke(system, 0x2007, -PPU_END);
 
       expect(memory.PPU[0]).toBe(-PPU_START);
       expect(memory.PPU[memory.PPU.length - 1]).toBe(-PPU_END);
@@ -129,8 +139,8 @@ describe('Memory', () => {
   
     it('should mirror PPU to $2008-$3FFF (repeating every 8 bytes)', () => {
       for(let i = 0x2008; i <=0x3FFF; i += 8) {
-        write(i, -PPU_START);
-        write(i + 7, -PPU_END);
+        poke(system, i, -PPU_START);
+        poke(system, i + 7, -PPU_END);
 
         expect(memory.PPU[0]).toBe(-PPU_START);
         expect(memory.PPU[memory.PPU.length - 1]).toBe(-PPU_END);
@@ -138,16 +148,16 @@ describe('Memory', () => {
     });
   
     it('should map $4000-$4017 to APU', () => {
-      write(0x4000, -APU_START);
-      write(0x4017, -APU_END);
+      poke(system, 0x4000, -APU_START);
+      poke(system, 0x4017, -APU_END);
 
       expect(memory.APU[0]).toBe(-APU_START);
       expect(memory.APU[memory.APU.length - 1]).toBe(-APU_END);
     });
   
     it('should map $4018-$401F to APU Test Mode', () => {
-      write(0x4018, -APU_TEST_MODE_START);
-      write(0x401F, -APU_TEST_MODE_END);
+      poke(system, 0x4018, -APU_TEST_MODE_START);
+      poke(system, 0x401F, -APU_TEST_MODE_END);
 
       expect(memory.APUTestMode[0]).toBe(-APU_TEST_MODE_START);
       expect(memory.APUTestMode[memory.APUTestMode.length - 1]).toBe(-APU_TEST_MODE_END);
@@ -155,11 +165,61 @@ describe('Memory', () => {
     });
   
     it('should map $4020-$FFFF to Cartridge space', () => {
-      write(0x4020, -CARTRIDGE_START);
-      write(0xFFFF, -CARTRIDGE_END);
+      poke(system, 0x4020, -CARTRIDGE_START);
+      poke(system, 0xFFFF, -CARTRIDGE_END);
 
       expect(memory.Cartridge[0]).toBe(-CARTRIDGE_START);
       expect(memory.Cartridge[memory.Cartridge.length - 1]).toBe(-CARTRIDGE_END);
+    });
+  });
+
+  describe('push', () => {
+    afterEach(() => {
+      for(let i = 0x0100; i <= 0x01FF; i++) {
+        memory[i] = 0;
+      }
+      system.registers = createRegisters();
+    });
+
+    it('should use $01FF as bottom of stack', () => {
+      expect(system.registers.SP).toBe(0x01FF);
+      push(system, 42);
+      expect(system.registers.SP).toBe(0x01FE);
+    });
+
+    it('should rollover after $0100 back to bottom of stack', () => {
+      system.registers.SP = 0x0100;
+
+      push(system, 42);
+      expect(system.registers.SP).toBe(0x01FF);
+    });
+  });
+
+  describe('pull', () => {
+    afterEach(() => {
+      for(let i = 0x0100; i <= 0x01FF; i++) {
+        memory[i] = 0;
+      }
+      system.registers = createRegisters();
+    });
+
+    it('should return value at current stack pointer', () => {
+      const expected =  42;
+      const startingSP = 0x0122;
+
+      system.registers.SP = startingSP;
+      memory.RAM[startingSP] = expected;
+
+      const actual = pull(system);
+      expect(actual).toBe(expected);
+      expect(system.registers.SP).toBe(startingSP + 1);
+    });
+
+    it('should rollover after $01FF back to top of stack', () => {
+      system.registers.SP = 0x01FF;
+
+      pull(system);
+      expect(system.registers.SP).toBe(0x0100);
     });
   });
 });

@@ -1,4 +1,4 @@
-const readFromMemory = (memory) => (address) => {
+const peek = ({ memory }, address) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) return memory.RAM[address];
@@ -16,7 +16,7 @@ const readFromMemory = (memory) => (address) => {
   else /* if(address <= 0xFFFF) */ return memory.Cartridge[address - 0x4020];
 };
 
-const writeToMemory = (memory) => (address, value) => {
+const poke = ({ memory }, address, value) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) memory.RAM[address] = value;
@@ -34,7 +34,20 @@ const writeToMemory = (memory) => (address, value) => {
   else /* if(address <= 0xFFFF) */ memory.Cartridge[address - 0x4020] = value;
 };
 
+const push = ({ memory, registers }, value) => {
+  memory[registers.SP] = value;
+  registers.SP = registers.SP === 0x0100 ? 0x01FF : --registers.SP;
+};
+
+const pull = ({ memory, registers }) => {
+  const result = memory.RAM[registers.SP];
+  registers.SP = registers.SP === 0x01FF ? 0x0100 : ++registers.SP;
+  return result;
+};
+
 module.exports = {
-  readFromMemory,
-  writeToMemory,
+  peek,
+  poke,
+  pull,
+  push,
 };

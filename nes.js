@@ -1,6 +1,6 @@
 const Modes = require('./addressingModes');
 const OpCode = require('./opcodes');
-const { peek, poke } = require('./system');
+const { peek, poke } = require('./memory');
 
 const absolute = Modes.absolute(peek, poke);
 const absoluteX = Modes.absoluteX(peek, poke);

@@ -1,5 +1,3 @@
-const { readFromMemory, writeToMemory } = require('./memory');
-
 const createMemory = () => ({
   APU: new Array(0x0018).fill(0),
   APUTestMode: new Array(0x0008).fill(0),
@@ -8,13 +6,13 @@ const createMemory = () => ({
   RAM: new Array(0x0800).fill(0),
 });
 
-const createCPU = () => ({
+const createRegisters = () => ({
   A: 0,
   X: 0,
   Y: 0,
 
   PC: 0x0000,
-  SP: 0x0000,
+  SP: 0x01FF,
 
   N: false,
   V: false,
@@ -26,27 +24,12 @@ const createCPU = () => ({
 });
 
 const createSystem = () => ({
-  cpu: createCPU(),
+  registers: createRegisters(),
   memory: createMemory(),
 });
 
-const peek = (system, address) => {
-  return readFromMemory(system.memory)(address || system.cpu.PC);
-};
-
-const poke = (system, address, byte) => {
-  writeToMemory(system.memory)(address, byte);
-};
-
-const read = (system) => {
-  return readFromMemory(system.memory)(system.cpu.PC++);
-};
-
 module.exports = {
-  createCPU,
   createMemory,
+  createRegisters,
   createSystem,
-  peek,
-  poke,
-  read,
 };

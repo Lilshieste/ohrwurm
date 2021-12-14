@@ -1,7 +1,3 @@
-//
-// INSTRUCTION_AddressingMode
-//
-
 // TODO: Consider returning new operand from addressingMode callback instead of overwriting parameter
 //  (Wait until all opcodes are implemented, to make sure there isn't a lurking reason to NOT do this)
 
@@ -20,32 +16,32 @@ OpCodes.Unofficial = OpCodes.NotImplemented;
 
 OpCodes.ADC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		const carryIn = system.cpu.C;
-		const result = system.cpu.A + context.operand + (system.cpu.C ? 1 : 0);
+		const carryIn = system.registers.C;
+		const result = system.registers.A + context.operand + (system.registers.C ? 1 : 0);
 		const carryOut = isCarryBitSet(result);
 	
-		system.cpu.A = toByte(result);
-		system.cpu.N = isNegativeBitSet(result);
-		system.cpu.Z = isZero(toByte(result));
-		system.cpu.C = carryOut;
-		system.cpu.V = isOverflowBitSet(carryIn, carryOut);
+		system.registers.A = toByte(result);
+		system.registers.N = isNegativeBitSet(result);
+		system.registers.Z = isZero(toByte(result));
+		system.registers.C = carryOut;
+		system.registers.V = isOverflowBitSet(carryIn, carryOut);
 	});
 };
 
 OpCodes.AND = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.A &= context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.A);
-		system.cpu.Z = isZero(system.cpu.A);
+		system.registers.A &= context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.A);
+		system.registers.Z = isZero(system.registers.A);
 	});
 };
 
 OpCodes.ASL = (addressingMode) => (system) => {
 	addressingMode(system, context => {
 		const result = toByte(context.operand << 1);
-		system.cpu.N = isNthBitSet(result, 7);
-		system.cpu.Z = isZero(result);
-		system.cpu.C = isNthBitSet(context.operand, 7);
+		system.registers.N = isNthBitSet(result, 7);
+		system.registers.Z = isZero(result);
+		system.registers.C = isNthBitSet(context.operand, 7);
 
 		context.operand = result;
 	});
@@ -53,211 +49,211 @@ OpCodes.ASL = (addressingMode) => (system) => {
 
 OpCodes.BCC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(!system.cpu.C) {
-			system.cpu.PC += context.operand;
+		if(!system.registers.C) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BCS = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(system.cpu.C) {
-			system.cpu.PC += context.operand;
+		if(system.registers.C) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BEQ = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(system.cpu.Z) {
-			system.cpu.PC += context.operand;
+		if(system.registers.Z) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BIT = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		const result = system.cpu.A & context.operand;
-		system.cpu.Z = isZero(result);
-		system.cpu.N = isNegativeBitSet(result);
-		system.cpu.V = isNthBitSet(result, 6);
+		const result = system.registers.A & context.operand;
+		system.registers.Z = isZero(result);
+		system.registers.N = isNegativeBitSet(result);
+		system.registers.V = isNthBitSet(result, 6);
 	});
 };
 
 OpCodes.BMI = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(system.cpu.N) {
-			system.cpu.PC += context.operand;
+		if(system.registers.N) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BNE = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(!system.cpu.Z) {
-			system.cpu.PC += context.operand;
+		if(!system.registers.Z) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BPL = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(!system.cpu.N) {
-			system.cpu.PC += context.operand;
+		if(!system.registers.N) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BRK = (system) => {
-	system.cpu.B = true;
+	system.registers.B = true;
 };
 
 OpCodes.BVC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(!system.cpu.V) {
-			system.cpu.PC += context.operand;
+		if(!system.registers.V) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.BVS = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		if(system.cpu.V) {
-			system.cpu.PC += context.operand;
+		if(system.registers.V) {
+			system.registers.PC += context.operand;
 		}
 	});
 };
 
 OpCodes.CLC = (system) => {
-	system.cpu.C = false;
+	system.registers.C = false;
 };
 
 OpCodes.CLD = (system) => {
-	system.cpu.D = false;
+	system.registers.D = false;
 };
 
 OpCodes.CLI = (system) => {
-	system.cpu.I = false;
+	system.registers.I = false;
 };
 
 OpCodes.CLV = (system) => {
-	system.cpu.V = false;
+	system.registers.V = false;
 };
 
 OpCodes.CMP = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.C = system.cpu.A >= context.operand;
-		system.cpu.N = system.cpu.A < context.operand;
-		system.cpu.Z = system.cpu.A === context.operand;
+		system.registers.C = system.registers.A >= context.operand;
+		system.registers.N = system.registers.A < context.operand;
+		system.registers.Z = system.registers.A === context.operand;
 	});
 };
 
 OpCodes.CPX = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.C = system.cpu.X >= context.operand;
-		system.cpu.N = system.cpu.X < context.operand;
-		system.cpu.Z = system.cpu.X === context.operand;
+		system.registers.C = system.registers.X >= context.operand;
+		system.registers.N = system.registers.X < context.operand;
+		system.registers.Z = system.registers.X === context.operand;
 	});
 };
 
 OpCodes.CPY = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.C = system.cpu.Y >= context.operand;
-		system.cpu.N = system.cpu.Y < context.operand;
-		system.cpu.Z = system.cpu.Y === context.operand;
+		system.registers.C = system.registers.Y >= context.operand;
+		system.registers.N = system.registers.Y < context.operand;
+		system.registers.Z = system.registers.Y === context.operand;
 	});
 };
 
 OpCodes.DEC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
 		const result = toByte((context.operand - 1) >>> 0);
-		system.cpu.N = isNegativeBitSet(result);
-		system.cpu.Z = isZero(result);
+		system.registers.N = isNegativeBitSet(result);
+		system.registers.Z = isZero(result);
 		context.operand = result;
 	});
 };
 
 OpCodes.DEX = (system) => {
-	const result = toByte((system.cpu.X - 1) >>> 0);
-	system.cpu.N = isNegativeBitSet(result);
-	system.cpu.Z = isZero(result);
-	system.cpu.X = result;
+	const result = toByte((system.registers.X - 1) >>> 0);
+	system.registers.N = isNegativeBitSet(result);
+	system.registers.Z = isZero(result);
+	system.registers.X = result;
 };
 
 OpCodes.DEY = (system) => {
-	const result = toByte((system.cpu.Y - 1) >>> 0);
-	system.cpu.N = isNegativeBitSet(result);
-	system.cpu.Z = isZero(result);
-	system.cpu.Y = result;
+	const result = toByte((system.registers.Y - 1) >>> 0);
+	system.registers.N = isNegativeBitSet(result);
+	system.registers.Z = isZero(result);
+	system.registers.Y = result;
 };
 
 OpCodes.EOR = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.A ^= context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.A);
-		system.cpu.Z = isZero(system.cpu.A);
+		system.registers.A ^= context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.A);
+		system.registers.Z = isZero(system.registers.A);
 	});
 };
 
 OpCodes.INC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
 		const result = toByte(context.operand + 1);
-		system.cpu.N = isNegativeBitSet(result);
-		system.cpu.Z = isZero(result);
+		system.registers.N = isNegativeBitSet(result);
+		system.registers.Z = isZero(result);
 		context.operand = result;
 	});
 };
 
 OpCodes.INX = (system) => {
-	const result = toByte(system.cpu.X + 1);
-	system.cpu.N = isNegativeBitSet(result);
-	system.cpu.Z = isZero(result);
-	system.cpu.X = result;
+	const result = toByte(system.registers.X + 1);
+	system.registers.N = isNegativeBitSet(result);
+	system.registers.Z = isZero(result);
+	system.registers.X = result;
 };
 
 OpCodes.INY = (system) => {
-	const result = toByte(system.cpu.Y + 1);
-	system.cpu.N = isNegativeBitSet(result);
-	system.cpu.Z = isZero(result);
-	system.cpu.Y = result;
+	const result = toByte(system.registers.Y + 1);
+	system.registers.N = isNegativeBitSet(result);
+	system.registers.Z = isZero(result);
+	system.registers.Y = result;
 };
 
 OpCodes.JMP = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.PC = context.operand;
+		system.registers.PC = context.operand;
 	});
 };
 
 OpCodes.LDA = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.A = context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.A);
-		system.cpu.Z = isZero(system.cpu.A);
+		system.registers.A = context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.A);
+		system.registers.Z = isZero(system.registers.A);
 	});
 };
 
 OpCodes.LDX = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.X = context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.X);
-		system.cpu.Z = isZero(system.cpu.X);
+		system.registers.X = context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.X);
+		system.registers.Z = isZero(system.registers.X);
 	});
 };
 
 OpCodes.LDY = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.Y = context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.Y);
-		system.cpu.Z = isZero(system.cpu.Y);
+		system.registers.Y = context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.Y);
+		system.registers.Z = isZero(system.registers.Y);
 	});
 };
 
 OpCodes.LSR = (addressingMode) => (system) => {
 	addressingMode(system, context => {
 		const result = (context.operand >> 1);
-		system.cpu.N = false;
-		system.cpu.Z = isZero(result);
-		system.cpu.C = isNthBitSet(context.operand, 0);
+		system.registers.N = false;
+		system.registers.Z = isZero(result);
+		system.registers.C = isNthBitSet(context.operand, 0);
 
 		context.operand = result;
 	});
@@ -267,18 +263,18 @@ OpCodes.NOP = () => {};
 
 OpCodes.ORA = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		system.cpu.A |= context.operand;
-		system.cpu.N = isNegativeBitSet(system.cpu.A);
-		system.cpu.Z = isZero(system.cpu.A);
+		system.registers.A |= context.operand;
+		system.registers.N = isNegativeBitSet(system.registers.A);
+		system.registers.Z = isZero(system.registers.A);
 	});
 };
 
 OpCodes.ROL = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		const result = toByte(context.operand << 1) + (system.cpu.C ? 1 : 0);
-		system.cpu.N = isNthBitSet(result, 7);
-		system.cpu.Z = isZero(result);
-		system.cpu.C = isNthBitSet(context.operand, 7);
+		const result = toByte(context.operand << 1) + (system.registers.C ? 1 : 0);
+		system.registers.N = isNthBitSet(result, 7);
+		system.registers.Z = isZero(result);
+		system.registers.C = isNthBitSet(context.operand, 7);
 
 		context.operand = result;
 	});
@@ -286,10 +282,10 @@ OpCodes.ROL = (addressingMode) => (system) => {
 
 OpCodes.ROR = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		const result = (context.operand >> 1) + (system.cpu.C ? 0b10000000 : 0);
-		system.cpu.N = false;
-		system.cpu.Z = isZero(result);
-		system.cpu.C = isNthBitSet(context.operand, 0);
+		const result = (context.operand >> 1) + (system.registers.C ? 0b10000000 : 0);
+		system.registers.N = false;
+		system.registers.Z = isZero(result);
+		system.registers.C = isNthBitSet(context.operand, 0);
 
 		context.operand = result;
 	});
@@ -297,68 +293,68 @@ OpCodes.ROR = (addressingMode) => (system) => {
 
 OpCodes.SBC = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		const carryIn = system.cpu.C;
-		const result = ((system.cpu.A - context.operand - (system.cpu.C ? 0 : 1)) >>> 0);
+		const carryIn = system.registers.C;
+		const result = ((system.registers.A - context.operand - (system.registers.C ? 0 : 1)) >>> 0);
 		const carryOut = isCarryBitSet(result);
 	
-		system.cpu.V = isOverflow(system.cpu.A, context.operand, result);
-		system.cpu.A = toByte(result);
-		system.cpu.N = isNegativeBitSet(result);
-		system.cpu.Z = isZero(toByte(result));
-		system.cpu.C = carryOut;
+		system.registers.V = isOverflow(system.registers.A, context.operand, result);
+		system.registers.A = toByte(result);
+		system.registers.N = isNegativeBitSet(result);
+		system.registers.Z = isZero(toByte(result));
+		system.registers.C = carryOut;
 	});
 };
 
 OpCodes.SEC = (system) => {
-	system.cpu.C = true;
+	system.registers.C = true;
 };
 
 OpCodes.SED = (system) => {
-	system.cpu.D = true;
+	system.registers.D = true;
 };
 
 OpCodes.SEI = (system) => {
-	system.cpu.I = true;
+	system.registers.I = true;
 };
 
 OpCodes.STA = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		context.operand = system.cpu.A;
+		context.operand = system.registers.A;
 	});
 };
 
 OpCodes.STX = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		context.operand = system.cpu.X;
+		context.operand = system.registers.X;
 	});
 };
 
 OpCodes.STY = (addressingMode) => (system) => {
 	addressingMode(system, context => {
-		context.operand = system.cpu.Y;
+		context.operand = system.registers.Y;
 	});
 };
 
 OpCodes.TAX = (system) => {
-	system.cpu.X = system.cpu.A;
-	system.cpu.N = isNegativeBitSet(system.cpu.X);
-	system.cpu.Z = isZero(system.cpu.X);
+	system.registers.X = system.registers.A;
+	system.registers.N = isNegativeBitSet(system.registers.X);
+	system.registers.Z = isZero(system.registers.X);
 };
 
 OpCodes.TAY = (system) => {
-	system.cpu.Y = system.cpu.A;
-	system.cpu.N = isNegativeBitSet(system.cpu.Y);
-	system.cpu.Z = isZero(system.cpu.Y);
+	system.registers.Y = system.registers.A;
+	system.registers.N = isNegativeBitSet(system.registers.Y);
+	system.registers.Z = isZero(system.registers.Y);
 };
 
 OpCodes.TXA = (system) => {
-	system.cpu.A = system.cpu.X;
-	system.cpu.N = isNegativeBitSet(system.cpu.A);
-	system.cpu.Z = isZero(system.cpu.A);
+	system.registers.A = system.registers.X;
+	system.registers.N = isNegativeBitSet(system.registers.A);
+	system.registers.Z = isZero(system.registers.A);
 };
 
 OpCodes.TYA = (system) => {
-	system.cpu.A = system.cpu.Y;
-	system.cpu.N = isNegativeBitSet(system.cpu.A);
-	system.cpu.Z = isZero(system.cpu.A);
+	system.registers.A = system.registers.Y;
+	system.registers.N = isNegativeBitSet(system.registers.A);
+	system.registers.Z = isZero(system.registers.A);
 };
