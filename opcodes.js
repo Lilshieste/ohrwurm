@@ -1,15 +1,18 @@
-const { push, splitAddress } = require('./memory');
+const {
+  buildStatusByte,
+  push,
+  splitAddress } = require('./memory');
+const {
+  isNthBitSet,
+  isOverflowBitSet,
+  isOverflow,
+  isNegativeBitSet, 
+  isCarryBitSet,
+  isZero,
+  toByte } = require('./util');
 
 // TODO: Consider returning new operand from addressingMode callback instead of overwriting parameter
 //  (Wait until all opcodes are implemented, to make sure there isn't a lurking reason to NOT do this)
-
-const isNthBitSet = (byte, n) => Boolean(byte & (1 << n));
-const isOverflowBitSet = (carryIn, carryOut) => Boolean(carryIn ^ carryOut);
-const isOverflow = (a, b, result) => Boolean((~(a ^ b)) & (a ^ result) & 0x80);
-const isNegativeBitSet = (byte) => Boolean(byte & 0b10000000);
-const isCarryBitSet = (byte) => Boolean(byte & 0b100000000);
-const isZero = (byte) => byte === 0;
-const toByte = (val) => val & 0xFF;
 
 const OpCodes = module.exports;
 
@@ -280,6 +283,9 @@ OpCodes.ORA = (addressingMode) => (system) => {
     system.registers.Z = isZero(system.registers.A);
   });
 };
+
+OpCodes.PHA = (system) => push(system, system.registers.A);
+OpCodes.PHP = (system) => push(system, buildStatusByte(system));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {

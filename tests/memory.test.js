@@ -1,5 +1,7 @@
 const {
   buildAddress,
+  buildStatusByte,
+  loadStatusByte,
   peek,
   poke,
   pull,
@@ -67,6 +69,104 @@ describe('Memory', () => {
       const actual = splitAddress(address);
 
       expect(actual).toEqual(expected);
+    });
+  });
+
+  describe('buildStatusByte', () => {
+    const registers = createRegisters();
+
+    beforeEach(() => {
+      registers.B = false;
+      registers.C = false;
+      registers.D = false;
+      registers.I = false;
+      registers.N = false;
+      registers.V = false;
+      registers.Z = false;
+    });
+
+    it('should save (C)arry flag to bit 0', () => {
+      registers.C = true;
+      expect(buildStatusByte({ registers })).toBe(0b00000001);
+    });
+
+    it('should save (Z)ero flag to bit 1', () => {
+      registers.Z = true;
+      expect(buildStatusByte({ registers })).toBe(0b00000010);
+    });
+
+    it('should save (I)nterrupt flag to bit 2', () => {
+      registers.I = true;
+      expect(buildStatusByte({ registers })).toBe(0b00000100);
+    });
+
+    it('should save (D)ecimal flag to bit 3', () => {
+      registers.D = true;
+      expect(buildStatusByte({ registers })).toBe(0b00001000);
+    });
+
+    it('should save (B)reak flag to bit 4', () => {
+      registers.B = true;
+      expect(buildStatusByte({ registers })).toBe(0b00010000);
+    });
+
+    it('should save o(V)erflow flag to bit 6', () => {
+      registers.V = true;
+      expect(buildStatusByte({ registers })).toBe(0b01000000);
+    });
+
+    it('should save (N)egative flag to bit 7', () => {
+      registers.N = true;
+      expect(buildStatusByte({ registers })).toBe(0b10000000);
+    });
+  });
+
+  describe('loadStatusByte', () => {
+    const registers = createRegisters();
+
+    beforeEach(() => {
+      registers.B = false;
+      registers.C = false;
+      registers.D = false;
+      registers.I = false;
+      registers.N = false;
+      registers.V = false;
+      registers.Z = false;
+    });
+
+    it('should set (C)arry flag based on bit 0', () => {
+      loadStatusByte({ registers }, 0b00000001);
+      expect(registers.C).toBe(true);
+    });
+
+    it('should set (Z)ero flag based on bit 1', () => {
+      loadStatusByte({ registers }, 0b00000010);
+      expect(registers.Z).toBe(true);
+    });
+
+    it('should set (I)nterrupt flag based on bit 2', () => {
+      loadStatusByte({ registers }, 0b00000100);
+      expect(registers.I).toBe(true);
+    });
+
+    it('should set (D)ecimal flag based on bit 3', () => {
+      loadStatusByte({ registers }, 0b00001000);
+      expect(registers.D).toBe(true);
+    });
+
+    it('should set (B)reak flag based on bit 4', () => {
+      loadStatusByte({ registers }, 0b00010000);
+      expect(registers.B).toBe(true);
+    });
+
+    it('should set o(V)erflow flag based on bit 6', () => {
+      loadStatusByte({ registers }, 0b01000000);
+      expect(registers.V).toBe(true);
+    });
+
+    it('should set (N)egative flag based on bit 7', () => {
+      loadStatusByte({ registers }, 0b10000000);
+      expect(registers.N).toBe(true);
     });
   });
 

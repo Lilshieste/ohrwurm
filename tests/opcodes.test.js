@@ -1,6 +1,6 @@
 const OpCodes = require('../opcodes');
 const { createSystem } = require('../system');
-const { peek, splitAddress } = require('../memory');
+const { peek, splitAddress, buildStatusByte } = require('../memory');
 
 const direct = (operand) => (system, op) => op({ operand });
 const directContext = (context) => (system, op) => op(context);
@@ -893,6 +893,39 @@ describe('ORA', () => {
     expect(system.registers.A).toBe(initialA | operand);
     expect(system.registers.N).toBe(false);
     expect(system.registers.Z).toBe(true);
+  });
+});
+
+describe('PHA', () => {
+  it('should push the current value in the accumulator onto the stack', () => {
+    const system = createSystem();
+    const expected = 42;
+    const startingSP = system.registers.SP;
+
+    system.registers.A = expected;
+
+    OpCodes.PHA(system);
+    expect(peek(system, startingSP)).toBe(expected);
+  });
+});
+
+describe('PHP', () => {
+  it('should push the current value of the processor status flags onto the stack', () => {
+    const system = createSystem();
+    const startingSP = system.registers.SP;
+
+    system.registers.C = true;
+    system.registers.Z = true;
+    system.registers.I = true;
+    system.registers.D = true;
+    system.registers.B = true;
+    system.registers.V = true;
+    system.registers.N = true;
+
+    const expected = buildStatusByte(system);
+
+    OpCodes.PHP(system);
+    expect(peek(system, startingSP)).toBe(expected);
   });
 });
 
