@@ -24,7 +24,7 @@ const INSTRUCTION_SET = [
   OpCode.ORA(zeroPage), // $05 	ORA $NN	Zero Page 	- Z- - - - N
   OpCode.ASL(zeroPage), // $06 	ASL $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $08 	PHP 	Implied 	- - - - - - - 
+  OpCode.PHP, // $08 	PHP 	Implied 	- - - - - - - 
   OpCode.ORA(immediate), // $09 	ORA #$NN	Immediate 	- Z- - - - N
   OpCode.ASL(accumulator), // $0a 	ASL A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
@@ -48,7 +48,7 @@ const INSTRUCTION_SET = [
   OpCode.ORA(absoluteX), // $1d 	ORA $NNNN,X	Absolute,X 	- Z- - - - N
   OpCode.ASL(absoluteX), // $1e 	ASL $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $20 	JSR $NNNN	Absolute 	- - - - - - - 
+  OpCode.JSR(absolute), // $20 	JSR $NNNN	Absolute 	- - - - - - - 
   OpCode.AND(indexedIndirect), // $21 	AND ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
@@ -56,7 +56,7 @@ const INSTRUCTION_SET = [
   OpCode.AND(zeroPage), // $25 	AND $NN	Zero Page 	- Z- - - - N
   OpCode.ROL(zeroPage), // $26 	ROL $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $28 	PLP 	Implied 	CZIDBVN
+  OpCode.PLP, // $28 	PLP 	Implied 	CZIDBVN
   OpCode.AND(immediate), // $29 	AND #$NN	Immediate 	- Z- - - - N
   OpCode.ROL(accumulator), // $2a 	ROL A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
@@ -88,7 +88,7 @@ const INSTRUCTION_SET = [
   OpCode.EOR(zeroPage), // $45 	EOR $NN	Zero Page 	- Z- - - - N
   OpCode.LSR(zeroPage), // $46 	LSR $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $48 	PHA 	Implied 	- - - - - - - 
+  OpCode.PHA, // $48 	PHA 	Implied 	- - - - - - - 
   OpCode.EOR(immediate), // $49 	EOR #$NN	Immediate 	- Z- - - - N
   OpCode.LSR(accumulator), // $4a 	LSR A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,
@@ -120,7 +120,7 @@ const INSTRUCTION_SET = [
   OpCode.ADC(zeroPage), // $65 	ADC $NN	Zero Page 	CZ- - - VN
   OpCode.ROR(zeroPage), // $66 	ROR $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $68 	PLA 	Implied 	- Z- - - - N
+  OpCode.PLA, // $68 	PLA 	Implied 	- Z- - - - N
   OpCode.ADC(immediate), // $69 	ADC #$NN	Immediate 	CZ- - - VN
   OpCode.ROR(accumulator), // $6a 	ROR A	Accumulator 	CZ- - - - N
   OpCode.Unofficial,

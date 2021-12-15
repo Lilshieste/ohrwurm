@@ -1,6 +1,6 @@
 const OpCodes = require('../opcodes');
 const { createSystem } = require('../system');
-const { peek, splitAddress, buildStatusByte } = require('../memory');
+const { buildStatusByte, peek, push } = require('../memory');
 
 const direct = (operand) => (system, op) => op({ operand });
 const directContext = (context) => (system, op) => op(context);
@@ -926,6 +926,62 @@ describe('PHP', () => {
 
     OpCodes.PHP(system);
     expect(peek(system, startingSP)).toBe(expected);
+  });
+});
+
+describe('PLA', () => {
+  it('should pull a value from the stack and store it in the accumulator', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    push(system, expected);
+    
+    OpCodes.PLA(system);
+    expect(system.registers.A).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after loading operand into accumulator', () => {
+    const system = createSystem();
+
+    push(system, 0b10000000);
+    system.registers.N = false;
+
+    OpCodes.PLA(system);
+    expect(system.registers.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after loading operand into accumulator', () => {
+    const system = createSystem();
+
+    push(system, 0b00000000);
+    system.registers.Z = false;
+
+    OpCodes.PLA(system);
+    expect(system.registers.Z).toBe(true);
+  });
+});
+
+describe('PLP', () => {
+  it('should pull a value from the stack and load it into the status flags', () => {
+    const system = createSystem();
+
+    push(system, 0b11111111);
+    system.registers.C = false;
+    system.registers.Z = false;
+    system.registers.I = false;
+    system.registers.D = false;
+    system.registers.B = false;
+    system.registers.V = false;
+    system.registers.N = false;
+
+    OpCodes.PLP(system);
+    expect(system.registers.C).toBe(true);
+    expect(system.registers.Z).toBe(true);
+    expect(system.registers.I).toBe(true);
+    expect(system.registers.D).toBe(true);
+    expect(system.registers.B).toBe(true);
+    expect(system.registers.V).toBe(true);
+    expect(system.registers.N).toBe(true);
   });
 });
 

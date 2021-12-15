@@ -1,7 +1,9 @@
 const {
   buildStatusByte,
+  pull,
   push,
-  splitAddress } = require('./memory');
+  splitAddress, 
+  loadStatusByte} = require('./memory');
 const {
   isNthBitSet,
   isOverflowBitSet,
@@ -285,7 +287,16 @@ OpCodes.ORA = (addressingMode) => (system) => {
 };
 
 OpCodes.PHA = (system) => push(system, system.registers.A);
+
 OpCodes.PHP = (system) => push(system, buildStatusByte(system));
+
+OpCodes.PLA = (system) => {
+  system.registers.A = pull(system);
+  system.registers.N = isNegativeBitSet(system.registers.A);
+  system.registers.Z = isZero(system.registers.A);
+};
+
+OpCodes.PLP = (system) => loadStatusByte(system, pull(system));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
