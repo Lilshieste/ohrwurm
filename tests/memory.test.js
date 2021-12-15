@@ -1,8 +1,10 @@
 const {
+  buildAddress,
   peek,
   poke,
   pull,
   push,
+  splitAddress,
 } = require('../memory');
 const { createSystem, createRegisters } = require('../system');
 
@@ -40,6 +42,32 @@ describe('Memory', () => {
 
     memory.Cartridge[0] = CARTRIDGE_START;
     memory.Cartridge[memory.Cartridge.length - 1] = CARTRIDGE_END;
+  });
+
+  describe('buildAddress', () => {
+    it('should return the sum of the shifted high bit and the low bit', () => {
+      const low = 0x12;
+      const high = 0x34;
+      const expected = 0x3412;
+
+      const actual = buildAddress(low, high);
+
+      expect(actual).toBe(expected);
+    });
+  });
+
+  describe('splitAddress', () => {
+    it('should return the high and low bytes of the specified address', () => {
+      const address = 0x1234;
+      const expected = {
+        highByte: 0x12,
+        lowByte: 0x34,
+      };
+
+      const actual = splitAddress(address);
+
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('peek', () => {
@@ -176,9 +204,19 @@ describe('Memory', () => {
   describe('push', () => {
     afterEach(() => {
       for(let i = 0x0100; i <= 0x01FF; i++) {
-        memory[i] = 0;
+        memory.RAM[i] = 0;
       }
       system.registers = createRegisters();
+    });
+
+    it('should poke the specified value into the current address in the Stack Pointer', () => {
+      const expected =  42;
+      const startingSP = 0x0122;
+
+      system.registers.SP = startingSP;
+
+      const actual = push(system, expected);
+      expect(memory.RAM[startingSP]).toBe(expected);
     });
 
     it('should use $01FF as bottom of stack', () => {

@@ -35,18 +35,27 @@ const poke = ({ memory }, address, value) => {
 };
 
 const push = ({ memory, registers }, value) => {
-  memory[registers.SP] = value;
+  poke({ memory }, registers.SP, value);
   registers.SP = registers.SP === 0x0100 ? 0x01FF : --registers.SP;
 };
 
 const pull = ({ memory, registers }) => {
   registers.SP = registers.SP === 0x01FF ? 0x0100 : ++registers.SP;
-  return memory.RAM[registers.SP];
+  return peek({ memory }, registers.SP);
 };
 
+const buildAddress = (lowByte, highByte) => (highByte << 8) + lowByte;
+
+const splitAddress = (address) => ({
+  lowByte: address & 0xFF,
+  highByte: (address >> 8) & 0xFF
+});
+
 module.exports = {
+  buildAddress,
   peek,
   poke,
   pull,
   push,
+  splitAddress,
 };

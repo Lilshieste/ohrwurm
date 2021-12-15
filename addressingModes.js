@@ -1,4 +1,4 @@
-const buildAddress = (lowByte, highByte) => (highByte << 8) + lowByte;
+const { buildAddress } = require('./memory');
 
 const accumulator = (system, op) => {
   const context = { operand: system.registers.A };

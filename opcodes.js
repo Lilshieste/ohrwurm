@@ -1,3 +1,5 @@
+const { push, splitAddress } = require('./memory');
+
 // TODO: Consider returning new operand from addressingMode callback instead of overwriting parameter
 //  (Wait until all opcodes are implemented, to make sure there isn't a lurking reason to NOT do this)
 
@@ -221,6 +223,15 @@ OpCodes.INY = (system) => {
 
 OpCodes.JMP = (addressingMode) => (system) => {
   addressingMode(system, context => {
+    system.registers.PC = context.operand;
+  });
+};
+
+OpCodes.JSR = (addressingMode) => (system) => {
+  addressingMode(system, context => {
+    const { lowByte, highByte } = splitAddress(system.registers.PC - 1);
+    push(system, highByte);
+    push(system, lowByte);
     system.registers.PC = context.operand;
   });
 };

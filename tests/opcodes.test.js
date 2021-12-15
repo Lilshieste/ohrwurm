@@ -1,5 +1,6 @@
 const OpCodes = require('../opcodes');
 const { createSystem } = require('../system');
+const { peek, splitAddress } = require('../memory');
 
 const direct = (operand) => (system, op) => op({ operand });
 const directContext = (context) => (system, op) => op(context);
@@ -714,6 +715,31 @@ describe('JMP', () => {
     const operand = 0xdead;
     
     OpCodes.JMP(direct(operand))(system);
+    expect(system.registers.PC).toBe(operand);
+  });
+});
+
+describe('JSR', () => {
+  it('should push the high and low bytes of the 16-bit address (-1) of the next operation onto the stack', () => {
+    const system = createSystem();
+    const testAddress = 0x7654;
+    const highByte = (testAddress >> 8) & 0xFF;
+    const lowByte = (testAddress & 0xFF);
+
+    system.registers.PC = 0x7654;
+
+    OpCodes.JSR(direct(0x0000))(system);
+    expect(peek(system, system.registers.SP + 2)).toBe(highByte);
+    expect(peek(system, system.registers.SP + 1)).toBe(lowByte - 1);
+  });
+
+  it('should set the Program Counter to the operand', () => {
+    const system = createSystem();
+    const operand = 0xdead;
+
+    system.registers.PC = 0x0000;
+
+    OpCodes.JSR(direct(operand))(system);
     expect(system.registers.PC).toBe(operand);
   });
 });
