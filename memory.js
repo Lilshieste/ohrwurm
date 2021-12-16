@@ -37,16 +37,18 @@ const poke = ({ memory }, address, value) => {
 };
 
 const push = ({ memory, registers }, value) => {
-  poke({ memory }, registers.SP, value);
-  registers.SP = registers.SP === 0x0100 ? 0x01FF : --registers.SP;
+  poke({ memory }, buildStackAddress(registers.SP), value);
+  registers.SP = registers.SP === 0x00 ? 0xFF : --registers.SP;
 };
 
 const pull = ({ memory, registers }) => {
-  registers.SP = registers.SP === 0x01FF ? 0x0100 : ++registers.SP;
-  return peek({ memory }, registers.SP);
+  registers.SP = registers.SP === 0xFF ? 0x00 : ++registers.SP;
+  return peek({ memory }, buildStackAddress(registers.SP));
 };
 
 const buildAddress = (lowByte, highByte) => (highByte << 8) + lowByte;
+
+const buildStackAddress = (lowByte) => 0xFF00 + lowByte;
 
 const splitAddress = (address) => ({
   lowByte: address & 0xFF,
@@ -76,6 +78,7 @@ const loadStatusByte = ({ registers }, statusByte) => {
 
 module.exports = {
   buildAddress,
+  buildStackAddress,
   buildStatusByte,
   loadStatusByte,
   peek,

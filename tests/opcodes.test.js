@@ -1,6 +1,7 @@
 const OpCodes = require('../opcodes');
 const { createSystem } = require('../system');
 const {
+  buildStackAddress,
   buildStatusByte,
   loadStatusByte,
   peek,
@@ -292,9 +293,9 @@ describe('BRK', () => {
     loadStatusByte(system, startingStatusByte);
 
     OpCodes.BRK(peek, push)(system);
-    expect(peek(system, system.registers.SP + 3)).toBe(highByte);
-    expect(peek(system, system.registers.SP + 2)).toBe(lowByte);
-    expect(peek(system, system.registers.SP + 1)).toBe(expectedStatusByte);
+    expect(peek(system, buildStackAddress(system.registers.SP + 3))).toBe(highByte);
+    expect(peek(system, buildStackAddress(system.registers.SP + 2))).toBe(lowByte);
+    expect(peek(system, buildStackAddress(system.registers.SP + 1))).toBe(expectedStatusByte);
   });
 
   it('should set the Program Counter to the address indicated by the IRQ interrupt vectors ($FFFE/FF)', () => {
@@ -758,8 +759,8 @@ describe('JSR', () => {
     system.registers.PC = 0x7654;
 
     OpCodes.JSR(direct(0x0000))(system);
-    expect(peek(system, system.registers.SP + 2)).toBe(highByte);
-    expect(peek(system, system.registers.SP + 1)).toBe(lowByte - 1);
+    expect(peek(system, buildStackAddress(system.registers.SP + 2))).toBe(highByte);
+    expect(peek(system, buildStackAddress(system.registers.SP + 1))).toBe(lowByte - 1);
   });
 
   it('should set the Program Counter to the operand', () => {
@@ -934,7 +935,7 @@ describe('PHA', () => {
     system.registers.A = expected;
 
     OpCodes.PHA(system);
-    expect(peek(system, startingSP)).toBe(expected);
+    expect(peek(system, buildStackAddress(startingSP))).toBe(expected);
   });
 });
 
@@ -954,7 +955,7 @@ describe('PHP', () => {
     const expected = buildStatusByte(system);
 
     OpCodes.PHP(system);
-    expect(peek(system, startingSP)).toBe(expected);
+    expect(peek(system, buildStackAddress(startingSP))).toBe(expected);
   });
 });
 

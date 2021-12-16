@@ -1,5 +1,6 @@
 const {
   buildAddress,
+  buildStackAddress,
   buildStatusByte,
   loadStatusByte,
   peek,
@@ -311,25 +312,25 @@ describe('Memory', () => {
 
     it('should poke the specified value into the current address in the Stack Pointer', () => {
       const expected =  42;
-      const startingSP = 0x0122;
+      const startingSP = 0x22;
 
       system.registers.SP = startingSP;
 
-      const actual = push(system, expected);
-      expect(memory.RAM[startingSP]).toBe(expected);
+      push(system, expected);
+      expect(peek(system, buildStackAddress(startingSP))).toBe(expected);
     });
 
-    it('should use $01FF as bottom of stack', () => {
-      expect(system.registers.SP).toBe(0x01FF);
+    it('should use $FF as bottom of stack', () => {
+      expect(system.registers.SP).toBe(0xFF);
       push(system, 42);
-      expect(system.registers.SP).toBe(0x01FE);
+      expect(system.registers.SP).toBe(0xFE);
     });
 
-    it('should rollover after $0100 back to bottom of stack', () => {
-      system.registers.SP = 0x0100;
+    it('should rollover after $00 back to $FF', () => {
+      system.registers.SP = 0x00;
 
       push(system, 42);
-      expect(system.registers.SP).toBe(0x01FF);
+      expect(system.registers.SP).toBe(0xFF);
     });
   });
 
@@ -343,21 +344,21 @@ describe('Memory', () => {
 
     it('should return value at current stack pointer + 1 (since the stack pointer points to the next "available" space)', () => {
       const expected =  42;
-      const startingSP = 0x0122;
+      const startingSP = 0x22;
 
       system.registers.SP = startingSP;
-      memory.RAM[startingSP + 1] = expected;
+      poke(system, buildStackAddress(startingSP + 1), expected);
 
       const actual = pull(system);
       expect(actual).toBe(expected);
       expect(system.registers.SP).toBe(startingSP + 1);
     });
 
-    it('should rollover after $01FF back to top of stack', () => {
-      system.registers.SP = 0x01FF;
+    it('should rollover after $FF back to $00', () => {
+      system.registers.SP = 0xFF;
 
       pull(system);
-      expect(system.registers.SP).toBe(0x0100);
+      expect(system.registers.SP).toBe(0x00);
     });
   });
 });

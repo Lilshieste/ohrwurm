@@ -12,7 +12,7 @@ const createRegisters = () => ({
   Y: 0,
 
   PC: 0x0000,
-  SP: 0x01FF,
+  SP: 0xFF,
 
   N: false,
   V: false,
