@@ -3,7 +3,8 @@ const {
   pull,
   push,
   splitAddress, 
-  loadStatusByte} = require('./memory');
+  loadStatusByte,
+  buildAddress} = require('./memory');
 const {
   isNthBitSet,
   isOverflowBitSet,
@@ -111,9 +112,18 @@ OpCodes.BPL = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.BRK = (system) => {
+OpCodes.BRK = (peek, push) => (system) => {
+  const isrLowByte = peek(system, 0xFFFE);
+  const isrHighByte = peek(system, 0xFFFF);
+  const { lowByte: pcLowByte, highByte: pcHighByte } = splitAddress(system.registers.PC);
+  
   system.registers.B = true;
-  // TODO: still need to push PC (+2) and status to stack
+
+  push(system, pcHighByte);
+  push(system, pcLowByte);
+  push(system, buildStatusByte(system));
+
+  system.registers.PC = buildAddress(isrLowByte, isrHighByte);
 };
 
 OpCodes.BVC = (addressingMode) => (system) => {
@@ -318,6 +328,15 @@ OpCodes.ROR = (addressingMode) => (system) => {
 
     context.operand = result;
   });
+};
+
+OpCodes.RTI = (pull) => (system) => {
+  loadStatusByte(system, pull(system));
+  system.registers.PC = buildAddress(pull(system), pull(system));
+};
+
+OpCodes.RTS = (pull) => (system) => {
+  system.registers.PC = buildAddress(pull(system), pull(system));
 };
 
 OpCodes.SBC = (addressingMode) => (system) => {

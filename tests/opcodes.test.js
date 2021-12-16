@@ -1,6 +1,12 @@
 const OpCodes = require('../opcodes');
 const { createSystem } = require('../system');
-const { buildStatusByte, peek, push } = require('../memory');
+const {
+  buildStatusByte,
+  loadStatusByte,
+  peek,
+  poke,
+  pull,
+  push } = require('../memory');
 
 const direct = (operand) => (system, op) => op({ operand });
 const directContext = (context) => (system, op) => op(context);
@@ -274,12 +280,35 @@ describe('BPL', () => {
 });
 
 describe('BRK', () => {
-  it('should set the break flag', () => {
+  it('should push the high and low bytes of the Program Counter onto the stack, followed by the Status flags with the (B)reak flag set', () => {
     const system = createSystem();
-    
-    OpCodes.BRK(system);
+    const testAddress = 0x7654;
+    const highByte = (testAddress >> 8) & 0xFF;
+    const lowByte = (testAddress & 0xFF);
+    const startingStatusByte = 0b11000011;
+    const expectedStatusByte = 0b11010011;
 
-    expect(system.registers.B).toBe(true);
+    system.registers.PC = testAddress;
+    loadStatusByte(system, startingStatusByte);
+
+    OpCodes.BRK(peek, push)(system);
+    expect(peek(system, system.registers.SP + 3)).toBe(highByte);
+    expect(peek(system, system.registers.SP + 2)).toBe(lowByte);
+    expect(peek(system, system.registers.SP + 1)).toBe(expectedStatusByte);
+  });
+
+  it('should set the Program Counter to the address indicated by the IRQ interrupt vectors ($FFFE/FF)', () => {
+    const system = createSystem();
+    const isrLowByte = 0xad;
+    const isrHighByte = 0xde;
+    const expectedPC = (isrHighByte << 8) + isrLowByte;
+
+    system.registers.PC = 0x0000;
+    poke(system, 0xFFFE, isrLowByte);
+    poke(system, 0xFFFF, isrHighByte);
+
+    OpCodes.BRK(peek, push)(system);
+    expect(system.registers.PC).toBe(expectedPC);
   });
 });
 
@@ -1079,6 +1108,41 @@ describe('ROR', () => {
 
     OpCodes.ROR(direct(operand))(system);
     expect(system.registers.C).toBe(true);
+  });
+});
+
+describe('RTI', () => {
+  it('should pull (and load) the Status flags and Program Counter from the stack', () => {
+    const system = createSystem();
+    const testAddress = 0x7654;
+    const highByte = (testAddress >> 8) & 0xFF;
+    const lowByte = (testAddress & 0xFF);
+    const statusByte = 0b11010011;
+
+    system.registers.PC = 0x0;
+    push(system, highByte);
+    push(system, lowByte);
+    push(system, statusByte);
+
+    OpCodes.RTI(pull)(system);
+    expect(buildStatusByte(system)).toBe(statusByte);
+    expect(system.registers.PC).toBe(testAddress);
+  });
+});
+
+describe('RTS', () => {
+  it('should pull (and load) the Program Counter from the stack', () => {
+    const system = createSystem();
+    const expected = 0xdead;
+    const lowByte = expected & 0xFF;
+    const highByte = (expected >> 8) & 0xFF;
+
+    push(system, highByte);
+    push(system, lowByte);
+    system.registers.PC = 0x0000;
+
+    OpCodes.RTS(pull)(system);
+    expect(system.registers.PC).toBe(expected);
   });
 });
 

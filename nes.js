@@ -1,6 +1,6 @@
 const Mode = require('./addressingModes');
 const OpCode = require('./opcodes');
-const { peek, poke } = require('./memory');
+const { peek, poke, pull, push } = require('./memory');
 
 const absolute = Mode.absolute(peek, poke);
 const absoluteX = Mode.absoluteX(peek, poke);
@@ -16,7 +16,7 @@ const zeroPageX = Mode.zeroPageX(peek, poke);
 const zeroPageY = Mode.zeroPageY(peek);
 
 const INSTRUCTION_SET = [
-  OpCode.BRK, // $00 	BRK 	Implied 	- - - - - - - 
+  OpCode.BRK(peek, push), // $00 	BRK 	Implied 	- - - - - - - 
   OpCode.ORA(indexedIndirect), // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
@@ -80,7 +80,7 @@ const INSTRUCTION_SET = [
   OpCode.AND(absoluteX), // $3d 	AND $NNNN,X	Absolute,X 	- Z- - - - N
   OpCode.ROL(absoluteX), // $3e 	ROL $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $40 	RTI 	Implied 	- - - - - - - 
+  OpCode.RTI(pull), // $40 	RTI 	Implied 	- - - - - - - 
   OpCode.EOR(indexedIndirect), // $41 	EOR ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
@@ -112,7 +112,7 @@ const INSTRUCTION_SET = [
   OpCode.EOR(absoluteX), // $5d 	EOR $NNNN,X	Absolute,X 	- Z- - - - N
   OpCode.LSR(absoluteX), // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
   OpCode.Unofficial,
-  OpCode.NotImplemented, // $60 	RTS 	Implied 	- - - - - - - 
+  OpCode.RTS(pull), // $60 	RTS 	Implied 	- - - - - - - 
   OpCode.ADC(indexedIndirect), // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
   OpCode.Unofficial,
   OpCode.Unofficial,

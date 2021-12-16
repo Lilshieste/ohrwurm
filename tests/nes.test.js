@@ -2,16 +2,6 @@ const NES = require('../nes');
 const { createSystem } = require('../system');
 const { poke } = require('../memory');
 
-describe('BR_Implied', () => {
-  it('should set the break flag', () => {
-    const system = createSystem();
-    
-    NES.INSTRUCTION_SET[0x00](system);
-
-    expect(system.registers.B).toBe(true);
-  });
-});
-
 describe('AND_Immediate', () => {
   it('should bitwise-AND the accumulator with the operand directly after the opcode', () => {
     const system = createSystem();
