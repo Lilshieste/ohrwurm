@@ -59,6 +59,17 @@ describe('Memory', () => {
     });
   });
 
+  describe('buildStackAddress', () => {
+    it('should return $01xx where xx is the specified low bit ', () => {
+      const low = 0x12;
+      const expected = 0x0112;
+
+      const actual = buildStackAddress(low);
+
+      expect(actual).toBe(expected);
+    });
+  });
+
   describe('splitAddress', () => {
     it('should return the high and low bytes of the specified address', () => {
       const address = 0x1234;
