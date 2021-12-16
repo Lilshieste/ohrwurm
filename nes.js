@@ -16,13 +16,13 @@ const zeroPageX = Mode.zeroPageX(peek, poke);
 const zeroPageY = Mode.zeroPageY(peek);
 
 const INSTRUCTION_SET = [
-  OpCode.BRK(peek, push), // $00 	BRK 	Implied 	- - - - - - - 
-  OpCode.ORA(indexedIndirect), // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
+  OpCode.BRK(peek, push),       // $00 	BRK   Implied 	- - - - - - - 
+  OpCode.ORA(indexedIndirect),  // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.Unofficial,
-  OpCode.ORA(zeroPage), // $05 	ORA $NN	Zero Page 	- Z- - - - N
-  OpCode.ASL(zeroPage), // $06 	ASL $NN	Zero Page 	CZ- - - - N
+  OpCode.ORA(zeroPage),         // $05 	ORA $NN	Zero Page 	- Z- - - - N
+  OpCode.ASL(zeroPage),         // $06 	ASL $NN	Zero Page 	CZ- - - - N
   OpCode.Unofficial,
   OpCode.PHP, // $08 	PHP 	Implied 	- - - - - - - 
   OpCode.ORA(immediate), // $09 	ORA #$NN	Immediate 	- Z- - - - N
@@ -170,7 +170,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.TYA, // $98 	TYA 	Implied 	- Z- - - - N
   OpCode.STA(absoluteY), // $99 	STA $NNNN,Y	Absolute,Y 	- - - - - - - 
-  OpCode.NotImplemented, // $9a 	TXS 	Implied 	- - - - - - - 
+  OpCode.TXS, // $9a 	TXS 	Implied 	- - - - - - - 
   OpCode.Unofficial,
   OpCode.Unofficial,
   OpCode.STA(absoluteX), // $9d 	STA $NNNN,X	Absolute,X 	- - - - - - - 
@@ -202,7 +202,7 @@ const INSTRUCTION_SET = [
   OpCode.Unofficial,
   OpCode.CLV, // $b8 	CLV 	Implied 	- - - - - V- 
   OpCode.LDA(absoluteY), // $b9 	LDA $NNNN,Y	Absolute,Y 	- Z- - - - N
-  OpCode.NotImplemented, // $ba 	TSX 	Implied 	- Z- - - - N
+  OpCode.TSX, // $ba 	TSX 	Implied 	- Z- - - - N
   OpCode.Unofficial,
   OpCode.LDY(absoluteX), // $bc 	LDY $NNNN,X	Absolute,X 	- Z- - - - N
   OpCode.LDA(absoluteX), // $bd 	LDA $NNNN,X	Absolute,X 	- Z- - - - N

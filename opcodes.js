@@ -395,10 +395,20 @@ OpCodes.TAY = (system) => {
   system.registers.Z = isZero(system.registers.Y);
 };
 
+OpCodes.TSX = (system) => {
+  system.registers.X = system.registers.SP;
+  system.registers.N = isNegativeBitSet(system.registers.X);
+  system.registers.Z = isZero(system.registers.X);
+};
+
 OpCodes.TXA = (system) => {
   system.registers.A = system.registers.X;
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
+};
+
+OpCodes.TXS = (system) => {
+  system.registers.SP = system.registers.X;
 };
 
 OpCodes.TYA = (system) => {

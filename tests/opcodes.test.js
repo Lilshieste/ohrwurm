@@ -1365,6 +1365,38 @@ describe('TAY', () => {
   });
 });
 
+describe('TSX', () => {
+  it('should transfer Stack Pointer to X', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.registers.SP = expected;
+
+    OpCodes.TSX(system);
+    expect(system.registers.X).toBe(expected);
+  });
+
+  it('should set (N)egative flag properly after transferring contents', () => {
+    const system = createSystem();
+    const SP = 0b10000000;
+
+    system.registers.SP = SP;
+
+    OpCodes.TSX(system);
+    expect(system.registers.N).toBe(true);
+  });
+
+  it('should set (Z)ero flag properly after transferring contents', () => {
+    const system = createSystem();
+    const SP = 0b00000000;
+
+    system.registers.SP = SP;
+
+    OpCodes.TSX(system);
+    expect(system.registers.Z).toBe(true);
+  });
+});
+
 describe('TXA', () => {
   it('should transfer X contents to accumulator', () => {
     const system = createSystem();
@@ -1394,6 +1426,18 @@ describe('TXA', () => {
 
     OpCodes.TXA(system);
     expect(system.registers.Z).toBe(true);
+  });
+});
+
+describe('TXS', () => {
+  it('should transfer X to Stack Pointer', () => {
+    const system = createSystem();
+    const expected = 42;
+
+    system.registers.X = expected;
+
+    OpCodes.TXS(system);
+    expect(system.registers.SP).toBe(expected);
   });
 });
 
