@@ -1,4 +1,3 @@
-const emulator = require('./nes');
-
+const emulator = require('./instructions');
 
 emulator.run();

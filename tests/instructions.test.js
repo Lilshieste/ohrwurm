@@ -1,5 +1,5 @@
-const NES = require('../nes');
-const { createSystem } = require('../system');
+const NES = require('../instructions');
+const { createSystem, createRegisters } = require('../system');
 const { poke } = require('../memory');
 
 describe('AND_Immediate', () => {
@@ -152,3 +152,49 @@ describe('AND_ZeroPageX', () => {
   });
 });
 
+describe('Simple program', () => {
+  it('should have the right final state', () => {
+    const system = createSystem();
+
+    poke(system, 0x0600, 0xa9);
+    poke(system, 0x0601, 0x01);
+    poke(system, 0x0602, 0x8d);
+    poke(system, 0x0603, 0x00);
+    poke(system, 0x0604, 0x02);
+    poke(system, 0x0605, 0xa9);
+    poke(system, 0x0606, 0x05);
+    poke(system, 0x0607, 0x8d);
+    poke(system, 0x0608, 0x01);
+    poke(system, 0x0609, 0x02);
+    poke(system, 0x060a, 0xa9);
+    poke(system, 0x060b, 0x08);
+    poke(system, 0x060c, 0x8d);
+    poke(system, 0x060d, 0x02);
+    poke(system, 0x060e, 0x02);
+
+    system.registers.PC = 0x0600;
+    system.registers.PC++; NES.INSTRUCTION_SET[0xa9](system);
+    system.registers.PC++; NES.INSTRUCTION_SET[0x8d](system);
+    system.registers.PC++; NES.INSTRUCTION_SET[0xa9](system);
+    system.registers.PC++; NES.INSTRUCTION_SET[0x8d](system);
+    system.registers.PC++; NES.INSTRUCTION_SET[0xa9](system);
+    system.registers.PC++; NES.INSTRUCTION_SET[0x8d](system);
+
+    const expected = {
+      A: 8,
+      X: 0,
+      Y: 0,
+      PC: 0x060f,
+      SP: 255,
+      N: false,
+      V: false,
+      B: false,
+      D: false,
+      I: false,
+      Z: false,
+      C: false,
+    };
+
+    expect(system.registers).toEqual(expected);
+  });
+});
