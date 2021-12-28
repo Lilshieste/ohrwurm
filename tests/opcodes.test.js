@@ -286,8 +286,8 @@ describe('BRK', () => {
     const testAddress = 0x7654;
     const highByte = (testAddress >> 8) & 0xFF;
     const lowByte = (testAddress & 0xFF);
-    const startingStatusByte = 0b11000011;
-    const expectedStatusByte = 0b11010011;
+    const startingStatusByte = 0b11100011;
+    const expectedStatusByte = 0b11110011;
 
     system.registers.PC = testAddress;
     loadStatusByte(system, startingStatusByte);
@@ -1118,7 +1118,7 @@ describe('RTI', () => {
     const testAddress = 0x7654;
     const highByte = (testAddress >> 8) & 0xFF;
     const lowByte = (testAddress & 0xFF);
-    const statusByte = 0b11010011;
+    const statusByte = 0b11110011;
 
     system.registers.PC = 0x0;
     push(system, highByte);

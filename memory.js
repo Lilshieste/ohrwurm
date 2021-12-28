@@ -62,6 +62,7 @@ const buildStatusByte = ({ registers }) => {
     + (registers.I ? 0x04 : 0)
     + (registers.D ? 0x08 : 0)
     + (registers.B ? 0x10 : 0)
+    + 0x20 // Unused; always set
     + (registers.V ? 0x40 : 0)
     + (registers.N ? 0x80 : 0);
 };
