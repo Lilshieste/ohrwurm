@@ -1,6 +1,6 @@
 const { createSystem } = require('./state');
 const { INSTRUCTION_SET } = require('./instructions');
-const { buildStatusByte, loadBytes, peek, poke } = require('./memory');
+const { buildStatusByte, loadBytes, read } = require('./memory');
 
 // read program from file
 // load program into memory
@@ -28,16 +28,10 @@ const programBytes3 = [
 
 const startingAddress = 0x0600;
 
-const getNextInstruction = (system) => {
-  const next = peek(system, system.registers.PC++);
-  return next;
-};
-
 const run = (system) => {
   logHeaderWithOpCode();
   while(!system.registers.B) {
-    const instruction = getNextInstruction(system);
-    //logStateWithOpCode(system, instruction);
+    const instruction = read(system);
     INSTRUCTION_SET[instruction](system);
   }
   logStateWithOpCode(system, 0);
@@ -48,7 +42,6 @@ const hex = (value) => `$${value.toString(16)}`;
 const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;
 const logHeaderWithOpCode = () => console.log(`OpCode\t\tA\t\tX\t\tY\t\tPC\t\tSP\t\tNV-BDIZC`);
 const logStateWithOpCode = (system, opCode) => console.log(`${hex(opCode)}\t\t${hex(system.registers.A)}\t\t${hex(system.registers.X)}\t\t${hex(system.registers.Y)}\t\t${hex16(system.registers.PC)}\t\t${hex(system.registers.SP)}\t\t${buildStatusByte(system).toString(2).padStart(8, 0)}`);
-
 const logRAM = (system) => console.log(`${JSON.stringify(system.memory.RAM.map(hex))}`);
 
 const system = createSystem();

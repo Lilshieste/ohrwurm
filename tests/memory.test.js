@@ -8,6 +8,7 @@ const {
   poke,
   pull,
   push,
+  read,
   splitAddress,
 } = require('../memory');
 const { createMemory, createRegisters, createSystem } = require('../state');
@@ -385,6 +386,29 @@ describe('Memory', () => {
       for(let i = 0; i < testBytes.length; i++) {
         expect(peek({ memory }, start + i)).toBe(testBytes[i]);
       }
+    });
+  });
+
+  describe('read', () => {
+    const system = createSystem();
+
+    it('should return the data pointed to by the Program Counter', () => {
+      const PC = 0xface;
+      const expected = 0x42;
+
+      system.registers.PC = PC;
+      poke(system, PC, expected);
+      const actual = read(system);
+
+      expect(actual).toBe(expected);
+    });
+
+    it('should increment the Program Counter', () => {
+      const expected = system.registers.PC + 1;
+
+      read(system);
+
+      expect(system.registers.PC).toBe(expected);
     });
   });
 });

@@ -83,6 +83,8 @@ const loadBytes = ({ memory }, bytes, startingAddress) => {
   }
 };
 
+const read = ({ memory, registers }) => peek({ memory }, registers.PC++);
+
 module.exports = {
   buildAddress,
   buildStackAddress,
@@ -93,5 +95,6 @@ module.exports = {
   poke,
   pull,
   push,
+  read,
   splitAddress,
 };
