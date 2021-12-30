@@ -2,6 +2,7 @@ const {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
+  loadBytes,
   loadStatusByte,
   peek,
   poke,
@@ -9,7 +10,7 @@ const {
   push,
   splitAddress,
 } = require('../memory');
-const { createSystem, createRegisters } = require('../system');
+const { createMemory, createRegisters, createSystem } = require('../system');
 
 describe('Memory', () => {
   const system = createSystem();
@@ -370,6 +371,20 @@ describe('Memory', () => {
 
       pull(system);
       expect(system.registers.SP).toBe(0x00);
+    });
+  });
+
+  describe('loadBytes', () => {
+    it('should load the bytes sequentially into memory, starting with the specified address', () => {
+      const memory = createMemory();
+      const start = 0x42;
+      const testBytes = [0x1, 0x2, 0x3, 0x4, 0x42, 0x43, 0x44, 0x0, 0x0, 0x45];
+
+      loadBytes({ memory }, testBytes, start);
+
+      for(let i = 0; i < testBytes.length; i++) {
+        expect(peek({ memory }, start + i)).toBe(testBytes[i]);
+      }
     });
   });
 });

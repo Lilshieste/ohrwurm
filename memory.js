@@ -62,7 +62,7 @@ const buildStatusByte = ({ registers }) => {
     + (registers.I ? 0x04 : 0)
     + (registers.D ? 0x08 : 0)
     + (registers.B ? 0x10 : 0)
-    + 0x20 // Unused; always set
+    + 0x20 // Unused; this bit is just always set
     + (registers.V ? 0x40 : 0)
     + (registers.N ? 0x80 : 0);
 };
@@ -77,10 +77,17 @@ const loadStatusByte = ({ registers }, statusByte) => {
   registers.N = isNthBitSet(statusByte, 7);
 };
 
+const loadBytes = ({ memory }, bytes, startingAddress) => {
+  for(let i = 0; i < bytes.length; i++) {
+    poke({ memory }, startingAddress + i, bytes[i]);
+  }
+};
+
 module.exports = {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
+  loadBytes,
   loadStatusByte,
   peek,
   poke,
