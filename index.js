@@ -1,4 +1,4 @@
-const { createSystem } = require('./system');
+const { createSystem } = require('./state');
 const { INSTRUCTION_SET } = require('./instructions');
 const { buildStatusByte, loadBytes, peek, poke } = require('./memory');
 

@@ -1,5 +1,5 @@
 const OpCodes = require('../opcodes');
-const { createSystem } = require('../system');
+const { createSystem } = require('../state');
 const {
   buildStackAddress,
   buildStatusByte,

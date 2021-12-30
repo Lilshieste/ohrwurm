@@ -10,7 +10,7 @@ const {
   push,
   splitAddress,
 } = require('../memory');
-const { createMemory, createRegisters, createSystem } = require('../system');
+const { createMemory, createRegisters, createSystem } = require('../state');
 
 describe('Memory', () => {
   const system = createSystem();

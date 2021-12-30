@@ -1,5 +1,5 @@
 const NES = require('../instructions');
-const { createSystem, createRegisters } = require('../system');
+const { createSystem, createRegisters } = require('../state');
 const { poke } = require('../memory');
 
 describe('AND_Immediate', () => {
