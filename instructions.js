@@ -4,16 +4,16 @@ const { peek, poke, pull, push } = require('./memory');
 
 const absolute = Mode.absolute(peek, poke);
 const absoluteX = Mode.absoluteX(peek, poke);
-const absoluteY = Mode.absoluteY(peek);
+const absoluteY = Mode.absoluteY(peek, poke);
 const accumulator = Mode.accumulator;
 const immediate = Mode.immediate(peek);
 const indirect = Mode.indirect(peek);
-const indexedIndirect = Mode.indexedIndirect(peek);
-const indirectIndexed = Mode.indirectIndexed(peek);
+const indexedIndirect = Mode.indexedIndirect(peek, poke);
+const indirectIndexed = Mode.indirectIndexed(peek, poke);
 const relative = Mode.relative(peek);
 const zeroPage = Mode.zeroPage(peek, poke);
 const zeroPageX = Mode.zeroPageX(peek, poke);
-const zeroPageY = Mode.zeroPageY(peek);
+const zeroPageY = Mode.zeroPageY(peek, poke);
 
 const INSTRUCTION_SET = [
   OpCode.BRK(peek, push),       // $00 	BRK Implied 	- - - - - - - 

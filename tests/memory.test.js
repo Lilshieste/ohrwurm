@@ -10,6 +10,7 @@ const {
   push,
   read,
   splitAddress,
+  run,
 } = require('../memory');
 const { createMemory, createRegisters, createSystem } = require('../state');
 
@@ -409,6 +410,23 @@ describe('Memory', () => {
       read(system);
 
       expect(system.registers.PC).toBe(expected);
+    });
+  });
+
+  describe('run', () => {
+    it('should read (and execute) instructions until a BRK is reached', () => {
+      const system = createSystem();
+      const PC = 0xface;
+      const runInstruction = jest.fn((instruction, system) => { if(!instruction) system.registers.B = true; });
+
+      system.registers.PC = PC;
+      poke(system, PC, 0x42);
+      poke(system, PC + 1, 0x43);
+
+      run(system, runInstruction);
+
+      expect(runInstruction).toHaveBeenCalledWith(0x42, expect.anything());
+      expect(runInstruction).toHaveBeenCalledWith(0x43, expect.anything());
     });
   });
 });

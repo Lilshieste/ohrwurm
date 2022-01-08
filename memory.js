@@ -85,10 +85,20 @@ const loadBytes = ({ memory }, bytes, startingAddress) => {
 
 const read = ({ memory, registers }) => peek({ memory }, registers.PC++);
 
+const run = (system, execute) => {
+  while(!system.registers.B) {
+    execute(read(system), system);
+  }
+};
+
+const executeFromInstructionSet = (instructionSet) => (instruction, system) => instructionSet[instruction](system);
+const runWithInstructionSet = (instructionSet) => (system) => run(system, executeFromInstructionSet(instructionSet));
+
 module.exports = {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
+  executeFromInstructionSet,
   loadBytes,
   loadStatusByte,
   peek,
@@ -96,5 +106,7 @@ module.exports = {
   pull,
   push,
   read,
+  run,
+  runWithInstructionSet,
   splitAddress,
 };

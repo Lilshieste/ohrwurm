@@ -1,4 +1,4 @@
-const { buildAddress } = require('./memory');
+const { buildAddress, poke } = require('./memory');
 
 const accumulator = (system, op) => {
   const context = { operand: system.registers.A };
@@ -12,27 +12,35 @@ const indirect = (peek) => (system, op) => {
   const lowByte = peek(system, system.registers.PC);
   const highByte = peek(system, system.registers.PC + 1);
 
-  op({ operand: buildAddress(lowByte, highByte) });
+  const operand = buildAddress(lowByte, highByte);
+  const context = { operand };
+  op(context);
   system.registers.PC += 2;
 };
 
-const indexedIndirect = (peek) => (system, op) => {
+const indexedIndirect = (peek, poke) => (system, op) => {
   const zeroPageAddress = peek(system, system.registers.PC);
   const zeroPageAddressWithOffset = (zeroPageAddress + system.registers.X) & 0xFF;
   const lowByte = peek(system, zeroPageAddressWithOffset);
   const highByte = peek(system, zeroPageAddressWithOffset + 1);
+  const targetAddress = buildAddress(lowByte, highByte);
+  const operand = peek(system, targetAddress);
+  const context = { operand };
 
-  op({ operand: peek(system, buildAddress(lowByte, highByte))  });
+  op(context);
+  poke(system, targetAddress, context.operand);
   system.registers.PC++;
 };
 
-const indirectIndexed = (peek) => (system, op) => {
+const indirectIndexed = (peek, poke) => (system, op) => {
   const zeroPageAddress = peek(system, system.registers.PC);
   const lowByte = peek(system, zeroPageAddress);
   const highByte = peek(system, zeroPageAddress + 1);
   const targetAddress = buildAddress(lowByte, highByte) + system.registers.Y;
+  const context = { operand: peek(system, targetAddress) };
 
-  op({ operand: peek(system, targetAddress) });
+  op(context);
+  poke(system, targetAddress, context.operand);
   system.registers.PC++;
 };
 
@@ -40,10 +48,11 @@ const absolute = (peek, poke) => (system, op) => {
   const lowByte = peek(system, system.registers.PC);
   const highByte = peek(system, system.registers.PC + 1);
   const targetAddress = buildAddress(lowByte, highByte);
-  const context = { operand: peek(system, targetAddress) };
+  const operand = peek(system, targetAddress);
+  const context = { operand };
 
   op(context);
-  poke(system,  targetAddress, context.operand);
+  poke(system, targetAddress, context.operand);
   system.registers.PC += 2;
 };
 
@@ -58,11 +67,15 @@ const absoluteX = (peek, poke) => (system, op) => {
   system.registers.PC += 2;
 };
 
-const absoluteY = (peek) => (system, op) => {
+const absoluteY = (peek, poke) => (system, op) => {
   const lowByte = peek(system, system.registers.PC);
   const highByte = peek(system, system.registers.PC + 1);
+  const targetAddress = buildAddress(lowByte, highByte) + system.registers.Y;
+  const operand = peek(system, targetAddress);
+  const context = { operand };
 
-  op({ operand: peek(system, buildAddress(lowByte, highByte) + system.registers.Y) });
+  op(context);
+  poke(system, targetAddress, context.operand);
   system.registers.PC += 2;
 };
 
@@ -88,10 +101,14 @@ const zeroPageX = (peek, poke) => (system, op) => {
   system.registers.PC++;
 };
 
-const zeroPageY = (peek) => (system, op) => {
+const zeroPageY = (peek, poke) => (system, op) => {
   const address = peek(system, system.registers.PC);
+  const targetAddress = (buildAddress(address, 0x00) + system.registers.Y) & 0xFF;
+  const operand = peek(system, targetAddress);
+  const context = { operand };
 
-  op({ operand: peek(system, (buildAddress(address, 0x00) + system.registers.Y) & 0xFF) });
+  op(context);
+  poke(system, targetAddress, context.operand);
   system.registers.PC++;
 };
 
