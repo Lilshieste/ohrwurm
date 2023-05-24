@@ -964,7 +964,7 @@ describe('PLA', () => {
     const system = createSystem();
     const expected = 42;
 
-    push(system, expected);
+    push(system.memory, system.registers, expected);
     
     OpCodes.PLA(system);
     expect(system.registers.A).toBe(expected);
@@ -973,7 +973,7 @@ describe('PLA', () => {
   it('should set (N)egative flag properly after loading operand into accumulator', () => {
     const system = createSystem();
 
-    push(system, 0b10000000);
+    push(system.memory, system.registers, 0b10000000);
     system.registers.N = false;
 
     OpCodes.PLA(system);
@@ -983,7 +983,7 @@ describe('PLA', () => {
   it('should set (Z)ero flag properly after loading operand into accumulator', () => {
     const system = createSystem();
 
-    push(system, 0b00000000);
+    push(system.memory, system.registers, 0b00000000);
     system.registers.Z = false;
 
     OpCodes.PLA(system);
@@ -995,7 +995,7 @@ describe('PLP', () => {
   it('should pull a value from the stack and load it into the status flags', () => {
     const system = createSystem();
 
-    push(system, 0b11111111);
+    push(system.memory, system.registers, 0b11111111);
     system.registers.C = false;
     system.registers.Z = false;
     system.registers.I = false;
@@ -1121,9 +1121,9 @@ describe('RTI', () => {
     const statusByte = 0b11110011;
 
     system.registers.PC = 0x0;
-    push(system, highByte);
-    push(system, lowByte);
-    push(system, statusByte);
+    push(system.memory, system.registers, highByte);
+    push(system.memory, system.registers, lowByte);
+    push(system.memory, system.registers, statusByte);
 
     OpCodes.RTI(pull)(system);
     expect(buildStatusByte(system)).toBe(statusByte);
@@ -1138,8 +1138,8 @@ describe('RTS', () => {
     const lowByte = expected & 0xFF;
     const highByte = (expected >> 8) & 0xFF;
 
-    push(system, highByte);
-    push(system, lowByte);
+    push(system.memory, system.registers, highByte);
+    push(system.memory, system.registers, lowByte);
     system.registers.PC = 0x0000;
 
     OpCodes.RTS(pull)(system);

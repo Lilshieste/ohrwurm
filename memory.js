@@ -36,12 +36,12 @@ const poke = (memory, address, value) => {
   else /* if(address <= 0xFFFF) */ memory.Cartridge[address - 0x4020] = value;
 };
 
-const push = ({ memory, registers }, value) => {
+const push = (memory, registers, value) => {
   poke(memory, buildStackAddress(registers.SP), value);
   registers.SP = (registers.SP - 1) & 0xFF;
 };
 
-const pull = ({ memory, registers }) => {
+const pull = (memory, registers) => {
   registers.SP = (registers.SP + 1) & 0xFF;
   return peek(memory, buildStackAddress(registers.SP));
 };

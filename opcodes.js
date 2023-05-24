@@ -119,9 +119,9 @@ OpCodes.BRK = (peek, push) => (system) => {
   
   system.registers.B = true;
 
-  push(system, pcHighByte);
-  push(system, pcLowByte);
-  push(system, buildStatusByte(system));
+  push(system.memory, system.registers, pcHighByte);
+  push(system.memory, system.registers, pcLowByte);
+  push(system.memory, system.registers, buildStatusByte(system));
 
   system.registers.PC = buildAddress(isrLowByte, isrHighByte);
 };
@@ -245,8 +245,8 @@ OpCodes.JMP = (addressingMode) => (system) => {
 OpCodes.JSR = (addressingMode) => (system) => {
   addressingMode(system, context => {
     const { lowByte, highByte } = splitAddress(system.registers.PC - 1);
-    push(system, highByte);
-    push(system, lowByte);
+    push(system.memory, system.registers, highByte);
+    push(system.memory, system.registers, lowByte);
     system.registers.PC = context.operand;
   });
 };
@@ -296,17 +296,17 @@ OpCodes.ORA = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.PHA = (system) => push(system, system.registers.A);
+OpCodes.PHA = (system) => push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (system) => push(system, buildStatusByte(system));
+OpCodes.PHP = (system) => push(system.memory, system.registers, buildStatusByte(system));
 
 OpCodes.PLA = (system) => {
-  system.registers.A = pull(system);
+  system.registers.A = pull(system.memory, system.registers);
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (system) => loadStatusByte(system, pull(system));
+OpCodes.PLP = (system) => loadStatusByte(system, pull(system.memory, system.registers));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
@@ -331,12 +331,12 @@ OpCodes.ROR = (addressingMode) => (system) => {
 };
 
 OpCodes.RTI = (pull) => (system) => {
-  loadStatusByte(system, pull(system));
-  system.registers.PC = buildAddress(pull(system), pull(system));
+  loadStatusByte(system, pull(system.memory, system.registers));
+  system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
 };
 
 OpCodes.RTS = (pull) => (system) => {
-  system.registers.PC = buildAddress(pull(system), pull(system));
+  system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
 };
 
 OpCodes.SBC = (addressingMode) => (system) => {

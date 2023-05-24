@@ -329,20 +329,20 @@ describe('Memory', () => {
 
       system.registers.SP = startingSP;
 
-      push(system, expected);
+      push(system.memory, system.registers, expected);
       expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
     });
 
     it('should use $FF as bottom of stack', () => {
       expect(system.registers.SP).toBe(0xFF);
-      push(system, 42);
+      push(system.memory, system.registers, 42);
       expect(system.registers.SP).toBe(0xFE);
     });
 
     it('should rollover after $00 back to $FF', () => {
       system.registers.SP = 0x00;
 
-      push(system, 42);
+      push(system.memory, system.registers, 42);
       expect(system.registers.SP).toBe(0xFF);
     });
   });
@@ -362,7 +362,7 @@ describe('Memory', () => {
       system.registers.SP = startingSP;
       poke(system.memory, buildStackAddress(startingSP + 1), expected);
 
-      const actual = pull(system);
+      const actual = pull(system.memory, system.registers);
       expect(actual).toBe(expected);
       expect(system.registers.SP).toBe(startingSP + 1);
     });
@@ -370,7 +370,7 @@ describe('Memory', () => {
     it('should rollover after $FF back to $00', () => {
       system.registers.SP = 0xFF;
 
-      pull(system);
+      pull(system.memory, system.registers);
       expect(system.registers.SP).toBe(0x00);
     });
   });

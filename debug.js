@@ -15,7 +15,7 @@ const runWithSummary = (system, execute) => {
   const messages = [headerWithOpCode()];
   const executeAndLog = (instruction, system) => {
     execute(instruction, system);
-    messages.push(stateWithOpCode(system, instruction))
+    messages.push(stateWithOpCode(system.memory, system.registers, instruction))
   };
   run(system, executeAndLog);
   console.log(messages.join('\n'));
