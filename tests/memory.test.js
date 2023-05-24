@@ -149,37 +149,37 @@ describe('Memory', () => {
     });
 
     it('should set (C)arry flag based on bit 0', () => {
-      loadStatusByte({ registers }, 0b00000001);
+      loadStatusByte(registers, 0b00000001);
       expect(registers.C).toBe(true);
     });
 
     it('should set (Z)ero flag based on bit 1', () => {
-      loadStatusByte({ registers }, 0b00000010);
+      loadStatusByte(registers, 0b00000010);
       expect(registers.Z).toBe(true);
     });
 
     it('should set (I)nterrupt flag based on bit 2', () => {
-      loadStatusByte({ registers }, 0b00000100);
+      loadStatusByte(registers, 0b00000100);
       expect(registers.I).toBe(true);
     });
 
     it('should set (D)ecimal flag based on bit 3', () => {
-      loadStatusByte({ registers }, 0b00001000);
+      loadStatusByte(registers, 0b00001000);
       expect(registers.D).toBe(true);
     });
 
     it('should set (B)reak flag based on bit 4', () => {
-      loadStatusByte({ registers }, 0b00010000);
+      loadStatusByte(registers, 0b00010000);
       expect(registers.B).toBe(true);
     });
 
     it('should set o(V)erflow flag based on bit 6', () => {
-      loadStatusByte({ registers }, 0b01000000);
+      loadStatusByte(registers, 0b01000000);
       expect(registers.V).toBe(true);
     });
 
     it('should set (N)egative flag based on bit 7', () => {
-      loadStatusByte({ registers }, 0b10000000);
+      loadStatusByte(registers, 0b10000000);
       expect(registers.N).toBe(true);
     });
   });

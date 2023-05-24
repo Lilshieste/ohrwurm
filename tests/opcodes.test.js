@@ -290,7 +290,7 @@ describe('BRK', () => {
     const expectedStatusByte = 0b11110011;
 
     system.registers.PC = testAddress;
-    loadStatusByte(system, startingStatusByte);
+    loadStatusByte(system.registers, startingStatusByte);
 
     OpCodes.BRK(peek, push)(system);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 3))).toBe(highByte);

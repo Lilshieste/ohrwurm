@@ -67,7 +67,7 @@ const buildStatusByte = (registers) => {
     + (registers.N ? 0x80 : 0);
 };
 
-const loadStatusByte = ({ registers }, statusByte) => {
+const loadStatusByte = (registers, statusByte) => {
   registers.C = isNthBitSet(statusByte, 0);
   registers.Z = isNthBitSet(statusByte, 1);
   registers.I = isNthBitSet(statusByte, 2);

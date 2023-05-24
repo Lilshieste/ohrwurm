@@ -306,7 +306,7 @@ OpCodes.PLA = (system) => {
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (system) => loadStatusByte(system, pull(system.memory, system.registers));
+OpCodes.PLP = (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
@@ -331,7 +331,7 @@ OpCodes.ROR = (addressingMode) => (system) => {
 };
 
 OpCodes.RTI = (pull) => (system) => {
-  loadStatusByte(system, pull(system.memory, system.registers));
+  loadStatusByte(system.registers, pull(system.memory, system.registers));
   system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
 };
 
