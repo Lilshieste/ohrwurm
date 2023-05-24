@@ -83,7 +83,7 @@ const loadBytes = (memory, bytes, startingAddress) => {
   }
 };
 
-const read = ({ memory, registers }) => peek(memory, registers.PC++);
+const read = (memory, registers) => peek(memory, registers.PC++);
 
 module.exports = {
   buildAddress,

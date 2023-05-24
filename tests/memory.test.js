@@ -398,7 +398,7 @@ describe('Memory', () => {
 
       system.registers.PC = PC;
       poke(system.memory, PC, expected);
-      const actual = read(system);
+      const actual = read(system.memory, system.registers);
 
       expect(actual).toBe(expected);
     });
@@ -406,7 +406,7 @@ describe('Memory', () => {
     it('should increment the Program Counter', () => {
       const expected = system.registers.PC + 1;
 
-      read(system);
+      read(system.memory, system.registers);
 
       expect(system.registers.PC).toBe(expected);
     });

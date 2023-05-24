@@ -2,7 +2,7 @@ const { read } = require('./memory');
 
 const run = (system, execute) => {
   while(!system.registers.B) {
-    execute(read(system), system);
+    execute(read(system.memory, system.registers), system);
   }
 };
 
