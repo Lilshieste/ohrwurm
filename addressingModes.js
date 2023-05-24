@@ -1,5 +1,11 @@
 const { buildAddress } = require('./memory');
 
+//
+// All Addressing Modes have the signature: (peek, poke) => (system, op)
+//
+
+const implied = (/* peek, poke */) => (/* system, op */) => {};
+
 const accumulator = (system, op) => {
   const context = { operand: system.registers.A };
   op(context);
@@ -118,6 +124,7 @@ module.exports = {
   absoluteY,
   accumulator,
   immediate,
+  implied,
   indexedIndirect,
   indirect,
   indirectIndexed,

@@ -112,7 +112,7 @@ OpCodes.BPL = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.BRK = (peek, push) => (system) => {
+OpCodes.BRK = (peek, push, /* IMPLIED addressing mode */) => (system) => {
   const isrLowByte = peek(system.memory, 0xFFFE);
   const isrHighByte = peek(system.memory, 0xFFFF);
   const { lowByte: pcLowByte, highByte: pcHighByte } = splitAddress(system.registers.PC);
@@ -142,19 +142,19 @@ OpCodes.BVS = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.CLC = (system) => {
+OpCodes.CLC = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.C = false;
 };
 
-OpCodes.CLD = (system) => {
+OpCodes.CLD = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.D = false;
 };
 
-OpCodes.CLI = (system) => {
+OpCodes.CLI = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.I = false;
 };
 
-OpCodes.CLV = (system) => {
+OpCodes.CLV = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.V = false;
 };
 
@@ -191,14 +191,14 @@ OpCodes.DEC = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.DEX = (system) => {
+OpCodes.DEX = (/* IMPLIED addressing mode */) => (system) => {
   const result = toByte((system.registers.X - 1) >>> 0);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(result);
   system.registers.X = result;
 };
 
-OpCodes.DEY = (system) => {
+OpCodes.DEY = (/* IMPLIED addressing mode */) => (system) => {
   const result = toByte((system.registers.Y - 1) >>> 0);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(result);
@@ -222,14 +222,14 @@ OpCodes.INC = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.INX = (system) => {
+OpCodes.INX = (/* IMPLIED addressing mode */) => (system) => {
   const result = toByte(system.registers.X + 1);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(result);
   system.registers.X = result;
 };
 
-OpCodes.INY = (system) => {
+OpCodes.INY = (/* IMPLIED addressing mode */) => (system) => {
   const result = toByte(system.registers.Y + 1);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(result);
@@ -286,7 +286,7 @@ OpCodes.LSR = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.NOP = () => {};
+OpCodes.NOP = (/* IMPLIED addressing mode */) => () => {};
 
 OpCodes.ORA = (addressingMode) => (system) => {
   addressingMode(system, context => {
@@ -296,17 +296,17 @@ OpCodes.ORA = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.PHA = (system) => push(system.memory, system.registers, system.registers.A);
+OpCodes.PHA = (/* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
+OpCodes.PHP = (/* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
 
-OpCodes.PLA = (system) => {
+OpCodes.PLA = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.A = pull(system.memory, system.registers);
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
+OpCodes.PLP = (/* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
@@ -330,12 +330,12 @@ OpCodes.ROR = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.RTI = (pull) => (system) => {
+OpCodes.RTI = (pull, /* IMPLIED addressing mode */) => (system) => {
   loadStatusByte(system.registers, pull(system.memory, system.registers));
   system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
 };
 
-OpCodes.RTS = (pull) => (system) => {
+OpCodes.RTS = (pull, /* IMPLIED addressing mode */) => (system) => {
   system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
 };
 
@@ -353,15 +353,15 @@ OpCodes.SBC = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.SEC = (system) => {
+OpCodes.SEC = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.C = true;
 };
 
-OpCodes.SED = (system) => {
+OpCodes.SED = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.D = true;
 };
 
-OpCodes.SEI = (system) => {
+OpCodes.SEI = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.I = true;
 };
 
@@ -383,35 +383,35 @@ OpCodes.STY = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.TAX = (system) => {
+OpCodes.TAX = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.X = system.registers.A;
   system.registers.N = isNegativeBitSet(system.registers.X);
   system.registers.Z = isZero(system.registers.X);
 };
 
-OpCodes.TAY = (system) => {
+OpCodes.TAY = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.Y = system.registers.A;
   system.registers.N = isNegativeBitSet(system.registers.Y);
   system.registers.Z = isZero(system.registers.Y);
 };
 
-OpCodes.TSX = (system) => {
+OpCodes.TSX = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.X = system.registers.SP;
   system.registers.N = isNegativeBitSet(system.registers.X);
   system.registers.Z = isZero(system.registers.X);
 };
 
-OpCodes.TXA = (system) => {
+OpCodes.TXA = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.A = system.registers.X;
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.TXS = (system) => {
+OpCodes.TXS = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.SP = system.registers.X;
 };
 
-OpCodes.TYA = (system) => {
+OpCodes.TYA = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.A = system.registers.Y;
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);

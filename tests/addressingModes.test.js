@@ -34,6 +34,17 @@ describe('addressingModes', () => {
     });
   });
 
+  describe('implied', () => {
+    it('does not change the execution context at all', () => {
+      const testSystem = createSystem();
+      const brandNewSystem = createSystem();
+
+      Modes.implied(peek, poke)(testSystem, op);
+
+      expect(testSystem).toEqual(brandNewSystem);
+    });
+  });
+
   describe('accumulator', () => {
     it('should not advance the Program Counter at all', () => {
       const system = createSystem();

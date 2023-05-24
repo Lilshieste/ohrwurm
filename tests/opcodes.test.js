@@ -9,6 +9,7 @@ const {
   pull,
   push } = require('../memory');
 
+const implied = () => () => {};
 const direct = (operand) => (system, op) => op({ operand });
 const directContext = (context) => (system, op) => op(context);
 
@@ -352,7 +353,7 @@ describe('CLC', () => {
     const system = createSystem();
     system.registers.C = true;
     
-    OpCodes.CLC(system);
+    OpCodes.CLC(implied)(system);
     expect(system.registers.C).toBe(false);
   });
 });
@@ -362,7 +363,7 @@ describe('CLD', () => {
     const system = createSystem();
     system.registers.D = true;
     
-    OpCodes.CLD(system);
+    OpCodes.CLD(implied)(system);
     expect(system.registers.D).toBe(false);
   });
 });
@@ -372,7 +373,7 @@ describe('CLI', () => {
     const system = createSystem();
     system.registers.I = true;
     
-    OpCodes.CLI(system);
+    OpCodes.CLI(implied)(system);
     expect(system.registers.I).toBe(false);
   });
 });
@@ -382,7 +383,7 @@ describe('CLV', () => {
     const system = createSystem();
     system.registers.V = true;
     
-    OpCodes.CLV(system);
+    OpCodes.CLV(implied)(system);
     expect(system.registers.V).toBe(false);
   });
 });
@@ -571,7 +572,7 @@ describe('DEX', () => {
     
     system.registers.X = initial;
 
-    OpCodes.DEX(system);
+    OpCodes.DEX(implied)(system);
     expect(system.registers.X).toBe(expected);
   });
 
@@ -580,7 +581,7 @@ describe('DEX', () => {
 
     system.registers.X = 0;
 
-    OpCodes.DEX(system);
+    OpCodes.DEX(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -589,7 +590,7 @@ describe('DEX', () => {
 
     system.registers.X = 1;
 
-    OpCodes.DEX(system);
+    OpCodes.DEX(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -602,7 +603,7 @@ describe('DEY', () => {
     
     system.registers.Y = initial;
 
-    OpCodes.DEY(system);
+    OpCodes.DEY(implied)(system);
     expect(system.registers.Y).toBe(expected);
   });
 
@@ -611,7 +612,7 @@ describe('DEY', () => {
 
     system.registers.Y = 0;
 
-    OpCodes.DEY(system);
+    OpCodes.DEY(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -620,7 +621,7 @@ describe('DEY', () => {
 
     system.registers.Y = 1;
 
-    OpCodes.DEY(system);
+    OpCodes.DEY(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -685,7 +686,7 @@ describe('INX', () => {
     
     system.registers.X = initial;
 
-    OpCodes.INX(system);
+    OpCodes.INX(implied)(system);
     expect(system.registers.X).toBe(expected);
   });
 
@@ -694,7 +695,7 @@ describe('INX', () => {
 
     system.registers.X = 127;
 
-    OpCodes.INX(system);
+    OpCodes.INX(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -703,7 +704,7 @@ describe('INX', () => {
 
     system.registers.X = 255;
 
-    OpCodes.INX(system);
+    OpCodes.INX(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -716,7 +717,7 @@ describe('INY', () => {
     
     system.registers.Y = initial;
 
-    OpCodes.INY(system);
+    OpCodes.INY(implied)(system);
     expect(system.registers.Y).toBe(expected);
   });
 
@@ -725,7 +726,7 @@ describe('INY', () => {
 
     system.registers.Y = 127;
 
-    OpCodes.INY(system);
+    OpCodes.INY(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -734,7 +735,7 @@ describe('INY', () => {
 
     system.registers.Y = 255;
 
-    OpCodes.INY(system);
+    OpCodes.INY(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -893,7 +894,7 @@ describe('NOP', () => {
   it('should good n you?', () => {
     const system = createSystem();
 
-    OpCodes.NOP(system);
+    OpCodes.NOP(implied)(system);
     expect(system).toStrictEqual(createSystem());
   });
 });
@@ -934,7 +935,7 @@ describe('PHA', () => {
 
     system.registers.A = expected;
 
-    OpCodes.PHA(system);
+    OpCodes.PHA(implied)(system);
     expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
   });
 });
@@ -954,7 +955,7 @@ describe('PHP', () => {
 
     const expected = buildStatusByte(system.registers);
 
-    OpCodes.PHP(system);
+    OpCodes.PHP(implied)(system);
     expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
   });
 });
@@ -966,7 +967,7 @@ describe('PLA', () => {
 
     push(system.memory, system.registers, expected);
     
-    OpCodes.PLA(system);
+    OpCodes.PLA(implied)(system);
     expect(system.registers.A).toBe(expected);
   });
 
@@ -976,7 +977,7 @@ describe('PLA', () => {
     push(system.memory, system.registers, 0b10000000);
     system.registers.N = false;
 
-    OpCodes.PLA(system);
+    OpCodes.PLA(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -986,7 +987,7 @@ describe('PLA', () => {
     push(system.memory, system.registers, 0b00000000);
     system.registers.Z = false;
 
-    OpCodes.PLA(system);
+    OpCodes.PLA(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -1004,7 +1005,7 @@ describe('PLP', () => {
     system.registers.V = false;
     system.registers.N = false;
 
-    OpCodes.PLP(system);
+    OpCodes.PLP(implied)(system);
     expect(system.registers.C).toBe(true);
     expect(system.registers.Z).toBe(true);
     expect(system.registers.I).toBe(true);
@@ -1125,7 +1126,7 @@ describe('RTI', () => {
     push(system.memory, system.registers, lowByte);
     push(system.memory, system.registers, statusByte);
 
-    OpCodes.RTI(pull)(system);
+    OpCodes.RTI(pull, implied)(system);
     expect(buildStatusByte(system.registers)).toBe(statusByte);
     expect(system.registers.PC).toBe(testAddress);
   });
@@ -1142,7 +1143,7 @@ describe('RTS', () => {
     push(system.memory, system.registers, lowByte);
     system.registers.PC = 0x0000;
 
-    OpCodes.RTS(pull)(system);
+    OpCodes.RTS(pull, implied)(system);
     expect(system.registers.PC).toBe(expected);
   });
 });
@@ -1234,7 +1235,7 @@ describe('SEC', () => {
     const system = createSystem();
     system.registers.C = false;
     
-    OpCodes.SEC(system);
+    OpCodes.SEC(implied)(system);
     expect(system.registers.C).toBe(true);
   });
 });
@@ -1244,7 +1245,7 @@ describe('SED', () => {
     const system = createSystem();
     system.registers.D = false;
     
-    OpCodes.SED(system);
+    OpCodes.SED(implied)(system);
     expect(system.registers.D).toBe(true);
   });
 });
@@ -1254,7 +1255,7 @@ describe('SEI', () => {
     const system = createSystem();
     system.registers.I = false;
     
-    OpCodes.SEI(system);
+    OpCodes.SEI(implied)(system);
     expect(system.registers.I).toBe(true);
   });
 });
@@ -1308,7 +1309,7 @@ describe('TAX', () => {
 
     system.registers.A = expected;
 
-    OpCodes.TAX(system);
+    OpCodes.TAX(implied)(system);
     expect(system.registers.X).toBe(expected);
   });
 
@@ -1318,7 +1319,7 @@ describe('TAX', () => {
 
     system.registers.A = A;
 
-    OpCodes.TAX(system);
+    OpCodes.TAX(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -1328,7 +1329,7 @@ describe('TAX', () => {
 
     system.registers.A = A;
 
-    OpCodes.TAX(system);
+    OpCodes.TAX(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -1340,7 +1341,7 @@ describe('TAY', () => {
 
     system.registers.A = expected;
 
-    OpCodes.TAY(system);
+    OpCodes.TAY(implied)(system);
     expect(system.registers.Y).toBe(expected);
   });
 
@@ -1350,7 +1351,7 @@ describe('TAY', () => {
 
     system.registers.A = A;
 
-    OpCodes.TAY(system);
+    OpCodes.TAY(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -1360,7 +1361,7 @@ describe('TAY', () => {
 
     system.registers.A = A;
 
-    OpCodes.TAY(system);
+    OpCodes.TAY(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -1372,7 +1373,7 @@ describe('TSX', () => {
 
     system.registers.SP = expected;
 
-    OpCodes.TSX(system);
+    OpCodes.TSX(implied)(system);
     expect(system.registers.X).toBe(expected);
   });
 
@@ -1382,7 +1383,7 @@ describe('TSX', () => {
 
     system.registers.SP = SP;
 
-    OpCodes.TSX(system);
+    OpCodes.TSX(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -1392,7 +1393,7 @@ describe('TSX', () => {
 
     system.registers.SP = SP;
 
-    OpCodes.TSX(system);
+    OpCodes.TSX(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -1404,7 +1405,7 @@ describe('TXA', () => {
 
     system.registers.X = expected;
 
-    OpCodes.TXA(system);
+    OpCodes.TXA(implied)(system);
     expect(system.registers.A).toBe(expected);
   });
 
@@ -1414,7 +1415,7 @@ describe('TXA', () => {
 
     system.registers.X = X;
 
-    OpCodes.TXA(system);
+    OpCodes.TXA(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -1424,7 +1425,7 @@ describe('TXA', () => {
 
     system.registers.X = X;
 
-    OpCodes.TXA(system);
+    OpCodes.TXA(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -1436,7 +1437,7 @@ describe('TXS', () => {
 
     system.registers.X = expected;
 
-    OpCodes.TXS(system);
+    OpCodes.TXS(implied)(system);
     expect(system.registers.SP).toBe(expected);
   });
 });
@@ -1448,7 +1449,7 @@ describe('TYA', () => {
 
     system.registers.Y = expected;
 
-    OpCodes.TYA(system);
+    OpCodes.TYA(implied)(system);
     expect(system.registers.A).toBe(expected);
   });
 
@@ -1458,7 +1459,7 @@ describe('TYA', () => {
 
     system.registers.Y = Y;
 
-    OpCodes.TYA(system);
+    OpCodes.TYA(implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
@@ -1468,7 +1469,7 @@ describe('TYA', () => {
 
     system.registers.Y = Y;
 
-    OpCodes.TYA(system);
+    OpCodes.TYA(implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
