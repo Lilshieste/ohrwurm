@@ -1,8 +1,10 @@
 const {
   buildStatusByte,
-  executeFromInstructionSet,
-  run
 } = require('./memory');
+const {
+  executeFromInstructionSet,
+  run,
+} = require('./execution');
 
 const hex = (value) => `$${value.toString(16)}`;
 const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;

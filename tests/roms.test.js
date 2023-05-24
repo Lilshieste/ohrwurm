@@ -1,8 +1,9 @@
 const fs = require('fs');
 const { INSTRUCTION_SET } = require('../instructions');
-const { loadBytes, peek, runWithInstructionSet } = require('../memory');
+const { loadBytes, peek } = require('../memory');
+const { runWithInstructionSet } = require('../execution');
 const { createSystem } = require('../state');
-const { runWithInstructionSetAndSummary } = require('../debug');
+//const { runWithInstructionSetAndSummary } = require('../debug');
 
 describe('Test ROMs', () => {
   const startingAddress = 0x0600;

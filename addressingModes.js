@@ -1,4 +1,4 @@
-const { buildAddress, poke } = require('./memory');
+const { buildAddress } = require('./memory');
 
 const accumulator = (system, op) => {
   const context = { operand: system.registers.A };
