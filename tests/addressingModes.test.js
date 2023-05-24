@@ -6,7 +6,7 @@ describe('addressingModes', () => {
   const peek = jest.fn();
   const poke = jest.fn();
 
-  const createSystem = () => ({ registers: { PC: 0, A: 1 } });
+  const createSystem = () => ({ registers: { PC: 0, A: 1 }, memory: [] });
 
   afterEach(() => {
     jest.clearAllMocks();

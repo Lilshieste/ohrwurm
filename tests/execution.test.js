@@ -49,8 +49,8 @@ describe('Memory', () => {
       const runInstruction = jest.fn((instruction, system) => { if(!instruction) system.registers.B = true; });
 
       system.registers.PC = PC;
-      poke(system, PC, 0x42);
-      poke(system, PC + 1, 0x43);
+      poke(system.memory, PC, 0x42);
+      poke(system.memory, PC + 1, 0x43);
 
       run(system, runInstruction);
 

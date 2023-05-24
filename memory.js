@@ -1,6 +1,6 @@
 const { isNthBitSet } = require('./util');
 
-const peek = ({ memory }, address) => {
+const peek = (memory, address) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) return memory.RAM[address];
@@ -18,7 +18,7 @@ const peek = ({ memory }, address) => {
   else /* if(address <= 0xFFFF) */ return memory.Cartridge[address - 0x4020];
 };
 
-const poke = ({ memory }, address, value) => {
+const poke = (memory, address, value) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) memory.RAM[address] = value;
@@ -37,13 +37,13 @@ const poke = ({ memory }, address, value) => {
 };
 
 const push = ({ memory, registers }, value) => {
-  poke({ memory }, buildStackAddress(registers.SP), value);
+  poke(memory, buildStackAddress(registers.SP), value);
   registers.SP = (registers.SP - 1) & 0xFF;
 };
 
 const pull = ({ memory, registers }) => {
   registers.SP = (registers.SP + 1) & 0xFF;
-  return peek({ memory }, buildStackAddress(registers.SP));
+  return peek(memory, buildStackAddress(registers.SP));
 };
 
 const buildAddress = (lowByte, highByte) => (highByte << 8) + lowByte;
@@ -79,11 +79,11 @@ const loadStatusByte = ({ registers }, statusByte) => {
 
 const loadBytes = ({ memory }, bytes, startingAddress) => {
   for(let i = 0; i < bytes.length; i++) {
-    poke({ memory }, startingAddress + i, bytes[i]);
+    poke(memory, startingAddress + i, bytes[i]);
   }
 };
 
-const read = ({ memory, registers }) => peek({ memory }, registers.PC++);
+const read = ({ memory, registers }) => peek(memory, registers.PC++);
 
 module.exports = {
   buildAddress,

@@ -113,8 +113,8 @@ OpCodes.BPL = (addressingMode) => (system) => {
 };
 
 OpCodes.BRK = (peek, push) => (system) => {
-  const isrLowByte = peek(system, 0xFFFE);
-  const isrHighByte = peek(system, 0xFFFF);
+  const isrLowByte = peek(system.memory, 0xFFFE);
+  const isrHighByte = peek(system.memory, 0xFFFF);
   const { lowByte: pcLowByte, highByte: pcHighByte } = splitAddress(system.registers.PC);
   
   system.registers.B = true;

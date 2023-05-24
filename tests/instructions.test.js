@@ -5,7 +5,7 @@ const { poke } = require('../memory');
 describe('AND_Immediate', () => {
   it('should bitwise-AND the accumulator with the operand directly after the opcode', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand1 = 0b10100000;
@@ -33,7 +33,7 @@ describe('AND_Immediate', () => {
 describe('AND_Absolute', () => {
   it('should bitwise-AND the accumulator with the operand at the specified address', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
@@ -57,7 +57,7 @@ describe('AND_Absolute', () => {
 describe('AND_AbsoluteX', () => {
   it('should bitwise-AND the accumulator with the operand at the specified address with the offset specified in register X', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
@@ -83,7 +83,7 @@ describe('AND_AbsoluteX', () => {
 describe('AND_AbsoluteY', () => {
   it('should bitwise-AND the accumulator with the operand at the specified address with the offset specified in register Y', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
@@ -109,7 +109,7 @@ describe('AND_AbsoluteY', () => {
 describe('AND_ZeroPage', () => {
   it('should bitwise-AND the accumulator with the operand at the specified zero page address', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
@@ -131,7 +131,7 @@ describe('AND_ZeroPage', () => {
 describe('AND_ZeroPageX', () => {
   it('should bitwise-AND the accumulator with the operand at the specified zero page address with the offset specified in register X', () => {
     const system = createSystem();
-    const write = (address, value) => { poke(system, address,  value); };
+    const write = (address, value) => { poke(system.memory, address,  value); };
     const initialPC = 0x8000;
     const initialA = 0b11110000;
     const operand = 0b10100000;
@@ -156,21 +156,21 @@ describe('Simple program', () => {
   it('should have the right final state', () => {
     const system = createSystem();
 
-    poke(system, 0x0600, 0xa9);
-    poke(system, 0x0601, 0x01);
-    poke(system, 0x0602, 0x8d);
-    poke(system, 0x0603, 0x00);
-    poke(system, 0x0604, 0x02);
-    poke(system, 0x0605, 0xa9);
-    poke(system, 0x0606, 0x05);
-    poke(system, 0x0607, 0x8d);
-    poke(system, 0x0608, 0x01);
-    poke(system, 0x0609, 0x02);
-    poke(system, 0x060a, 0xa9);
-    poke(system, 0x060b, 0x08);
-    poke(system, 0x060c, 0x8d);
-    poke(system, 0x060d, 0x02);
-    poke(system, 0x060e, 0x02);
+    poke(system.memory, 0x0600, 0xa9);
+    poke(system.memory, 0x0601, 0x01);
+    poke(system.memory, 0x0602, 0x8d);
+    poke(system.memory, 0x0603, 0x00);
+    poke(system.memory, 0x0604, 0x02);
+    poke(system.memory, 0x0605, 0xa9);
+    poke(system.memory, 0x0606, 0x05);
+    poke(system.memory, 0x0607, 0x8d);
+    poke(system.memory, 0x0608, 0x01);
+    poke(system.memory, 0x0609, 0x02);
+    poke(system.memory, 0x060a, 0xa9);
+    poke(system.memory, 0x060b, 0x08);
+    poke(system.memory, 0x060c, 0x8d);
+    poke(system.memory, 0x060d, 0x02);
+    poke(system.memory, 0x060e, 0x02);
 
     system.registers.PC = 0x0600;
     system.registers.PC++; NES.INSTRUCTION_SET[0xa9](system);
