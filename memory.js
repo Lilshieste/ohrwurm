@@ -77,7 +77,7 @@ const loadStatusByte = (registers, statusByte) => {
   registers.N = isNthBitSet(statusByte, 7);
 };
 
-const loadBytes = ({ memory }, bytes, startingAddress) => {
+const loadBytes = (memory, bytes, startingAddress) => {
   for(let i = 0; i < bytes.length; i++) {
     poke(memory, startingAddress + i, bytes[i]);
   }

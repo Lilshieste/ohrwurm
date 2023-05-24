@@ -381,7 +381,7 @@ describe('Memory', () => {
       const start = 0x42;
       const testBytes = [0x1, 0x2, 0x3, 0x4, 0x42, 0x43, 0x44, 0x0, 0x0, 0x45];
 
-      loadBytes({ memory }, testBytes, start);
+      loadBytes(memory, testBytes, start);
 
       for(let i = 0; i < testBytes.length; i++) {
         expect(peek(memory, start + i)).toBe(testBytes[i]);

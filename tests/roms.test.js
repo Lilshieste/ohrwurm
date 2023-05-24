@@ -16,7 +16,7 @@ describe('Test ROMs', () => {
       .replace(/\r\n$/gm, '')  // trailing newline
       .replace(/^\r\n/m, ''); // empty lines
     const bytes = cleaned.split('\r\n').map(str => parseInt(str, 16));
-    loadBytes(system, bytes, startingAddress);
+    loadBytes(system.memory, bytes, startingAddress);
     system.registers.PC = startingAddress;
   };
 

@@ -32,5 +32,5 @@ const run = runWithInstructionSetAndSummary(INSTRUCTION_SET);
 
 const system = createSystem();
 system.registers.PC = startingAddress;
-loadBytes(system, programBytes3, startingAddress);
+loadBytes(system.memory, programBytes3, startingAddress);
 run(system);
