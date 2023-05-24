@@ -121,7 +121,7 @@ OpCodes.BRK = (peek, push) => (system) => {
 
   push(system.memory, system.registers, pcHighByte);
   push(system.memory, system.registers, pcLowByte);
-  push(system.memory, system.registers, buildStatusByte(system));
+  push(system.memory, system.registers, buildStatusByte(system.registers));
 
   system.registers.PC = buildAddress(isrLowByte, isrHighByte);
 };
@@ -298,7 +298,7 @@ OpCodes.ORA = (addressingMode) => (system) => {
 
 OpCodes.PHA = (system) => push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (system) => push(system.memory, system.registers, buildStatusByte(system));
+OpCodes.PHP = (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
 
 OpCodes.PLA = (system) => {
   system.registers.A = pull(system.memory, system.registers);

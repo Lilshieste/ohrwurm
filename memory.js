@@ -55,7 +55,7 @@ const splitAddress = (address) => ({
   highByte: (address >> 8) & 0xFF
 });
 
-const buildStatusByte = ({ registers }) => {
+const buildStatusByte = (registers) => {
   return 0
     + (registers.C ? 0x01 : 0)
     + (registers.Z ? 0x02 : 0)

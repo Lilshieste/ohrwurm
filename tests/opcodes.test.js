@@ -952,7 +952,7 @@ describe('PHP', () => {
     system.registers.V = true;
     system.registers.N = true;
 
-    const expected = buildStatusByte(system);
+    const expected = buildStatusByte(system.registers);
 
     OpCodes.PHP(system);
     expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
@@ -1126,7 +1126,7 @@ describe('RTI', () => {
     push(system.memory, system.registers, statusByte);
 
     OpCodes.RTI(pull)(system);
-    expect(buildStatusByte(system)).toBe(statusByte);
+    expect(buildStatusByte(system.registers)).toBe(statusByte);
     expect(system.registers.PC).toBe(testAddress);
   });
 });
