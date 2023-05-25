@@ -1,7 +1,7 @@
-const { createSystem } = require('./state');
-const { INSTRUCTION_SET } = require('./instructions');
-const { loadBytes } = require('./memory');
-const { runWithInstructionSetAndSummary } = require('./debug');
+const { createSystem } = require('./6502/state');
+const { INSTRUCTION_SET } = require('./6502/instructions');
+const { loadBytes } = require('./6502/memory');
+const { runWithInstructionSetAndSummary } = require('./6502/debug');
 
 // read program from file
 // load program into memory

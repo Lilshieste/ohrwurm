@@ -1,6 +1,6 @@
-const NES = require('../instructions');
-const { createSystem, createRegisters } = require('../state');
-const { poke } = require('../memory');
+const NES = require('../../6502/instructions');
+const { createSystem } = require('../../6502/state');
+const { poke } = require('../../6502/memory');
 
 describe('AND_Immediate', () => {
   it('should bitwise-AND the accumulator with the operand directly after the opcode', () => {

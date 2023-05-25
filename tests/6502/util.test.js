@@ -1,4 +1,4 @@
-const Util = require('../util');
+const Util = require('../../6502/util');
 
 describe('util', () => {
   test('isNthBitSet should return true if the bit at the Nth index is set', () => {

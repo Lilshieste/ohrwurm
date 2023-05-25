@@ -1,10 +1,10 @@
 const {
   poke,
-} = require('../memory');
+} = require('../../6502/memory');
 const {
   run
-} = require('../execution');
-const { createSystem } = require('../state');
+} = require('../../6502/execution');
+const { createSystem } = require('../../6502/state');
 
 describe('Memory', () => {
   const system = createSystem();

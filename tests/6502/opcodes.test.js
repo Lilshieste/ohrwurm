@@ -1,5 +1,5 @@
-const OpCodes = require('../opcodes');
-const { createSystem } = require('../state');
+const OpCodes = require('../../6502/opcodes');
+const { createSystem } = require('../../6502/state');
 const {
   buildStackAddress,
   buildStatusByte,
@@ -7,7 +7,7 @@ const {
   peek,
   poke,
   pull,
-  push } = require('../memory');
+  push } = require('../../6502/memory');
 
 const implied = () => () => {};
 const direct = (operand) => (system, op) => op({ operand });

@@ -1,4 +1,4 @@
-const Modes = require('../addressingModes');
+const Modes = require('../../6502/addressingModes');
 const { when } = require('jest-when');
 
 describe('addressingModes', () => {

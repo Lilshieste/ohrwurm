@@ -10,8 +10,8 @@ const {
   push,
   read,
   splitAddress,
-} = require('../memory');
-const { createMemory, createRegisters, createSystem } = require('../state');
+} = require('../../6502/memory');
+const { createMemory, createRegisters, createSystem } = require('../../6502/state');
 
 describe('Memory', () => {
   const system = createSystem();
