@@ -1,16 +1,14 @@
 const fs = require('fs');
-const { INSTRUCTION_SET } = require('../../6502/instructions');
-const { loadBytes, peek } = require('../../6502/memory');
-const { runWithInstructionSet } = require('../../6502/execution');
-const { createSystem } = require('../../6502/state');
-//const { runWithInstructionSetAndSummary } = require('../../6502/debug');
+const { createInstructionSet } = require('../../../6502/instructions');
+const { loadBytes, peek } = require('../../../6502/memory');
+const { start } = require('../../../6502/execution');
+const { createBasicDevice } = require('../../../devices/basic');
 
 describe('Test ROMs', () => {
   const startingAddress = 0x0600;
-  const customRun = runWithInstructionSet(INSTRUCTION_SET);
 
   const loadROM = (filename, system) => {
-    const fullPath = `./tests/6502/roms/${filename}`;
+    const fullPath = `./tests/devices/roms/${filename}`;
     const contents = fs.readFileSync(fullPath).toString();
     const cleaned = contents
       .replace(/\/\/.*/g, '') // comments
@@ -22,9 +20,11 @@ describe('Test ROMs', () => {
   };
 
   const testROM = (filename) => {
-    const system = createSystem();
+    const system = createBasicDevice();
+    const instructionSet = createInstructionSet(system.peekFn, system.pokeFn);
     loadROM(filename, system);
-    customRun(system);
+
+    start(system, instructionSet);
 
     return system;
   };

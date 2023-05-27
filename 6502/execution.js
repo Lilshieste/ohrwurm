@@ -1,16 +1,38 @@
-const { read } = require('./memory');
+const fetchDecodeExecute = (system, instructionSet) => {
+  const fetch = () => system.peekFn(system.memory, system.registers.PC++);
+  const decode = (byte) => instructionSet[byte];
+  const execute = (instruction) => instruction(system)
 
-const run = (system, execute) => {
+  execute(decode(fetch()));
+}
+
+const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDecode, preExecute }) => {
+  const fetch = () => {
+    if(preFetch)
+      preFetch();
+    return system.peekFn(system.memory, system.registers.PC++);
+  };
+  const decode = (byte) => {
+    if(preDecode)
+      preDecode(byte);
+    return instructionSet[byte];
+  };
+  const execute = (instruction) => {
+    if(preExecute)
+      preExecute(instruction);
+    return instruction(system);
+  }
+
+  execute(decode(fetch()));
+};
+
+const start = (system, instructionSet, hooks = false) => {
+  const cycle = hooks ? fetchDecodeExecuteWithHooks : fetchDecodeExecute;
   while(!system.registers.B) {
-    execute(read(system.memory, system.registers), system);
+    cycle(system, instructionSet, hooks);
   }
 };
 
-const executeFromInstructionSet = (instructionSet) => (instruction, system) => instructionSet[instruction](system);
-const runWithInstructionSet = (instructionSet) => (system) => run(system, executeFromInstructionSet(instructionSet));
-
 module.exports = {
-  executeFromInstructionSet,
-  run,
-  runWithInstructionSet,
+  start,
 };

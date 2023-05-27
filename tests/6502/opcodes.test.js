@@ -293,7 +293,7 @@ describe('BRK', () => {
     system.registers.PC = testAddress;
     loadStatusByte(system.registers, startingStatusByte);
 
-    OpCodes.BRK(peek, push)(system);
+    OpCodes.BRK(peek, push(poke))(system);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 3))).toBe(highByte);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(lowByte);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 1))).toBe(expectedStatusByte);
@@ -309,7 +309,7 @@ describe('BRK', () => {
     poke(system.memory, 0xFFFE, isrLowByte);
     poke(system.memory, 0xFFFF, isrHighByte);
 
-    OpCodes.BRK(peek, push)(system);
+    OpCodes.BRK(peek, push(poke))(system);
     expect(system.registers.PC).toBe(expectedPC);
   });
 });
@@ -759,7 +759,7 @@ describe('JSR', () => {
 
     system.registers.PC = 0x7654;
 
-    OpCodes.JSR(direct(0x0000))(system);
+    OpCodes.JSR(push(poke), direct(0x0000))(system);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(highByte);
     expect(peek(system.memory, buildStackAddress(system.registers.SP + 1))).toBe(lowByte - 1);
   });
@@ -770,7 +770,7 @@ describe('JSR', () => {
 
     system.registers.PC = 0x0000;
 
-    OpCodes.JSR(direct(operand))(system);
+    OpCodes.JSR(push(poke), direct(operand))(system);
     expect(system.registers.PC).toBe(operand);
   });
 });
@@ -935,7 +935,7 @@ describe('PHA', () => {
 
     system.registers.A = expected;
 
-    OpCodes.PHA(implied)(system);
+    OpCodes.PHA(push(poke), implied)(system);
     expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
   });
 });
@@ -955,7 +955,7 @@ describe('PHP', () => {
 
     const expected = buildStatusByte(system.registers);
 
-    OpCodes.PHP(implied)(system);
+    OpCodes.PHP(push(poke), implied)(system);
     expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
   });
 });
@@ -965,29 +965,29 @@ describe('PLA', () => {
     const system = createSystem();
     const expected = 42;
 
-    push(system.memory, system.registers, expected);
+    push(poke)(system.memory, system.registers, expected);
     
-    OpCodes.PLA(implied)(system);
+    OpCodes.PLA(pull(peek), implied)(system);
     expect(system.registers.A).toBe(expected);
   });
 
   it('should set (N)egative flag properly after loading operand into accumulator', () => {
     const system = createSystem();
 
-    push(system.memory, system.registers, 0b10000000);
+    push(poke)(system.memory, system.registers, 0b10000000);
     system.registers.N = false;
 
-    OpCodes.PLA(implied)(system);
+    OpCodes.PLA(pull(peek), implied)(system);
     expect(system.registers.N).toBe(true);
   });
 
   it('should set (Z)ero flag properly after loading operand into accumulator', () => {
     const system = createSystem();
 
-    push(system.memory, system.registers, 0b00000000);
+    push(poke)(system.memory, system.registers, 0b00000000);
     system.registers.Z = false;
 
-    OpCodes.PLA(implied)(system);
+    OpCodes.PLA(pull(peek), implied)(system);
     expect(system.registers.Z).toBe(true);
   });
 });
@@ -996,7 +996,7 @@ describe('PLP', () => {
   it('should pull a value from the stack and load it into the status flags', () => {
     const system = createSystem();
 
-    push(system.memory, system.registers, 0b11111111);
+    push(poke)(system.memory, system.registers, 0b11111111);
     system.registers.C = false;
     system.registers.Z = false;
     system.registers.I = false;
@@ -1005,7 +1005,7 @@ describe('PLP', () => {
     system.registers.V = false;
     system.registers.N = false;
 
-    OpCodes.PLP(implied)(system);
+    OpCodes.PLP(pull(peek), implied)(system);
     expect(system.registers.C).toBe(true);
     expect(system.registers.Z).toBe(true);
     expect(system.registers.I).toBe(true);
@@ -1122,11 +1122,11 @@ describe('RTI', () => {
     const statusByte = 0b11110011;
 
     system.registers.PC = 0x0;
-    push(system.memory, system.registers, highByte);
-    push(system.memory, system.registers, lowByte);
-    push(system.memory, system.registers, statusByte);
+    push(poke)(system.memory, system.registers, highByte);
+    push(poke)(system.memory, system.registers, lowByte);
+    push(poke)(system.memory, system.registers, statusByte);
 
-    OpCodes.RTI(pull, implied)(system);
+    OpCodes.RTI(pull(peek), implied)(system);
     expect(buildStatusByte(system.registers)).toBe(statusByte);
     expect(system.registers.PC).toBe(testAddress);
   });
@@ -1139,11 +1139,11 @@ describe('RTS', () => {
     const lowByte = expected & 0xFF;
     const highByte = (expected >> 8) & 0xFF;
 
-    push(system.memory, system.registers, highByte);
-    push(system.memory, system.registers, lowByte);
+    push(poke)(system.memory, system.registers, highByte);
+    push(poke)(system.memory, system.registers, lowByte);
     system.registers.PC = 0x0000;
 
-    OpCodes.RTS(pull, implied)(system);
+    OpCodes.RTS(pull(peek), implied)(system);
     expect(system.registers.PC).toBe(expected);
   });
 });

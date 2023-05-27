@@ -1,5 +1,3 @@
-const createMemory = () => new Array(0xFFFF).fill(0);
-
 const createRegisters = () => ({
   A: 0,
   X: 0,
@@ -17,13 +15,6 @@ const createRegisters = () => ({
   C: false,
 });
 
-const createSystem = () => ({
-  registers: createRegisters(),
-  memory: createMemory(),
-});
-
 module.exports = {
-  createMemory,
   createRegisters,
-  createSystem,
 };

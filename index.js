@@ -1,7 +1,8 @@
-const { createSystem } = require('./6502/state');
+const { createBasicDevice } = require('./devices/basic');
 const { INSTRUCTION_SET } = require('./6502/instructions');
 const { loadBytes } = require('./6502/memory');
 const { runWithInstructionSetAndSummary } = require('./6502/debug');
+
 
 // read program from file
 // load program into memory
@@ -30,7 +31,7 @@ const programBytes3 = [
 const startingAddress = 0x0600;
 const run = runWithInstructionSetAndSummary(INSTRUCTION_SET);
 
-const system = createSystem();
+const system = createBasicDevice();
 system.registers.PC = startingAddress;
 loadBytes(system.memory, programBytes3, startingAddress);
 run(system);

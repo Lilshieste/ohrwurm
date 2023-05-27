@@ -1,7 +1,5 @@
 const {
   buildStatusByte,
-  pull,
-  push,
   splitAddress, 
   loadStatusByte,
   buildAddress} = require('./memory');
@@ -242,7 +240,7 @@ OpCodes.JMP = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.JSR = (addressingMode) => (system) => {
+OpCodes.JSR = (push, addressingMode) => (system) => {
   addressingMode(system, context => {
     const { lowByte, highByte } = splitAddress(system.registers.PC - 1);
     push(system.memory, system.registers, highByte);
@@ -296,17 +294,17 @@ OpCodes.ORA = (addressingMode) => (system) => {
   });
 };
 
-OpCodes.PHA = (/* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, system.registers.A);
+OpCodes.PHA = (push /* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (/* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
+OpCodes.PHP = (push /* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
 
-OpCodes.PLA = (/* IMPLIED addressing mode */) => (system) => {
+OpCodes.PLA = (pull /* IMPLIED addressing mode */) => (system) => {
   system.registers.A = pull(system.memory, system.registers);
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (/* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
+OpCodes.PLP = (pull /* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
