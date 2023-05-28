@@ -2,23 +2,22 @@ const AddressingModes = require('./addressingModes');
 const OpCode = require('./opcodes');
 const { peek, poke, pull, push } = require('./memory');
 
-const createInstructionSet = (peekFn = peek, pokeFn = poke) => {
+const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = undefined) => {
   const pullFn = pull(peekFn);
   const pushFn = push(pokeFn);
-
-  const absolute = AddressingModes.absolute(peekFn, pokeFn);
-  const absoluteX = AddressingModes.absoluteX(peekFn, pokeFn);
-  const absoluteY = AddressingModes.absoluteY(peekFn, pokeFn);
-  const accumulator = AddressingModes.accumulator;
-  const immediate = AddressingModes.immediate(peekFn);
+  const absolute = AddressingModes.absolute(peekFn, pokeFn, createOpContext);
+  const absoluteX = AddressingModes.absoluteX(peekFn, pokeFn, createOpContext);
+  const absoluteY = AddressingModes.absoluteY(peekFn, pokeFn, createOpContext);
+  const accumulator = AddressingModes.accumulator(createOpContext);
+  const immediate = AddressingModes.immediate(peekFn, createOpContext);
   const implied = AddressingModes.implied;
-  const indirect = AddressingModes.indirect(peekFn);
-  const indexedIndirect = AddressingModes.indexedIndirect(peekFn, pokeFn);
-  const indirectIndexed = AddressingModes.indirectIndexed(peekFn, pokeFn);
-  const relative = AddressingModes.relative(peekFn);
-  const zeroPage = AddressingModes.zeroPage(peekFn, pokeFn);
-  const zeroPageX = AddressingModes.zeroPageX(peekFn, pokeFn);
-  const zeroPageY = AddressingModes.zeroPageY(peekFn, pokeFn);
+  const indirect = AddressingModes.indirect(peekFn, createOpContext);
+  const indexedIndirect = AddressingModes.indexedIndirect(peekFn, pokeFn, createOpContext);
+  const indirectIndexed = AddressingModes.indirectIndexed(peekFn, pokeFn, createOpContext);
+  const relative = AddressingModes.relative(peekFn, createOpContext);
+  const zeroPage = AddressingModes.zeroPage(peekFn, pokeFn, createOpContext);
+  const zeroPageX = AddressingModes.zeroPageX(peekFn, pokeFn, createOpContext);
+  const zeroPageY = AddressingModes.zeroPageY(peekFn, pokeFn, createOpContext);
 
   return [
     OpCode.BRK(peekFn, pushFn, implied),  // $00 	BRK Implied 	- - - - - - - 
@@ -282,5 +281,4 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke) => {
 
 module.exports = {
   createInstructionSet,
-  INSTRUCTION_SET: createInstructionSet(peek, poke),
 };

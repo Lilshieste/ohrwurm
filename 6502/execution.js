@@ -6,7 +6,7 @@ const fetchDecodeExecute = (system, instructionSet) => {
   execute(decode(fetch()));
 }
 
-const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDecode, preExecute }) => {
+const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDecode, preExecute, postExecute }) => {
   const fetch = () => {
     if(preFetch)
       preFetch();
@@ -15,12 +15,15 @@ const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDeco
   const decode = (byte) => {
     if(preDecode)
       preDecode(byte);
-    return instructionSet[byte];
+    return { opCode: byte, instruction: instructionSet[byte] };
   };
-  const execute = (instruction) => {
+  const execute = (decoded) => {
     if(preExecute)
-      preExecute(instruction);
-    return instruction(system);
+      preExecute(decoded);
+    const result = decoded.instruction(system);
+    if(postExecute)
+      postExecute(decoded);
+    return result;
   }
 
   execute(decode(fetch()));

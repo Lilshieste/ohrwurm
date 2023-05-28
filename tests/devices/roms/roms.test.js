@@ -1,8 +1,9 @@
 const fs = require('fs');
 const { createInstructionSet } = require('../../../6502/instructions');
-const { loadBytes, peek } = require('../../../6502/memory');
+const { buildStatusByte, loadBytes, peek } = require('../../../6502/memory');
 const { start } = require('../../../6502/execution');
 const { createBasicDevice } = require('../../../devices/basic');
+const { defaultCreateContext } = require('../../../6502/addressingModes');
 
 describe('Test ROMs', () => {
   const startingAddress = 0x0600;
@@ -20,11 +21,28 @@ describe('Test ROMs', () => {
   };
 
   const testROM = (filename) => {
+    let currentOperand;
+    let pokes = [];
+    const history = [];
+    const poke = (memory, address, value) => { pokes.push({ address, value }); return system.pokeFn(memory, address, value) }
+    const createContext = (operand) => { currentOperand = operand; return defaultCreateContext(operand); };
+    const postExecute = (decoded) => {
+      history.push({ ...system.registers, opCode: decoded.opCode, operand: currentOperand, pokes }); currentOperand = null;
+      pokes = [];
+    };
     const system = createBasicDevice();
-    const instructionSet = createInstructionSet(system.peekFn, system.pokeFn);
+
+    const instructionSet = createInstructionSet(system.peekFn, poke, createContext);
     loadROM(filename, system);
 
-    start(system, instructionSet);
+    start(system, instructionSet, { postExecute });
+
+    const hex = (value) => `$${value.toString(16)}`;
+    const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;
+    const headerWithOpCode = `Op\t\tOperand\t\tA\t\tX\t\tY\t\tPC\t\tSP\t\tNV-BDIZC`;
+    const pokesOutput = (e) => e.pokes.map(p => `\tPoke ${hex(p.address)} = ${hex(p.value)}`).join('\n');
+    const stateWithOpCode = (e) => `${hex(e.opCode)}\t\t${hex(e.operand||'')}\t\t${hex(e.A)}\t\t${hex(e.X)}\t\t${hex(e.Y)}\t\t${hex16(e.PC)}\t\t${hex(e.SP)}\t\t${buildStatusByte(e).toString(2).padStart(8, 0)}\n${pokesOutput(e)}`;
+    console.log(headerWithOpCode + '\n' + history.map(stateWithOpCode).join('\n'));
 
     return system;
   };

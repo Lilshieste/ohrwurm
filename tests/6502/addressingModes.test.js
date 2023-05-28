@@ -50,7 +50,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC;
 
-      Modes.accumulator(system, op);
+      Modes.accumulator()(system, op);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -58,7 +58,7 @@ describe('addressingModes', () => {
     it('should use accumulator as operand', () => {
       const system = createSystem();
 
-      Modes.accumulator(system, op);
+      Modes.accumulator()(system, op);
       expect(op).toHaveBeenCalledWith({ operand: system.registers.A });
     });
 
@@ -68,7 +68,7 @@ describe('addressingModes', () => {
 
       op.mockImplementation(context => context.operand = expected);
 
-      Modes.accumulator(system, op);
+      Modes.accumulator()(system, op);
       expect(system.registers.A).toBe(expected);
     });
   });

@@ -1039,15 +1039,15 @@ describe('ROL', () => {
     expect(context.operand).toBe(expected);
   });
 
-  it('should set (N)egative flag properly after shifting the operand', () => {
+  it('should set (N)egative flag to input bit 6', () => {
     const system = createSystem();
-    const operand = 0b01110000;
+    const operand = 0b01000000;
 
     OpCodes.ROL(direct(operand))(system);
     expect(system.registers.N).toBe(true);
   });
 
-  it('should set (Z)ero flag properly after shifting the operand', () => {
+  it('should set (Z)ero flag if the result of the shift is zero', () => {
     const system = createSystem();
     const operand = 0b10000000;
 
@@ -1055,9 +1055,9 @@ describe('ROL', () => {
     expect(system.registers.Z).toBe(true);
   });
 
-  it('should set (C)arry flag properly after shifting the operand', () => {
+  it('should set (C)arry flag to input bit 7', () => {
     const system = createSystem();
-    const operand = 0b11111111;
+    const operand = 0b10000000;
 
     OpCodes.ROL(direct(operand))(system);
     expect(system.registers.C).toBe(true);
@@ -1087,16 +1087,17 @@ describe('ROR', () => {
     expect(context.operand).toBe(expected);
   });
 
-  it('should clear the (N)egative flag after shifting the operand', () => {
+  it('should set the (N)egative flag to the input (C)arry flag', () => {
     const system = createSystem();
 
-    system.registers.N = true;
+    system.registers.C = true;
+    system.registers.N = false;
 
-    OpCodes.ROR(direct(0b10000000))(system);
-    expect(system.registers.N).toBe(false);
+    OpCodes.ROR(direct(0))(system);
+    expect(system.registers.N).toBe(true);
   });
 
-  it('should set (Z)ero flag properly after shifting the operand', () => {
+  it('should set (Z)ero flag if shifted result is zero', () => {
     const system = createSystem();
     const operand = 0b00000000;
 
@@ -1104,13 +1105,103 @@ describe('ROR', () => {
     expect(system.registers.Z).toBe(true);
   });
 
-  it('should set (C)arry flag properly after shifting the operand', () => {
+  it('should set (C)arry flag to input bit 0', () => {
     const system = createSystem();
     const operand = 0b00000001;
 
     OpCodes.ROR(direct(operand))(system);
     expect(system.registers.C).toBe(true);
   });
+
+  // Copied from "davepoo" GH (credit)
+  // TEST_F( M6502ShiftsTests, RORCanShiftTheCarryFlagIntoTheOperand )
+  // {
+  //   // given:
+  //   using namespace m6502;
+  //   cpu.Reset( 0xFF00, mem );
+  //   cpu.Flag.C = true;
+  //   cpu.Flag.Z = false;
+  //   cpu.Flag.N = false;
+  //   cpu.A = 0;
+  //   mem[0xFF00] = CPU::INS_ROR;
+  //   constexpr s32 EXPECTED_CYCLES = 2;
+  //   CPU CPUCopy = cpu;
+
+  //   // when:
+  //   const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+
+  //   // then:
+  //   EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+  //   EXPECT_EQ( cpu.A, 0b10000000 );
+  //   EXPECT_FALSE( cpu.Flag.C );
+  //   EXPECT_FALSE( cpu.Flag.Z );
+  //   EXPECT_TRUE( cpu.Flag.N );
+  // }
+
+  // Thanks to @davepoo (https://github.com/davepoo/6502Emulator) for this test - it helped me track down a super elusive bug! 🙇‍♂️
+  it('RORCanShiftTheCarryFlagIntoTheOperand', () => {
+    const system = createSystem();
+    const context = { operand: 0 };
+
+    system.registers.C = true;
+    system.registers.Z = false;
+    system.registers.N = false;
+    system.registers.A = 0;
+
+    OpCodes.ROR(directContext(context))(system);
+    expect(context.operand).toBe(0b10000000);
+    expect(system.registers.C).toBe(false);
+    expect(system.registers.Z).toBe(false);
+    expect(system.registers.N).toBe(true);
+  });
+
+  // TEST_F( M6502ShiftsTests, RORCanShiftAValueIntoTheCarryFlag )
+  // {
+  //   // given:
+  //   using namespace m6502;
+  //   cpu.Reset( 0xFF00, mem );
+  //   cpu.Flag.C = false;
+  //   cpu.Flag.Z = false;
+  //   cpu.Flag.N = false;
+  //   cpu.A = 1;
+  //   mem[0xFF00] = CPU::INS_ROR;
+  //   constexpr s32 EXPECTED_CYCLES = 2;
+  //   CPU CPUCopy = cpu;
+
+  //   // when:
+  //   const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+
+  //   // then:
+  //   EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+  //   EXPECT_EQ( cpu.A, 0 );
+  //   EXPECT_TRUE( cpu.Flag.C );
+  //   EXPECT_TRUE( cpu.Flag.Z );
+  //   EXPECT_FALSE( cpu.Flag.N );
+  // }
+
+  // TEST_F( M6502ShiftsTests, RORCanRotateANumber )
+  // {
+  //   // given:
+  //   using namespace m6502;
+  //   cpu.Reset( 0xFF00, mem );
+  //   cpu.Flag.C = true;
+  //   cpu.Flag.Z = true;
+  //   cpu.Flag.N = false;
+  //   cpu.A = 0b01101101;
+  //   mem[0xFF00] = CPU::INS_ROR;
+  //   constexpr s32 EXPECTED_CYCLES = 2;
+  //   CPU CPUCopy = cpu;
+
+  //   // when:
+  //   const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+
+  //   // then:
+  //   EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+  //   EXPECT_EQ( cpu.A, 0b10110110 );
+  //   EXPECT_TRUE( cpu.Flag.C );
+  //   EXPECT_FALSE( cpu.Flag.Z );
+  //   EXPECT_TRUE( cpu.Flag.N );
+  // }
 });
 
 describe('RTI', () => {

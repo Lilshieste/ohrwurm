@@ -309,7 +309,7 @@ OpCodes.PLP = (pull /* IMPLIED addressing mode */) => (system) => loadStatusByte
 OpCodes.ROL = (addressingMode) => (system) => {
   addressingMode(system, context => {
     const result = toByte(context.operand << 1) + (system.registers.C ? 1 : 0);
-    system.registers.N = isNthBitSet(result, 7);
+    system.registers.N = isNthBitSet(context.operand, 6);
     system.registers.Z = isZero(result);
     system.registers.C = isNthBitSet(context.operand, 7);
 
@@ -320,7 +320,7 @@ OpCodes.ROL = (addressingMode) => (system) => {
 OpCodes.ROR = (addressingMode) => (system) => {
   addressingMode(system, context => {
     const result = (context.operand >> 1) + (system.registers.C ? 0b10000000 : 0);
-    system.registers.N = false;
+    system.registers.N = system.registers.C;
     system.registers.Z = isZero(result);
     system.registers.C = isNthBitSet(context.operand, 0);
 
