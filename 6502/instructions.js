@@ -130,7 +130,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = un
     OpCode.Unofficial,        
     OpCode.JMP(indirect),                 // $6c 	JMP $NN	Indirect 	- - - - - - - 
     OpCode.ADC(absolute),                 // $6d 	ADC $NNNN	Absolute 	CZ- - - VN
-    OpCode.ROR(absoluteX),                // $6e 	ROR $NNNN,X	Absolute,X 	CZ- - - - N
+    OpCode.ROR(absolute),                 // $6e 	ROR $NNNN	Absolute 	CZ- - - - N
     OpCode.Unofficial,        
     OpCode.BVS(relative),                 // $70 	BVS $NN	Relative 	- - - - - - - 
     OpCode.ADC(indirectIndexed),          // $71 	ADC ($NN),Y	Indirect Indexed 	CZ- - - VN
@@ -146,7 +146,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = un
     OpCode.Unofficial,        
     OpCode.Unofficial,        
     OpCode.ADC(absoluteX),                // $7d 	ADC $NNNN,X	Absolute,X 	CZ- - - VN
-    OpCode.ROR(absolute),                 // $7e 	ROR $NNNN	Absolute 	CZ- - - - N
+    OpCode.ROR(absoluteX),                // $7e 	ROR $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
     OpCode.Unofficial,        
     OpCode.STA(indexedIndirect),          // $81 	STA ($NN,X)	Indexed Indirect 	- - - - - - - 

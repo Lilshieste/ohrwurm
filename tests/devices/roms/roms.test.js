@@ -68,7 +68,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x71)).toBe(0xff);
   });
 
-  test.skip('test03-bitshifts.rom', () => {
+  test('test03-bitshifts.rom', () => {
     const system = testROM('test03-bitshifts.rom');
 
     expect(peek(system.memory, 0x01dd)).toBe(0x6e);
