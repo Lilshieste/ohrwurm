@@ -6,13 +6,17 @@ const { createBasicDevice } = require('../../../devices/basic');
 const { defaultCreateContext } = require('../../../6502/addressingModes');
 
 describe('Test ROMs', () => {
-  const startingAddress = 0x0600;
+  //const startingAddress = 0x0600;
+  //const startingAddress = 600;
+  const startingAddress = 0xf000;
+  //const startingAddress = 0;
 
   const loadROM = (filename, system) => {
     const fullPath = `./tests/devices/roms/${filename}`;
     const contents = fs.readFileSync(fullPath).toString();
     const cleaned = contents
       .replace(/\/\/.*/g, '') // comments
+      .replace(/#.*/g, '') // #comments
       .replace(/\r\n$/gm, '')  // trailing newline
       .replace(/^\r\n/m, ''); // empty lines
     const bytes = cleaned.split('\r\n').map(str => parseInt(str, 16));
@@ -23,26 +27,38 @@ describe('Test ROMs', () => {
   const testROM = (filename) => {
     let currentOperand;
     let pokes = [];
+    let current = {};
     const history = [];
     const poke = (memory, address, value) => { pokes.push({ address, value }); return system.pokeFn(memory, address, value) }
-    const createContext = (operand) => { currentOperand = operand; return defaultCreateContext(operand); };
+    const onOperandRead = (operand) => { currentOperand = operand; };
+    const preExecute = () => {
+      current = { ...system.registers }
+      currentOperand = null;
+    };
     const postExecute = (decoded) => {
-      history.push({ ...system.registers, opCode: decoded.opCode, operand: currentOperand, pokes }); currentOperand = null;
+      current.opCode = decoded.opCode;
+      current.operand = currentOperand;
+      current.pokes = pokes; 
+      history.push(current);
       pokes = [];
     };
     const system = createBasicDevice();
 
-    const instructionSet = createInstructionSet(system.peekFn, poke, createContext);
+    const instructionSet = createInstructionSet(system.peekFn, poke, {onOperandRead});
     loadROM(filename, system);
 
-    start(system, instructionSet, { postExecute });
+    try {
+      start(system, instructionSet, { preExecute, postExecute });
+    } catch(e) {
+      console.log(`~~~Error: ${e}`);
+    }
 
-    const hex = (value) => `$${value.toString(16)}`;
+    const hex = (value) => `$${value?.toString(16)}`;
     const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;
     const headerWithOpCode = `Op\t\tOperand\t\tA\t\tX\t\tY\t\tPC\t\tSP\t\tNV-BDIZC`;
     const pokesOutput = (e) => e.pokes.map(p => `\tPoke ${hex(p.address)} = ${hex(p.value)}`).join('\n');
     const stateWithOpCode = (e) => `${hex(e.opCode)}\t\t${hex(e.operand||'')}\t\t${hex(e.A)}\t\t${hex(e.X)}\t\t${hex(e.Y)}\t\t${hex16(e.PC)}\t\t${hex(e.SP)}\t\t${buildStatusByte(e).toString(2).padStart(8, 0)}\n${pokesOutput(e)}`;
-    console.log(headerWithOpCode + '\n' + history.map(stateWithOpCode).join('\n'));
+    //console.log(headerWithOpCode + '\n' + history.map(stateWithOpCode).join('\n'));
 
     return system;
   };
@@ -74,7 +90,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x01dd)).toBe(0x6e);
   });
 
-  test.skip('test04-jumpsret', () => {
+  test('test04-jumpsret', () => {
     const system = testROM('test04-jumpsret.rom');
 
     expect(peek(system.memory, 0x40)).toBe(0x42);

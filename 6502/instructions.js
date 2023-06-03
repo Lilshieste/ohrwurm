@@ -2,22 +2,23 @@ const AddressingModes = require('./addressingModes');
 const OpCode = require('./opcodes');
 const { peek, poke, pull, push } = require('./memory');
 
-const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = undefined) => {
+const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
   const pullFn = pull(peekFn);
   const pushFn = push(pokeFn);
-  const absolute = AddressingModes.absolute(peekFn, pokeFn, createOpContext);
-  const absoluteX = AddressingModes.absoluteX(peekFn, pokeFn, createOpContext);
-  const absoluteY = AddressingModes.absoluteY(peekFn, pokeFn, createOpContext);
-  const accumulator = AddressingModes.accumulator(createOpContext);
-  const immediate = AddressingModes.immediate(peekFn, createOpContext);
-  const implied = AddressingModes.implied;
-  const indirect = AddressingModes.indirect(peekFn, createOpContext);
-  const indexedIndirect = AddressingModes.indexedIndirect(peekFn, pokeFn, createOpContext);
-  const indirectIndexed = AddressingModes.indirectIndexed(peekFn, pokeFn, createOpContext);
-  const relative = AddressingModes.relative(peekFn, createOpContext);
-  const zeroPage = AddressingModes.zeroPage(peekFn, pokeFn, createOpContext);
-  const zeroPageX = AddressingModes.zeroPageX(peekFn, pokeFn, createOpContext);
-  const zeroPageY = AddressingModes.zeroPageY(peekFn, pokeFn, createOpContext);
+  const absolute = AddressingModes.absolute(peekFn, pokeFn, options);
+  const absolute_address = AddressingModes.absolute_address(peekFn, pokeFn, options);
+  const absoluteX = AddressingModes.absoluteX(peekFn, pokeFn, options);
+  const absoluteY = AddressingModes.absoluteY(peekFn, pokeFn, options);
+  const accumulator = AddressingModes.accumulator(options);
+  const immediate = AddressingModes.immediate(peekFn, pokeFn, options);
+  const implied = AddressingModes.implied();
+  const indirect = AddressingModes.indirect(peekFn, pokeFn, options);
+  const indexedIndirect = AddressingModes.indexedIndirect(peekFn, pokeFn, options);
+  const indirectIndexed = AddressingModes.indirectIndexed(peekFn, pokeFn, options);
+  const relative = AddressingModes.relative(peekFn, pokeFn, options);
+  const zeroPage = AddressingModes.zeroPage(peekFn, pokeFn, options);
+  const zeroPageX = AddressingModes.zeroPageX(peekFn, pokeFn, options);
+  const zeroPageY = AddressingModes.zeroPageY(peekFn, pokeFn, options);
 
   return [
     OpCode.BRK(peekFn, pushFn, implied),  // $00 	BRK Implied 	- - - - - - - 
@@ -52,7 +53,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = un
     OpCode.ORA(absoluteX),                // $1d 	ORA $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.ASL(absoluteX),                // $1e 	ASL $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.JSR(absolute),                 // $20 	JSR $NNNN	Absolute 	- - - - - - - 
+    OpCode.JSR(pushFn, absolute_address),                 // $20 	JSR $NNNN	Absolute 	- - - - - - - 
     OpCode.AND(indexedIndirect),          // $21 	AND ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -96,7 +97,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, createOpContext = un
     OpCode.EOR(immediate),                // $49 	EOR #$NN	Immediate 	- Z- - - - N
     OpCode.LSR(accumulator),              // $4a 	LSR A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.JMP(absolute),                 // $4c 	JMP $NNNN	Absolute 	- - - - - - - 
+    OpCode.JMP(absolute_address),                 // $4c 	JMP $NNNN	Absolute 	- - - - - - - 
     OpCode.EOR(absolute),                 // $4d 	EOR $NNNN	Absolute 	- Z- - - - N
     OpCode.LSR(absolute),                 // $4e 	LSR $NNNN	Absolute 	CZ- - - - N
     OpCode.Unofficial,        
