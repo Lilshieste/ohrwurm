@@ -1,3 +1,5 @@
+const { peek, poke, pull, push } = require('./memory');
+
 const createMemory = () => new Array(0xFFFF).fill(0);
 
 const createRegisters = () => ({
@@ -20,6 +22,10 @@ const createRegisters = () => ({
 const createSystem = () => ({
   registers: createRegisters(),
   memory: createMemory(),
+  peekFn: peek,
+  pokeFn: poke,
+  pull: pull(peek),
+  push: push(poke),
 });
 
 module.exports = {

@@ -1,5 +1,5 @@
 const { createRegisters } = require('../6502/registers');
-const { peek, poke } = require('../6502/memory');
+const { peek, poke, pull, push } = require('../6502/memory');
 
 const createMemory = () => new Array(0xFFFF).fill(0);
 
@@ -10,6 +10,8 @@ const createBasicDevice = () => {
 
     peekFn: peek,
     pokeFn: poke,
+    pull: pull(peek),
+    push: push(poke),
   };
 };
 

@@ -25,138 +25,126 @@ class Operand {
 
 const implied = (/* peek, poke */) => (/* system, op */) => {};
 
-const accumulator = (options = {}) => (system) => {
+const accumulator = (system) => {
   return new Operand({
     read: () => system.registers.A, 
     write: (val) => system.registers.A = val,
-    ...options,
   });
 }
 
-const immediate = (peek, poke, options = {}) => (system) => {
+const immediate = (system) => {
   const address = system.registers.PC++;
-  const value = peek(system.memory, address);
+  const value = system.peekFn(system.memory, address);
   return new Operand({
     read: () => value, 
-    write: (val) => poke(system.memory, address, val),
-    ...options,
+    write: (val) => system.pokeFn(system.memory, address, val),
   });
 };
 
-const indirect = (peek, poke, options = {}) => (system) => {
-  const lowByte = peek(system.memory, system.registers.PC++);
-  const highByte = peek(system.memory, system.registers.PC++);
+const indirect = (system) => {
+  const lowByte = system.peekFn(system.memory, system.registers.PC++);
+  const highByte = system.peekFn(system.memory, system.registers.PC++);
   const address = buildAddress(lowByte, highByte);
-  const targetLowByte = peek(system.memory, address);
-  const targetHighByte = peek(system.memory, address + 1);
+  const targetLowByte = system.peekFn(system.memory, address);
+  const targetHighByte = system.peekFn(system.memory, address + 1);
   const value = buildAddress(targetLowByte, targetHighByte);
   return new Operand({
     read: () => value,
-    ...options,
   });
 };
 
-const indexedIndirect = (peek, poke, options = {}) => (system) => {
-  const zeroPageAddress = peek(system.memory, system.registers.PC++);
+const indexedIndirect = (system) => {
+  const zeroPageAddress = system.peekFn(system.memory, system.registers.PC++);
   const zeroPageAddressWithOffset = (zeroPageAddress + system.registers.X) & 0xFF;
-  const lowByte = peek(system.memory, zeroPageAddressWithOffset);
-  const highByte = peek(system.memory, zeroPageAddressWithOffset + 1);
+  const lowByte = system.peekFn(system.memory, zeroPageAddressWithOffset);
+  const highByte = system.peekFn(system.memory, zeroPageAddressWithOffset + 1);
   const targetAddress = buildAddress(lowByte, highByte);
-  const value = peek(system.memory, targetAddress);
+  const value = system.peekFn(system.memory, targetAddress);
   return new Operand({
     read: () => value,
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const indirectIndexed = (peek, poke, options = {}) => (system) => {
-  const zeroPageAddress = peek(system.memory, system.registers.PC++);
-  const lowByte = peek(system.memory, zeroPageAddress);
-  const highByte = peek(system.memory, zeroPageAddress + 1);
+const indirectIndexed = (system) => {
+  const zeroPageAddress = system.peekFn(system.memory, system.registers.PC++);
+  const lowByte = system.peekFn(system.memory, zeroPageAddress);
+  const highByte = system.peekFn(system.memory, zeroPageAddress + 1);
   const targetAddress = buildAddress(lowByte, highByte) + system.registers.Y;
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const fetchAbsoluteAddress = (peek) => (system) => {
-  const lowByte = peek(system.memory, system.registers.PC++);
-  const highByte = peek(system.memory, system.registers.PC++);
+const fetchAbsoluteAddress = (system) => {
+  const lowByte = system.peekFn(system.memory, system.registers.PC++);
+  const highByte = system.peekFn(system.memory, system.registers.PC++);
   return buildAddress(lowByte, highByte);
 };
 
-const absolute_address = (peek, poke, options = {}) => (system) => {
-  const targetAddress = fetchAbsoluteAddress(peek)(system);
+const absolute_address = (system) => {
+  const targetAddress = fetchAbsoluteAddress(system);
   return new Operand({
     read: () => targetAddress,
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const absolute = (peek, poke, options = {}) => (system) => {
-  const targetAddress = fetchAbsoluteAddress(peek)(system);
+const absolute = (system) => {
+  const targetAddress = fetchAbsoluteAddress(system);
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const absoluteX = (peek, poke, options = {}) => (system) => {
-  const lowByte = peek(system.memory, system.registers.PC++);
-  const highByte = peek(system.memory, system.registers.PC++);
+const absoluteX = (system) => {
+  const lowByte = system.peekFn(system.memory, system.registers.PC++);
+  const highByte = system.peekFn(system.memory, system.registers.PC++);
   const targetAddress = buildAddress(lowByte, highByte) + system.registers.X;
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const absoluteY = (peek, poke, options = {}) => (system) => {
-  const lowByte = peek(system.memory, system.registers.PC++);
-  const highByte = peek(system.memory, system.registers.PC++);
+const absoluteY = (system) => {
+  const lowByte = system.peekFn(system.memory, system.registers.PC++);
+  const highByte = system.peekFn(system.memory, system.registers.PC++);
   const targetAddress = buildAddress(lowByte, highByte) + system.registers.Y;
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
 const relative = immediate;
 
-const zeroPage = (peek, poke, options = {}) => (system) => {
-  const address = peek(system.memory, system.registers.PC++);
+const zeroPage = (system) => {
+  const address = system.peekFn(system.memory, system.registers.PC++);
   const targetAddress = buildAddress(address, 0x00);
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const zeroPageX = (peek, poke, options = {}) => (system) => {
-  const address = peek(system.memory, system.registers.PC++);
+const zeroPageX = (system) => {
+  const address = system.peekFn(system.memory, system.registers.PC++);
   const targetAddress = (buildAddress(address, 0x00) + system.registers.X) & 0xFF;
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 
-const zeroPageY = (peek, poke, options = {}) => (system) => {
-  const address = peek(system.memory, system.registers.PC++);
+const zeroPageY = (system) => {
+  const address = system.peekFn(system.memory, system.registers.PC++);
   const targetAddress = (buildAddress(address, 0x00) + system.registers.Y) & 0xFF;
   return new Operand({
-    read: () => peek(system.memory, targetAddress),
-    write: (val) => poke(system.memory, targetAddress, val),
-    ...options,
+    read: () => system.peekFn(system.memory, targetAddress),
+    write: (val) => system.pokeFn(system.memory, targetAddress, val),
   });
 };
 

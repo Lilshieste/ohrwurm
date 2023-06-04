@@ -6,7 +6,12 @@ describe('addressingModes', () => {
   const peek = jest.fn();
   const poke = jest.fn();
 
-  const createSystem = () => ({ registers: { PC: 0, A: 1 }, memory: [] });
+  const createSystem = () => ({
+    registers: { PC: 0, A: 1 },
+    memory: [],
+    peekFn: peek,
+    pokeFn: poke,
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -18,7 +23,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.immediate(peek, poke)(system);
+      Modes.immediate(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -29,7 +34,7 @@ describe('addressingModes', () => {
 
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValue(expected);
 
-      const operand = Modes.immediate(peek, poke)(system);
+      const operand = Modes.immediate(system);
       expect(operand.read()).toEqual(expected);
     });
   });
@@ -39,7 +44,7 @@ describe('addressingModes', () => {
       const testSystem = createSystem();
       const brandNewSystem = createSystem();
 
-      Modes.implied()(testSystem);
+      Modes.implied(testSystem);
 
       expect(testSystem).toEqual(brandNewSystem);
     });
@@ -50,7 +55,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC;
 
-      Modes.accumulator()(system);
+      Modes.accumulator(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -61,14 +66,14 @@ describe('addressingModes', () => {
 
       system.registers.A = expected;
 
-      const operand = Modes.accumulator()(system);
+      const operand = Modes.accumulator(system);
       expect(operand.read()).toEqual(expected);
     });
 
     it('should update accumulator if operand was changed', () => {
       const system = createSystem();
       const expected = 42;
-      const operand = Modes.accumulator()(system);
+      const operand = Modes.accumulator(system);
 
       operand.write(expected);
 
@@ -81,7 +86,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 2;
 
-      Modes.indirect(peek, poke)(system);
+      Modes.indirect(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -97,7 +102,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC + 1).mockReturnValue(highByte);
       when(peek).calledWith(expect.anything(), address).mockReturnValue(expected);
 
-      const operand = Modes.indirect(peek, poke)(system);
+      const operand = Modes.indirect(system);
       expect(operand.read()).toEqual(expected);
     });
   });
@@ -107,7 +112,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.indexedIndirect(peek, poke)(system);
+      Modes.indexedIndirect(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -126,7 +131,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), zeroPageAddress + system.registers.X + 1).mockReturnValueOnce(targetHighByte);
       when(peek).calledWith(expect.anything(), (targetHighByte << 8) + targetLowByte).mockReturnValueOnce(expected);
 
-      const operand = Modes.indexedIndirect(peek, poke)(system);
+      const operand = Modes.indexedIndirect(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -145,7 +150,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), ((address + system.registers.X) & 0xFF) + 1).mockReturnValueOnce(highByte);
       when(peek).calledWith(expect.anything(), targetAddress).mockReturnValueOnce(expected);
 
-      const operand = Modes.indexedIndirect(peek, poke)(system);
+      const operand = Modes.indexedIndirect(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -153,7 +158,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
   
-      const operand = Modes.indexedIndirect(peek, poke)(system);
+      const operand = Modes.indexedIndirect(system);
       operand.write(expected);
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
     });
@@ -164,7 +169,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.indirectIndexed(peek, poke)(system);
+      Modes.indirectIndexed(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -183,7 +188,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), zeroPageAddress + 1).mockReturnValueOnce(targetHighByte);
       when(peek).calledWith(expect.anything(), (targetHighByte << 8) + targetLowByte + system.registers.Y).mockReturnValueOnce(expected);
 
-      const operand = Modes.indirectIndexed(peek, poke)(system);
+      const operand = Modes.indirectIndexed(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -191,7 +196,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.indirectIndexed(peek, poke)(system);
+      const operand = Modes.indirectIndexed(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -203,7 +208,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 2;
 
-      Modes.absolute(peek, poke)(system);
+      Modes.absolute(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -218,7 +223,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC + 1).mockReturnValueOnce(highByte);
       when(peek).calledWith(expect.anything(), (highByte << 8) + lowByte).mockReturnValue(expected);
 
-      const operand = Modes.absolute(peek, poke)(system);
+      const operand = Modes.absolute(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -226,7 +231,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.absolute(peek, poke)(system);
+      const operand = Modes.absolute(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -238,7 +243,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 2;
 
-      Modes.absoluteX(peek, poke)(system);
+      Modes.absoluteX(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -255,7 +260,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC + 1).mockReturnValueOnce(highByte);
       when(peek).calledWith(expect.anything(), (highByte << 8) + lowByte + system.registers.X).mockReturnValue(expected);
 
-      const operand = Modes.absoluteX(peek, poke)(system);
+      const operand = Modes.absoluteX(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -263,7 +268,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.absoluteX(peek, poke)(system);
+      const operand = Modes.absoluteX(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -275,7 +280,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 2;
 
-      Modes.absoluteY(peek, poke)(system);
+      Modes.absoluteY(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -292,7 +297,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC + 1).mockReturnValueOnce(highByte);
       when(peek).calledWith(expect.anything(), (highByte << 8) + lowByte + system.registers.Y).mockReturnValue(expected);
 
-      const operand = Modes.absoluteY(peek, poke)(system);
+      const operand = Modes.absoluteY(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -300,7 +305,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.absoluteY(peek, poke)(system);
+      const operand = Modes.absoluteY(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -312,7 +317,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.relative(peek, poke)(system);
+      Modes.relative(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -323,7 +328,7 @@ describe('addressingModes', () => {
 
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValue(expected);
 
-      const operand = Modes.relative(peek, poke)(system);
+      const operand = Modes.relative(system);
       expect(operand.read()).toEqual(expected);
     });
   });
@@ -333,7 +338,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.zeroPage(peek, poke)(system);
+      Modes.zeroPage(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -346,7 +351,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValueOnce(address);
       when(peek).calledWith(expect.anything(), address).mockReturnValue(expected);
 
-      const operand = Modes.zeroPage(peek, poke)(system);
+      const operand = Modes.zeroPage(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -354,7 +359,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.zeroPage(peek, poke)(system);
+      const operand = Modes.zeroPage(system);
       operand.write(expected);
       
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -366,7 +371,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.zeroPageX(peek, poke)(system);
+      Modes.zeroPageX(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -381,7 +386,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValueOnce(address);
       when(peek).calledWith(expect.anything(), address + system.registers.X).mockReturnValue(expected);
 
-      const operand = Modes.zeroPageX(peek, poke)(system);
+      const operand = Modes.zeroPageX(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -395,7 +400,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValueOnce(address);
       when(peek).calledWith(expect.anything(), (address + system.registers.X) & 0xFF).mockReturnValue(expected);
 
-      const operand = Modes.zeroPageX(peek, poke)(system);
+      const operand = Modes.zeroPageX(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -403,7 +408,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.zeroPageX(peek, poke)(system);
+      const operand = Modes.zeroPageX(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);
@@ -415,7 +420,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = system.registers.PC + 1;
 
-      Modes.zeroPageY(peek, poke)(system);
+      Modes.zeroPageY(system);
 
       expect(system.registers.PC).toBe(expected);
     });
@@ -430,7 +435,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValueOnce(address);
       when(peek).calledWith(expect.anything(), address + system.registers.Y).mockReturnValue(expected);
 
-      const operand = Modes.zeroPageY(peek, poke)(system);
+      const operand = Modes.zeroPageY(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -444,7 +449,7 @@ describe('addressingModes', () => {
       when(peek).calledWith(expect.anything(), system.registers.PC).mockReturnValueOnce(address);
       when(peek).calledWith(expect.anything(), (address + system.registers.Y) & 0xFF).mockReturnValue(expected);
 
-      const operand = Modes.zeroPageY(peek, poke)(system);
+      const operand = Modes.zeroPageY(system);
       expect(operand.read()).toEqual(expected);
     });
 
@@ -452,7 +457,7 @@ describe('addressingModes', () => {
       const system = createSystem();
       const expected = 42;
 
-      const operand = Modes.zeroPageY(peek, poke)(system);
+      const operand = Modes.zeroPageY(system);
       operand.write(expected);
 
       expect(poke).toHaveBeenCalledWith(expect.anything(), expect.anything(), expected);

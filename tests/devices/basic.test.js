@@ -7,7 +7,7 @@ const { buildStackAddress } = require('../../6502/memory');
 
 describe('A basic 6502 device with a pool of RAM', () => {
   const system = createBasicDevice();
-  const instructionSet = createInstructionSet(system.peekFn, system.pokeFn);
+  const instructionSet = createInstructionSet();
   const peek = system.peekFn;
   const poke = system.pokeFn;
 

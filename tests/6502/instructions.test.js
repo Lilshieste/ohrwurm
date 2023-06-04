@@ -3,7 +3,7 @@ const { createSystem } = require('../../6502/state');
 const { peek, poke } = require('../../6502/memory');
 
 describe('Instructions', () => {
-  NES.INSTRUCTION_SET = NES.createInstructionSet(peek, poke);
+  NES.INSTRUCTION_SET = NES.createInstructionSet();
 
   describe('AND_Immediate', () => {
     it('should bitwise-AND the accumulator with the operand directly after the opcode', () => {

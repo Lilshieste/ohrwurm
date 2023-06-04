@@ -1,4 +1,5 @@
 const { createRegisters } = require('../6502/registers');
+const { pull, push } = require('../6502/memory');
 
 const peek = (memory, address) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
@@ -51,6 +52,8 @@ const createNES = () => {
 
     peekFn: peek,
     pokeFn: poke,
+    pull: pull(peek),
+    push: push(poke),
   };
 };
 

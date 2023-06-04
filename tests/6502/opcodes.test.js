@@ -18,6 +18,8 @@ describe('with test system', () => {
     const system = createSystem();
     system.peekFn = jest.fn(peek);
     system.pokeFn = jest.fn(poke);
+    system.pull = jest.fn(pull(peek));
+    system.push = jest.fn(push(poke));
 
     return system;
   };
@@ -303,7 +305,7 @@ describe('with test system', () => {
       system.registers.PC = testAddress;
       loadStatusByte(system.registers, startingStatusByte);
   
-      OpCodes.BRK(peek, push(poke))(system);
+      OpCodes.BRK()(system);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 3))).toBe(highByte);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(lowByte);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 1))).toBe(expectedStatusByte);
@@ -319,7 +321,7 @@ describe('with test system', () => {
       poke(system.memory, 0xFFFE, isrLowByte);
       poke(system.memory, 0xFFFF, isrHighByte);
   
-      OpCodes.BRK(peek, push(poke))(system);
+      OpCodes.BRK()(system);
       expect(system.registers.PC).toBe(expectedPC);
     });
   });
@@ -768,7 +770,7 @@ describe('with test system', () => {
   
       system.registers.PC = 0x7654;
   
-      OpCodes.JSR(push(poke), direct(0x0000))(system);
+      OpCodes.JSR(direct(0x0000))(system);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(highByte);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 1))).toBe(lowByte);
     });
@@ -779,7 +781,7 @@ describe('with test system', () => {
   
       system.registers.PC = 0x0000;
   
-      OpCodes.JSR(push(poke), direct(operand))(system);
+      OpCodes.JSR(direct(operand))(system);
       expect(system.registers.PC).toBe(operand);
     });
   });
@@ -946,7 +948,7 @@ describe('with test system', () => {
   
       system.registers.A = expected;
   
-      OpCodes.PHA(push(poke), implied)(system);
+      OpCodes.PHA(implied)(system);
       expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
     });
   });
@@ -966,7 +968,7 @@ describe('with test system', () => {
   
       const expected = buildStatusByte(system.registers);
   
-      OpCodes.PHP(push(poke), implied)(system);
+      OpCodes.PHP(implied)(system);
       expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
     });
   });
@@ -978,7 +980,7 @@ describe('with test system', () => {
   
       push(poke)(system.memory, system.registers, expected);
       
-      OpCodes.PLA(pull(peek), implied)(system);
+      OpCodes.PLA(implied)(system);
       expect(system.registers.A).toBe(expected);
     });
   
@@ -988,7 +990,7 @@ describe('with test system', () => {
       push(poke)(system.memory, system.registers, 0b10000000);
       system.registers.N = false;
   
-      OpCodes.PLA(pull(peek), implied)(system);
+      OpCodes.PLA(implied)(system);
       expect(system.registers.N).toBe(true);
     });
   
@@ -998,7 +1000,7 @@ describe('with test system', () => {
       push(poke)(system.memory, system.registers, 0b00000000);
       system.registers.Z = false;
   
-      OpCodes.PLA(pull(peek), implied)(system);
+      OpCodes.PLA(implied)(system);
       expect(system.registers.Z).toBe(true);
     });
   });
@@ -1016,7 +1018,7 @@ describe('with test system', () => {
       system.registers.V = false;
       system.registers.N = false;
   
-      OpCodes.PLP(pull(peek), implied)(system);
+      OpCodes.PLP(implied)(system);
       expect(system.registers.C).toBe(true);
       expect(system.registers.Z).toBe(true);
       expect(system.registers.I).toBe(true);
@@ -1155,7 +1157,7 @@ describe('with test system', () => {
       push(poke)(system.memory, system.registers, lowByte);
       push(poke)(system.memory, system.registers, statusByte);
   
-      OpCodes.RTI(pull(peek), implied)(system);
+      OpCodes.RTI(implied)(system);
       expect(buildStatusByte(system.registers)).toBe(statusByte);
       expect(system.registers.PC).toBe(testAddress);
     });
@@ -1172,7 +1174,7 @@ describe('with test system', () => {
       push(poke)(system.memory, system.registers, lowByte);
       system.registers.PC = 0x0000;
   
-      OpCodes.RTS(pull(peek), implied)(system);
+      OpCodes.RTS(implied)(system);
       expect(system.registers.PC).toBe(expected);
     });
   });

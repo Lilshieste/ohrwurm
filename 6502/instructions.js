@@ -1,27 +1,24 @@
 const AddressingModes = require('./addressingModes');
 const OpCode = require('./opcodes');
-const { peek, poke, pull, push } = require('./memory');
 
-const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
-  const pullFn = pull(peekFn);
-  const pushFn = push(pokeFn);
-  const absolute = AddressingModes.absolute(peekFn, pokeFn, options);
-  const absolute_address = AddressingModes.absolute_address(peekFn, pokeFn, options);
-  const absoluteX = AddressingModes.absoluteX(peekFn, pokeFn, options);
-  const absoluteY = AddressingModes.absoluteY(peekFn, pokeFn, options);
-  const accumulator = AddressingModes.accumulator(options);
-  const immediate = AddressingModes.immediate(peekFn, pokeFn, options);
-  const implied = AddressingModes.implied();
-  const indirect = AddressingModes.indirect(peekFn, pokeFn, options);
-  const indexedIndirect = AddressingModes.indexedIndirect(peekFn, pokeFn, options);
-  const indirectIndexed = AddressingModes.indirectIndexed(peekFn, pokeFn, options);
-  const relative = AddressingModes.relative(peekFn, pokeFn, options);
-  const zeroPage = AddressingModes.zeroPage(peekFn, pokeFn, options);
-  const zeroPageX = AddressingModes.zeroPageX(peekFn, pokeFn, options);
-  const zeroPageY = AddressingModes.zeroPageY(peekFn, pokeFn, options);
+const createInstructionSet = () => {
+  const absolute = AddressingModes.absolute;
+  const absolute_address = AddressingModes.absolute_address;
+  const absoluteX = AddressingModes.absoluteX;
+  const absoluteY = AddressingModes.absoluteY;
+  const accumulator = AddressingModes.accumulator;
+  const immediate = AddressingModes.immediate;
+  const implied = AddressingModes.implied;
+  const indirect = AddressingModes.indirect;
+  const indexedIndirect = AddressingModes.indexedIndirect;
+  const indirectIndexed = AddressingModes.indirectIndexed;
+  const relative = AddressingModes.relative;
+  const zeroPage = AddressingModes.zeroPage;
+  const zeroPageX = AddressingModes.zeroPageX;
+  const zeroPageY = AddressingModes.zeroPageY;
 
   return [
-    OpCode.BRK(peekFn, pushFn, implied),  // $00 	BRK Implied 	- - - - - - - 
+    OpCode.BRK(implied),  // $00 	BRK Implied 	- - - - - - - 
     OpCode.ORA(indexedIndirect),          // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,
     OpCode.Unofficial,
@@ -29,7 +26,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.ORA(zeroPage),                 // $05 	ORA $NN	Zero Page 	- Z- - - - N
     OpCode.ASL(zeroPage),                 // $06 	ASL $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PHP(pushFn, implied),          // $08 	PHP Implied 	- - - - - - - 
+    OpCode.PHP(implied),          // $08 	PHP Implied 	- - - - - - - 
     OpCode.ORA(immediate),                // $09 	ORA #$NN	Immediate 	- Z- - - - N
     OpCode.ASL(accumulator),              // $0a 	ASL A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -53,7 +50,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.ORA(absoluteX),                // $1d 	ORA $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.ASL(absoluteX),                // $1e 	ASL $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.JSR(pushFn, absolute_address),                 // $20 	JSR $NNNN	Absolute 	- - - - - - - 
+    OpCode.JSR(absolute_address),                 // $20 	JSR $NNNN	Absolute 	- - - - - - - 
     OpCode.AND(indexedIndirect),          // $21 	AND ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -61,7 +58,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.AND(zeroPage),                 // $25 	AND $NN	Zero Page 	- Z- - - - N
     OpCode.ROL(zeroPage),                 // $26 	ROL $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PLP(pullFn, implied),          // $28 	PLP Implied 	CZIDBVN
+    OpCode.PLP(implied),          // $28 	PLP Implied 	CZIDBVN
     OpCode.AND(immediate),                // $29 	AND #$NN	Immediate 	- Z- - - - N
     OpCode.ROL(accumulator),              // $2a 	ROL A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -85,7 +82,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.AND(absoluteX),                // $3d 	AND $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.ROL(absoluteX),                // $3e 	ROL $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.RTI(pullFn, implied),            // $40 	RTI Implied 	- - - - - - - 
+    OpCode.RTI(implied),            // $40 	RTI Implied 	- - - - - - - 
     OpCode.EOR(indexedIndirect),          // $41 	EOR ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -93,7 +90,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.EOR(zeroPage),                 // $45 	EOR $NN	Zero Page 	- Z- - - - N
     OpCode.LSR(zeroPage),                 // $46 	LSR $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PHA(pushFn, implied),          // $48 	PHA Implied 	- - - - - - - 
+    OpCode.PHA(implied),          // $48 	PHA Implied 	- - - - - - - 
     OpCode.EOR(immediate),                // $49 	EOR #$NN	Immediate 	- Z- - - - N
     OpCode.LSR(accumulator),              // $4a 	LSR A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -117,7 +114,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.EOR(absoluteX),                // $5d 	EOR $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.LSR(absoluteX),                // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.RTS(pullFn, implied),          // $60 	RTS Implied 	- - - - - - - 
+    OpCode.RTS(implied),          // $60 	RTS Implied 	- - - - - - - 
     OpCode.ADC(indexedIndirect),          // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -125,7 +122,7 @@ const createInstructionSet = (peekFn = peek, pokeFn = poke, options = {}) => {
     OpCode.ADC(zeroPage),                 // $65 	ADC $NN	Zero Page 	CZ- - - VN
     OpCode.ROR(zeroPage),                 // $66 	ROR $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PLA(pullFn, implied),          // $68 	PLA Implied 	- Z- - - - N
+    OpCode.PLA(implied),          // $68 	PLA Implied 	- Z- - - - N
     OpCode.ADC(immediate),                // $69 	ADC #$NN	Immediate 	CZ- - - VN
     OpCode.ROR(accumulator),              // $6a 	ROR A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        

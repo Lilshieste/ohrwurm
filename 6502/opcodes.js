@@ -99,16 +99,16 @@ OpCodes.BPL = (addressingMode) => (system) => {
   }
 };
 
-OpCodes.BRK = (peek, push, /* IMPLIED addressing mode */) => (system) => {
-  const isrLowByte = peek(system.memory, 0xFFFE);
-  const isrHighByte = peek(system.memory, 0xFFFF);
+OpCodes.BRK = (/* IMPLIED addressing mode */) => (system) => {
+  const isrLowByte = system.peekFn(system.memory, 0xFFFE);
+  const isrHighByte = system.peekFn(system.memory, 0xFFFF);
   const { lowByte: pcLowByte, highByte: pcHighByte } = splitAddress(system.registers.PC);
   
   system.registers.B = true;
 
-  push(system.memory, system.registers, pcHighByte);
-  push(system.memory, system.registers, pcLowByte);
-  push(system.memory, system.registers, buildStatusByte(system.registers));
+  system.push(system.memory, system.registers, pcHighByte);
+  system.push(system.memory, system.registers, pcLowByte);
+  system.push(system.memory, system.registers, buildStatusByte(system.registers));
 
   system.registers.PC = buildAddress(isrLowByte, isrHighByte);
 };
@@ -221,12 +221,12 @@ OpCodes.JMP = (addressingMode) => (system) => {
   system.registers.PC = operand.read();
 };
 
-OpCodes.JSR = (push, addressingMode) => (system) => {
+OpCodes.JSR = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   const targetAddress = operand.read();
   const { lowByte, highByte } = splitAddress(system.registers.PC);
-  push(system.memory, system.registers, highByte);
-  push(system.memory, system.registers, lowByte);
+  system.push(system.memory, system.registers, highByte);
+  system.push(system.memory, system.registers, lowByte);
   system.registers.PC = targetAddress;
 };
 
@@ -272,17 +272,17 @@ OpCodes.ORA = (addressingMode) => (system) => {
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PHA = (push /* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, system.registers.A);
+OpCodes.PHA = (/* IMPLIED addressing mode */) => (system) => system.push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (push /* IMPLIED addressing mode */) => (system) => push(system.memory, system.registers, buildStatusByte(system.registers));
+OpCodes.PHP = (/* IMPLIED addressing mode */) => (system) => system.push(system.memory, system.registers, buildStatusByte(system.registers));
 
-OpCodes.PLA = (pull /* IMPLIED addressing mode */) => (system) => {
-  system.registers.A = pull(system.memory, system.registers);
+OpCodes.PLA = (/* IMPLIED addressing mode */) => (system) => {
+  system.registers.A = system.pull(system.memory, system.registers);
   system.registers.N = isNegativeBitSet(system.registers.A);
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (pull /* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, pull(system.memory, system.registers));
+OpCodes.PLP = (/* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, system.pull(system.memory, system.registers));
 
 OpCodes.ROL = (addressingMode) => (system) => {
   const operand = addressingMode(system);
@@ -304,14 +304,14 @@ OpCodes.ROR = (addressingMode) => (system) => {
   operand.write(result);
 };
 
-OpCodes.RTI = (pull, /* IMPLIED addressing mode */) => (system) => {
-  loadStatusByte(system.registers, pull(system.memory, system.registers));
-  system.registers.PC = buildAddress(pull(system.memory, system.registers), pull(system.memory, system.registers));
+OpCodes.RTI = (/* IMPLIED addressing mode */) => (system) => {
+  loadStatusByte(system.registers, system.pull(system.memory, system.registers));
+  system.registers.PC = buildAddress(system.pull(system.memory, system.registers), system.pull(system.memory, system.registers));
 };
 
-OpCodes.RTS = (pull, /* IMPLIED addressing mode */) => (system) => {
-  const lowByte = pull(system.memory, system.registers);
-  const highByte = pull(system.memory, system.registers);
+OpCodes.RTS = (/* IMPLIED addressing mode */) => (system) => {
+  const lowByte = system.pull(system.memory, system.registers);
+  const highByte = system.pull(system.memory, system.registers);
   const address = buildAddress(lowByte, highByte);
   system.registers.PC = address;
 };
