@@ -1,16 +1,8 @@
-const fetchDecodeExecute = (system, instructionSet) => {
-  const fetch = () => system.peekFn(system.memory, system.registers.PC++);
-  const decode = (byte) => instructionSet[byte];
-  const execute = (instruction) => instruction(system)
-
-  execute(decode(fetch()));
-}
-
-const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDecode, preExecute, postExecute }) => {
+const fetchDecodeExecute = (system, instructionSet, { preFetch, preDecode, preExecute, postExecute }) => {
   const fetch = () => {
     if(preFetch)
       preFetch();
-    return system.peekFn(system.memory, system.registers.PC++);
+    return system.peek(system.memory, system.registers.PC++);
   };
   const decode = (byte) => {
     if(preDecode)
@@ -30,9 +22,8 @@ const fetchDecodeExecuteWithHooks = (system, instructionSet, { preFetch, preDeco
 };
 
 const start = (system, instructionSet, hooks = false) => {
-  const cycle = hooks ? fetchDecodeExecuteWithHooks : fetchDecodeExecute;
   while(!system.registers.B) {
-    cycle(system, instructionSet, hooks);
+    fetchDecodeExecute(system, instructionSet, hooks);
   }
 };
 

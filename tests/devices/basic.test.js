@@ -8,8 +8,8 @@ const { buildStackAddress } = require('../../6502/memory');
 describe('A basic 6502 device with a pool of RAM', () => {
   const system = createBasicDevice();
   const instructionSet = createInstructionSet();
-  const peek = system.peekFn;
-  const poke = system.pokeFn;
+  const peek = system.peek;
+  const poke = system.poke;
 
   describe('start', () => {
     it('should read (and execute) instructions until a BRK is reached', () => {

@@ -9,8 +9,8 @@ describe('addressingModes', () => {
   const createSystem = () => ({
     registers: { PC: 0, A: 1 },
     memory: [],
-    peekFn: peek,
-    pokeFn: poke,
+    peek: peek,
+    poke: poke,
   });
 
   afterEach(() => {

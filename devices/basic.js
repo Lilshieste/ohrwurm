@@ -8,8 +8,8 @@ const createBasicDevice = () => {
     registers: createRegisters(),
     memory: createMemory(),
 
-    peekFn: peek,
-    pokeFn: poke,
+    peek: peek,
+    poke: poke,
     pull: pull(peek),
     push: push(poke),
   };

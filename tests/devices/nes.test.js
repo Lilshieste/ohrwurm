@@ -37,7 +37,7 @@ describe('Memory', () => {
   });
 
   describe('peek', () => {
-    const peek = system.peekFn;
+    const peek = system.peek;
 
     it('should map $0000-$07FF to internal RAM', () => {
       expect(peek(memory, 0x0)).toBe(RAM_START);
@@ -93,7 +93,7 @@ describe('Memory', () => {
   });
 
   describe('poke', () => {
-    const poke = system.pokeFn;
+    const poke = system.poke;
 
     it('should map $0000-$07FF to internal RAM', () => {
       poke(memory, 0x0000, -RAM_START);

@@ -3,14 +3,14 @@ const { isNthBitSet } = require('./util');
 const peek = (memory, address) => memory[address];
 const poke = (memory, address, value) => { memory[address] = value; };
 
-const push = (pokeFn) => (memory, registers, value) => {
-  pokeFn(memory, buildStackAddress(registers.SP), value);
+const push = (poke) => (memory, registers, value) => {
+  poke(memory, buildStackAddress(registers.SP), value);
   registers.SP = (registers.SP - 1) & 0xFF;
 };
 
-const pull = (peekFn) => (memory, registers) => {
+const pull = (peek) => (memory, registers) => {
   registers.SP = (registers.SP + 1) & 0xFF;
-  return peekFn(memory, buildStackAddress(registers.SP));
+  return peek(memory, buildStackAddress(registers.SP));
 };
 
 const buildAddress = (lowByte, highByte) => (highByte << 8) + lowByte;

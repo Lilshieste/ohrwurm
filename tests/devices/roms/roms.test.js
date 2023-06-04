@@ -29,7 +29,7 @@ describe('Test ROMs', () => {
     let pokes = [];
     let current = {};
     const history = [];
-    const poke = (memory, address, value) => { pokes.push({ address, value }); return system.pokeFn(memory, address, value) }
+    const poke = (memory, address, value) => { pokes.push({ address, value }); return system.poke(memory, address, value) }
     const onOperandRead = (operand) => { currentOperand = operand; };
     const preExecute = () => {
       current = { ...system.registers }
@@ -44,7 +44,7 @@ describe('Test ROMs', () => {
     };
     const system = createBasicDevice();
 
-    const instructionSet = createInstructionSet(system.peekFn, poke, {onOperandRead});
+    const instructionSet = createInstructionSet(system.peek, poke, {onOperandRead});
     loadROM(filename, system);
 
     try {

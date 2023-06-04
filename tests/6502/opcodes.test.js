@@ -16,8 +16,8 @@ const directWriteableOperand = (operand) => (system) => ({ read: () => operand.v
 describe('with test system', () => {
   const createTestSystem = () => {
     const system = createSystem();
-    system.peekFn = jest.fn(peek);
-    system.pokeFn = jest.fn(poke);
+    system.peek = jest.fn(peek);
+    system.poke = jest.fn(poke);
     system.pull = jest.fn(pull(peek));
     system.push = jest.fn(push(poke));
 
