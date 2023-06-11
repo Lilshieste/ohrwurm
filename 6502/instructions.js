@@ -1,7 +1,7 @@
 const AddressingModes = require('./addressingModes');
 const OpCode = require('./opcodes');
 
-const createInstructionSet = () => {
+const createInstructionSet = (hooks = false) => {
   const absolute = AddressingModes.absolute;
   const absolute_address = AddressingModes.absolute_address;
   const absoluteX = AddressingModes.absoluteX;
@@ -18,7 +18,7 @@ const createInstructionSet = () => {
   const zeroPageY = AddressingModes.zeroPageY;
 
   return [
-    OpCode.BRK(implied),  // $00 	BRK Implied 	- - - - - - - 
+    OpCode.BRK(implied),                  // $00 	BRK Implied 	- - - - - - - 
     OpCode.ORA(indexedIndirect),          // $01 	ORA ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,
     OpCode.Unofficial,
@@ -26,7 +26,7 @@ const createInstructionSet = () => {
     OpCode.ORA(zeroPage),                 // $05 	ORA $NN	Zero Page 	- Z- - - - N
     OpCode.ASL(zeroPage),                 // $06 	ASL $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PHP(implied),          // $08 	PHP Implied 	- - - - - - - 
+    OpCode.PHP(implied),                  // $08 	PHP Implied 	- - - - - - - 
     OpCode.ORA(immediate),                // $09 	ORA #$NN	Immediate 	- Z- - - - N
     OpCode.ASL(accumulator),              // $0a 	ASL A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -58,7 +58,7 @@ const createInstructionSet = () => {
     OpCode.AND(zeroPage),                 // $25 	AND $NN	Zero Page 	- Z- - - - N
     OpCode.ROL(zeroPage),                 // $26 	ROL $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PLP(implied),          // $28 	PLP Implied 	CZIDBVN
+    OpCode.PLP(implied),                  // $28 	PLP Implied 	CZIDBVN
     OpCode.AND(immediate),                // $29 	AND #$NN	Immediate 	- Z- - - - N
     OpCode.ROL(accumulator),              // $2a 	ROL A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -82,7 +82,7 @@ const createInstructionSet = () => {
     OpCode.AND(absoluteX),                // $3d 	AND $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.ROL(absoluteX),                // $3e 	ROL $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.RTI(implied),            // $40 	RTI Implied 	- - - - - - - 
+    OpCode.RTI(implied),                  // $40 	RTI Implied 	- - - - - - - 
     OpCode.EOR(indexedIndirect),          // $41 	EOR ($NN,X)	Indexed Indirect 	- Z- - - - N
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -90,7 +90,7 @@ const createInstructionSet = () => {
     OpCode.EOR(zeroPage),                 // $45 	EOR $NN	Zero Page 	- Z- - - - N
     OpCode.LSR(zeroPage),                 // $46 	LSR $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PHA(implied),          // $48 	PHA Implied 	- - - - - - - 
+    OpCode.PHA(implied),                  // $48 	PHA Implied 	- - - - - - - 
     OpCode.EOR(immediate),                // $49 	EOR #$NN	Immediate 	- Z- - - - N
     OpCode.LSR(accumulator),              // $4a 	LSR A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        
@@ -114,7 +114,7 @@ const createInstructionSet = () => {
     OpCode.EOR(absoluteX),                // $5d 	EOR $NNNN,X	Absolute,X 	- Z- - - - N
     OpCode.LSR(absoluteX),                // $5e 	LSR $NNNN,X	Absolute,X 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.RTS(implied),          // $60 	RTS Implied 	- - - - - - - 
+    OpCode.RTS(implied),                  // $60 	RTS Implied 	- - - - - - - 
     OpCode.ADC(indexedIndirect),          // $61 	ADC ($NN,X)	Indexed Indirect 	CZ- - - VN
     OpCode.Unofficial,        
     OpCode.Unofficial,        
@@ -122,7 +122,7 @@ const createInstructionSet = () => {
     OpCode.ADC(zeroPage),                 // $65 	ADC $NN	Zero Page 	CZ- - - VN
     OpCode.ROR(zeroPage),                 // $66 	ROR $NN	Zero Page 	CZ- - - - N
     OpCode.Unofficial,        
-    OpCode.PLA(implied),          // $68 	PLA Implied 	- Z- - - - N
+    OpCode.PLA(implied),                  // $68 	PLA Implied 	- Z- - - - N
     OpCode.ADC(immediate),                // $69 	ADC #$NN	Immediate 	CZ- - - VN
     OpCode.ROR(accumulator),              // $6a 	ROR A	Accumulator 	CZ- - - - N
     OpCode.Unofficial,        

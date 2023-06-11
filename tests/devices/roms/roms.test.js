@@ -24,13 +24,11 @@ describe('Test ROMs', () => {
     system.registers.PC = startingAddress;
   };
 
-  const testROM = (filename) => {
+  const testROM = (filename, verbose = false) => {
     let currentOperand;
     let pokes = [];
     let current = {};
     const history = [];
-    const poke = (memory, address, value) => { pokes.push({ address, value }); return system.poke(memory, address, value) }
-    const onOperandRead = (operand) => { currentOperand = operand; };
     const preExecute = () => {
       current = { ...system.registers }
       currentOperand = null;
@@ -43,8 +41,17 @@ describe('Test ROMs', () => {
       pokes = [];
     };
     const system = createBasicDevice();
+    const originalPoke = system.poke;
+    system.poke = (memory, address, value) =>
+    {
+      pokes.push({ address, value });
+      return originalPoke(memory, address, value);
+    };
+    system.options = {
+      onOperandRead: (operand) => { currentOperand = operand; },
+    };
 
-    const instructionSet = createInstructionSet(system.peek, poke, {onOperandRead});
+    const instructionSet = createInstructionSet();
     loadROM(filename, system);
 
     try {
@@ -53,12 +60,14 @@ describe('Test ROMs', () => {
       console.log(`~~~Error: ${e}`);
     }
 
-    const hex = (value) => `$${value?.toString(16)}`;
-    const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;
-    const headerWithOpCode = `Op\t\tOperand\t\tA\t\tX\t\tY\t\tPC\t\tSP\t\tNV-BDIZC`;
-    const pokesOutput = (e) => e.pokes.map(p => `\tPoke ${hex(p.address)} = ${hex(p.value)}`).join('\n');
-    const stateWithOpCode = (e) => `${hex(e.opCode)}\t\t${hex(e.operand||'')}\t\t${hex(e.A)}\t\t${hex(e.X)}\t\t${hex(e.Y)}\t\t${hex16(e.PC)}\t\t${hex(e.SP)}\t\t${buildStatusByte(e).toString(2).padStart(8, 0)}\n${pokesOutput(e)}`;
-    //console.log(headerWithOpCode + '\n' + history.map(stateWithOpCode).join('\n'));
+    if(verbose) {
+      const hex = (value) => `$${value?.toString(16)}`;
+      const hex16 = (value) => `$${value.toString(16).padStart(4, 0)}`;
+      const headerWithOpCode = `Op\t\tOperand\t\tA\t\tX\t\tY\t\tPC\t\tSP\t\tNV-BDIZC`;
+      const pokesOutput = (e) => e.pokes.map(p => `\tPoke ${hex(p.address)} = ${hex(p.value)}`).join('\n');
+      const stateWithOpCode = (e) => `${hex(e.opCode)}\t\t${hex(e.operand||'')}\t\t${hex(e.A)}\t\t${hex(e.X)}\t\t${hex(e.Y)}\t\t${hex16(e.PC)}\t\t${hex(e.SP)}\t\t${buildStatusByte(e).toString(2).padStart(8, 0)}\n${pokesOutput(e)}`;
+      console.log(headerWithOpCode + '\n' + history.map(stateWithOpCode).join('\n'));
+    }
 
     return system;
   };
@@ -102,7 +111,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x40)).toBe(0x33);
   });
 
-  test.skip('test06-addsub', () => {
+  test('test06-addsub', () => {
     const system = testROM('test06-addsub.rom');
 
     expect(peek(system.memory, 0x30)).toBe(0x9d);
@@ -120,7 +129,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x42)).toBe(0xa5);
   });
 
-  test.skip('test09-otherbranches', () => {
+  test('test09-otherbranches', () => {
     const system = testROM('test09-otherbranches.rom');
 
     expect(peek(system.memory, 0x80)).toBe(0x1f);
@@ -138,7 +147,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x30)).toBe(0x29);
   });
 
-  test.skip('test12-rti', () => {
+  test('test12-rti', () => {
     const system = testROM('test12-rti.rom');
 
     expect(peek(system.memory, 0x33)).toBe(0x42);

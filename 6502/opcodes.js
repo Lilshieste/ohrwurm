@@ -5,11 +5,11 @@ const {
   buildAddress} = require('./memory');
 const {
   isNthBitSet,
-  isOverflowBitSet,
   isOverflow,
   isNegativeBitSet, 
   isCarryBitSet,
   isZero,
+  onesComplement,
   toByte } = require('./util');
 
 const OpCodes = module.exports;
@@ -18,18 +18,15 @@ OpCodes.NotImplemented = () => { throw new Error(`This opcode hasn't been implem
 OpCodes.Unofficial = OpCodes.NotImplemented;
 
 OpCodes.ADC = (addressingMode) => (system) => {
-  const operand = addressingMode(system);
-  const carryIn = system.registers.C;
-  const result = system.registers.A + operand.read() + (system.registers.C ? 1 : 0);
+  const operand = addressingMode(system).read();
+  const result = system.registers.A + operand + (system.registers.C ? 1 : 0);
   const carryOut = isCarryBitSet(result);
 
+  system.registers.V = isOverflow(system.registers.A, result, operand);
   system.registers.A = toByte(result);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(toByte(result));
   system.registers.C = carryOut;
-  system.registers.V = isOverflowBitSet(carryIn, carryOut);
-
-  operand.write(result);
 };
 
 OpCodes.AND = (addressingMode) => (system) => {
@@ -317,18 +314,15 @@ OpCodes.RTS = (/* IMPLIED addressing mode */) => (system) => {
 };
 
 OpCodes.SBC = (addressingMode) => (system) => {
-  const operand = addressingMode(system);
-  const carryIn = system.registers.C;
-  const result = ((system.registers.A - operand.read() - (system.registers.C ? 0 : 1)) >>> 0);
+  const operand = onesComplement(addressingMode(system).read());
+  const result = system.registers.A + operand + (system.registers.C ? 1 : 0);
   const carryOut = isCarryBitSet(result);
 
-  system.registers.V = isOverflow(system.registers.A, operand.read(), result);
+  system.registers.V = isOverflow(system.registers.A, result, operand);
   system.registers.A = toByte(result);
   system.registers.N = isNegativeBitSet(result);
   system.registers.Z = isZero(toByte(result));
   system.registers.C = carryOut;
-
-  operand.write(result);
 };
 
 OpCodes.SEC = (/* IMPLIED addressing mode */) => (system) => {

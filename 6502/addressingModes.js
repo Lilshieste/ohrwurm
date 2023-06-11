@@ -1,9 +1,9 @@
 const { buildAddress } = require('./memory');
 
 class Operand {
-  constructor({ read, write, onOperandRead, onOperandWrite }) {
-    this.onRead = onOperandRead;
-    this.onWrite = onOperandWrite;
+  constructor({ read, write, options = {} }) {
+    this.onRead = options?.onOperandRead;
+    this.onWrite = options?.onOperandWrite;
 
     this.read = () => {
       const result = read();
@@ -29,6 +29,7 @@ const accumulator = (system) => {
   return new Operand({
     read: () => system.registers.A, 
     write: (val) => system.registers.A = val,
+    options: system.options,
   });
 }
 
@@ -38,6 +39,7 @@ const immediate = (system) => {
   return new Operand({
     read: () => value, 
     write: (val) => system.poke(system.memory, address, val),
+    options: system.options,
   });
 };
 
@@ -50,6 +52,7 @@ const indirect = (system) => {
   const value = buildAddress(targetLowByte, targetHighByte);
   return new Operand({
     read: () => value,
+    options: system.options,
   });
 };
 
@@ -63,6 +66,7 @@ const indexedIndirect = (system) => {
   return new Operand({
     read: () => value,
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -74,6 +78,7 @@ const indirectIndexed = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -88,6 +93,7 @@ const absolute_address = (system) => {
   return new Operand({
     read: () => targetAddress,
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -96,6 +102,7 @@ const absolute = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -106,6 +113,7 @@ const absoluteX = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -116,6 +124,7 @@ const absoluteY = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -127,6 +136,7 @@ const zeroPage = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -136,6 +146,7 @@ const zeroPageX = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 
@@ -145,6 +156,7 @@ const zeroPageY = (system) => {
   return new Operand({
     read: () => system.peek(system.memory, targetAddress),
     write: (val) => system.poke(system.memory, targetAddress, val),
+    options: system.options,
   });
 };
 

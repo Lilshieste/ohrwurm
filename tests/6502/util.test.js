@@ -9,11 +9,12 @@ describe('util', () => {
     expect(Util.isNthBitSet(0b10000000, 7)).toBe(true);
   });
 
-  test('isOverflowBitSet should return true only if carry-in/-out is not in parity (XOR)', () => {
-    expect(Util.isOverflowBitSet(true, true)).toBe(false);
-    expect(Util.isOverflowBitSet(false, false)).toBe(false);
-    expect(Util.isOverflowBitSet(true, false)).toBe(true);
-    expect(Util.isOverflowBitSet(false, true)).toBe(true);
+  test('isOverflow should return true only if signs do not line up with expectations', () => {
+    expect(Util.isOverflow(0xff, 0x1fe, 0xff)).toBe(false);
+    expect(Util.isOverflow(0xfe, 0x1fe, 0xff)).toBe(false);
+    expect(Util.isOverflow(0x50, 0xbb, 0x6a)).toBe(true);
+    expect(Util.isOverflow(0xbb, 0x14f, 0x94)).toBe(true);
+    expect(Util.isOverflow(0x26, 0x8b, 0x64)).toBe(true);
   });
 
   test('isNegativeBitSet should return true only if bit 7 is set', () => {

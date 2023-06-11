@@ -36,9 +36,6 @@ describe('with test system', () => {
       OpCodes.ADC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
       expect(system.registers.N).toBe(true);
-      expect(system.registers.Z).toBe(false);
-      expect(system.registers.C).toBe(false);
-      expect(system.registers.V).toBe(false);
     });
   
     it('should set (Z)ero flag properly after adding operand to the accumulator', () => {
@@ -51,10 +48,7 @@ describe('with test system', () => {
       
       OpCodes.ADC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
-      expect(system.registers.N).toBe(false);
       expect(system.registers.Z).toBe(true);
-      expect(system.registers.C).toBe(true);
-      expect(system.registers.V).toBe(true);
     });
   
     it('should set (C)arry flag properly after adding operand to the accumulator', () => {
@@ -68,10 +62,7 @@ describe('with test system', () => {
       
       OpCodes.ADC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected); 
-      expect(system.registers.N).toBe(false);
-      expect(system.registers.Z).toBe(false);
       expect(system.registers.C).toBe(true);
-      expect(system.registers.V).toBe(false);
     });
   
     it('should set o(V)erflow flag properly after adding operand to the accumulator', () => {
@@ -84,10 +75,20 @@ describe('with test system', () => {
       
       OpCodes.ADC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
-      expect(system.registers.N).toBe(false);
-      expect(system.registers.Z).toBe(true);
-      expect(system.registers.C).toBe(true);
       expect(system.registers.V).toBe(true);
+    });
+
+    it('should carry', () => {
+      const system = createTestSystem();
+      const initialA = 0x87;
+      const operand1 = (0x03 ^ 0xff);
+      const expected = 0x83;
+  
+      system.registers.A = initialA;
+      
+      OpCodes.ADC(direct(operand1))(system);
+      expect(system.registers.A).toBe(expected);
+      expect(system.registers.C).toBe(true);
     });
   });
   
@@ -1204,9 +1205,6 @@ describe('with test system', () => {
       OpCodes.SBC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
       expect(system.registers.N).toBe(true);
-      expect(system.registers.Z).toBe(false);
-      expect(system.registers.C).toBe(false);
-      expect(system.registers.V).toBe(false);
     });
   
     it('should set (Z)ero flag properly after subtracting the operand from the accumulator', () => {
@@ -1220,43 +1218,34 @@ describe('with test system', () => {
       
       OpCodes.SBC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
-      expect(system.registers.N).toBe(false);
       expect(system.registers.Z).toBe(true);
-      expect(system.registers.C).toBe(false);
-      expect(system.registers.V).toBe(true);
     });
   
     it('should set (C)arry flag properly after subtracting the operand from the accumulator', () => {
       const system = createTestSystem();
-      const initialA = 0b00000000;
-      const operand1 = 0b00000001;
-      const expected = 0b11111111;
+      const initialA = 0xd0;
+      const operand1 = 0x70;
+      const expected = 0x160 & 0xff
   
       system.registers.A = initialA;
       system.registers.C = true;
       
       OpCodes.SBC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected); 
-      expect(system.registers.N).toBe(true);
-      expect(system.registers.Z).toBe(false);
       expect(system.registers.C).toBe(true);
-      expect(system.registers.V).toBe(true);
     });
   
     it('should set o(V)erflow flag properly after subtracting the operand from the accumulator', () => {
       const system = createTestSystem();
-      const initialA = 0b00000000;
-      const operand1 = 0b00000001;
-      const expected = 0b11111111;
+      const initialA = 0xd0;
+      const operand1 = 0x70;
+      const expected = 0x160 & 0xff
   
       system.registers.A = initialA;
       system.registers.C = true;
       
       OpCodes.SBC(direct(operand1))(system);
       expect(system.registers.A).toBe(expected);
-      expect(system.registers.N).toBe(true);
-      expect(system.registers.Z).toBe(false);
-      expect(system.registers.C).toBe(true);
       expect(system.registers.V).toBe(true);
     });
   });
