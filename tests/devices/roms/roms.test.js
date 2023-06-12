@@ -153,7 +153,7 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x33)).toBe(0x42);
   });
 
-  test.skip('test13-specialflags', () => {
+  test('test13-specialflags', () => {
     const system = testROM('test13-specialflags.rom');
 
     expect(peek(system.memory, 0x21)).toBe(0x0c);

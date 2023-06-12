@@ -108,6 +108,7 @@ OpCodes.BRK = (/* IMPLIED addressing mode */) => (system) => {
   system.push(system.memory, system.registers, buildStatusByte(system.registers));
 
   system.registers.PC = buildAddress(isrLowByte, isrHighByte);
+  system.registers.I = true;
 };
 
 OpCodes.BVC = (addressingMode) => (system) => {
@@ -271,7 +272,13 @@ OpCodes.ORA = (addressingMode) => (system) => {
 
 OpCodes.PHA = (/* IMPLIED addressing mode */) => (system) => system.push(system.memory, system.registers, system.registers.A);
 
-OpCodes.PHP = (/* IMPLIED addressing mode */) => (system) => system.push(system.memory, system.registers, buildStatusByte(system.registers));
+OpCodes.PHP = (/* IMPLIED addressing mode */) => (system) => {
+  const status = {
+    ...system.registers,
+    B: true,
+  }
+  system.push(system.memory, system.registers, buildStatusByte(status));
+};
 
 OpCodes.PLA = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.A = system.pull(system.memory, system.registers);
@@ -279,7 +286,11 @@ OpCodes.PLA = (/* IMPLIED addressing mode */) => (system) => {
   system.registers.Z = isZero(system.registers.A);
 };
 
-OpCodes.PLP = (/* IMPLIED addressing mode */) => (system) => loadStatusByte(system.registers, system.pull(system.memory, system.registers));
+OpCodes.PLP = (/* IMPLIED addressing mode */) => (system) => {
+  const originalB = system.registers.B;
+  loadStatusByte(system.registers, system.pull(system.memory, system.registers));
+  system.registers.B = originalB;
+}
 
 OpCodes.ROL = (addressingMode) => (system) => {
   const operand = addressingMode(system);
@@ -302,8 +313,10 @@ OpCodes.ROR = (addressingMode) => (system) => {
 };
 
 OpCodes.RTI = (/* IMPLIED addressing mode */) => (system) => {
+  const originalB = system.registers.B;
   loadStatusByte(system.registers, system.pull(system.memory, system.registers));
   system.registers.PC = buildAddress(system.pull(system.memory, system.registers), system.pull(system.memory, system.registers));
+  system.registers.B = originalB;
 };
 
 OpCodes.RTS = (/* IMPLIED addressing mode */) => (system) => {

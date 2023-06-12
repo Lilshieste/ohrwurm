@@ -311,6 +311,13 @@ describe('with test system', () => {
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(lowByte);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 1))).toBe(expectedStatusByte);
     });
+
+    it('should set the (I)nterrupt) disable flag AFTER pushing the status flag to the stack', () => {
+      const system = createTestSystem();
+  
+      OpCodes.BRK()(system);
+      expect(system.registers.I).toBe(true);
+    });
   
     it('should set the Program Counter to the address indicated by the IRQ interrupt vectors ($FFFE/FF)', () => {
       const system = createTestSystem();
@@ -955,22 +962,26 @@ describe('with test system', () => {
   });
   
   describe('PHP', () => {
-    it('should push the current value of the processor status flags onto the stack', () => {
+    it('should push the current value of the processor status flags, with (B)reak set, onto the stack', () => {
       const system = createTestSystem();
       const startingSP = system.registers.SP;
   
       system.registers.C = true;
-      system.registers.Z = true;
-      system.registers.I = true;
+      system.registers.Z = false;
+      system.registers.I = false;
       system.registers.D = true;
-      system.registers.B = true;
-      system.registers.V = true;
-      system.registers.N = true;
-  
-      const expected = buildStatusByte(system.registers);
+      system.registers.B = false;
+      system.registers.V = false;
+      system.registers.N = false;
+
+      const expected = buildStatusByte({
+        ...system.registers,
+        B: true,
+      });
   
       OpCodes.PHP(implied)(system);
       expect(peek(system.memory, buildStackAddress(startingSP))).toBe(expected);
+      expect(system.registers.B).toBe(false);
     });
   });
   
@@ -1007,7 +1018,7 @@ describe('with test system', () => {
   });
   
   describe('PLP', () => {
-    it('should pull a value from the stack and load it into the status flags', () => {
+    it('should pull a value from the stack and load it into the status flags, EXCEPT for the (B)reak flag', () => {
       const system = createTestSystem();
   
       push(poke)(system.memory, system.registers, 0b11111111);
@@ -1024,7 +1035,7 @@ describe('with test system', () => {
       expect(system.registers.Z).toBe(true);
       expect(system.registers.I).toBe(true);
       expect(system.registers.D).toBe(true);
-      expect(system.registers.B).toBe(true);
+      expect(system.registers.B).toBe(false);
       expect(system.registers.V).toBe(true);
       expect(system.registers.N).toBe(true);
     });
@@ -1146,21 +1157,24 @@ describe('with test system', () => {
   });
   
   describe('RTI', () => {
-    it('should pull (and load) the Status flags and Program Counter from the stack', () => {
+    it('should pull (and load) the Status flags, except for the (B)reak flag, and Program Counter from the stack', () => {
       const system = createTestSystem();
       const testAddress = 0x7654;
       const highByte = (testAddress >> 8) & 0xFF;
       const lowByte = (testAddress & 0xFF);
-      const statusByte = 0b11110011;
+      const statusByte = 0b11100011;
+      const expected = 0b11110011;
   
       system.registers.PC = 0x0;
+      system.registers.B = true;
       push(poke)(system.memory, system.registers, highByte);
       push(poke)(system.memory, system.registers, lowByte);
       push(poke)(system.memory, system.registers, statusByte);
   
       OpCodes.RTI(implied)(system);
-      expect(buildStatusByte(system.registers)).toBe(statusByte);
+      expect(buildStatusByte(system.registers)).toBe(expected);
       expect(system.registers.PC).toBe(testAddress);
+      expect(system.registers.B).toBe(true);
     });
   });
   
