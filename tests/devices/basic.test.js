@@ -21,7 +21,7 @@ describe('A basic 6502 device with a pool of RAM', () => {
 
       start(system, instructionSet);
 
-      expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(0xcd);
+      expect(peek(system.memory, buildStackAddress(system.registers.SP + 2))).toBe(0xce);
       expect(peek(system.memory, buildStackAddress(system.registers.SP + 3))).toBe(0xfa);
     });
   });

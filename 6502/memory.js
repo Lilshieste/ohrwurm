@@ -52,10 +52,26 @@ const loadBytes = (memory, bytes, startingAddress) => {
 
 const read = (memory, registers) => peek(memory, registers.PC++);
 
+const getIRQVector = (peek) => (memory) => {
+  const lowByte = peek(memory, 0xfffe);
+  const highByte = peek(memory, 0xffff);
+  return buildAddress(lowByte, highByte);
+};
+
+const setIRQVector = (poke) => (memory, address) => {
+  const {
+    lowByte,
+    highByte,
+   } = splitAddress(address);
+  poke(memory, 0xfffe, lowByte);
+  poke(memory, 0xffff, highByte);
+};
+
 module.exports = {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
+  getIRQVector,
   loadBytes,
   loadStatusByte,
   peek,
@@ -63,5 +79,6 @@ module.exports = {
   pull,
   push,
   read,
+  setIRQVector,
   splitAddress,
 };

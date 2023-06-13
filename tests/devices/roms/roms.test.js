@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { createInstructionSet } = require('../../../6502/instructions');
-const { buildStatusByte, loadBytes, peek } = require('../../../6502/memory');
+const { buildStatusByte, loadBytes, peek, setIRQVector } = require('../../../6502/memory');
 const { start } = require('../../../6502/execution');
 const { createBasicDevice } = require('../../../devices/basic');
 const { defaultCreateContext } = require('../../../6502/addressingModes');
@@ -24,7 +24,7 @@ describe('Test ROMs', () => {
     system.registers.PC = startingAddress;
   };
 
-  const testROM = (filename, verbose = false) => {
+  const testROM = (filename, maxBreakCount = 0, verbose = false) => {
     let currentOperand;
     let pokes = [];
     let current = {};
@@ -41,6 +41,8 @@ describe('Test ROMs', () => {
       pokes = [];
     };
     const system = createBasicDevice();
+    setIRQVector(system.poke)(system.memory, 0xf005);
+
     const originalPoke = system.poke;
     system.poke = (memory, address, value) =>
     {
@@ -51,11 +53,12 @@ describe('Test ROMs', () => {
       onOperandRead: (operand) => { currentOperand = operand; },
     };
 
+
     const instructionSet = createInstructionSet();
     loadROM(filename, system);
 
     try {
-      start(system, instructionSet, { preExecute, postExecute });
+      start(system, instructionSet, { preExecute, postExecute }, maxBreakCount);
     } catch(e) {
       console.log(`~~~Error: ${e}`);
     }
@@ -159,8 +162,8 @@ describe('Test ROMs', () => {
     expect(peek(system.memory, 0x21)).toBe(0x0c);
   });
 
-  test.skip('test14-brk', () => {
-    const system = testROM('test14-brk.rom');
+  test('test14-brk', () => {
+    const system = testROM('test14-brk.rom', 1);
 
     expect(peek(system.memory, 0x60)).toBe(0x42);
   });

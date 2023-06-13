@@ -295,11 +295,12 @@ describe('with test system', () => {
   });
   
   describe('BRK', () => {
-    it('should push the high and low bytes of the Program Counter onto the stack, followed by the Status flags with the (B)reak flag set', () => {
+    it('should push the high and low bytes of the Program Counter (+1 because BRK is still 2 bytes even though only one is used) onto the stack, followed by the Status flags with the (B)reak flag set', () => {
       const system = createTestSystem();
       const testAddress = 0x7654;
-      const highByte = (testAddress >> 8) & 0xFF;
-      const lowByte = (testAddress & 0xFF);
+      const pushedAddress = testAddress + 1;
+      const highByte = (pushedAddress >> 8) & 0xFF;
+      const lowByte = (pushedAddress & 0xFF);
       const startingStatusByte = 0b11100011;
       const expectedStatusByte = 0b11110011;
   

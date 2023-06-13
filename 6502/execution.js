@@ -12,18 +12,19 @@ const fetchDecodeExecute = (system, instructionSet, { preFetch, preDecode, preEx
   const execute = (decoded) => {
     if(preExecute)
       preExecute(decoded);
-    const result = decoded.instruction(system);
+    decoded.instruction(system);
     if(postExecute)
       postExecute(decoded);
-    return result;
+    return decoded.opCode;
   }
 
-  execute(decode(fetch()));
+  return execute(decode(fetch())) === 0x00;
 };
 
-const start = (system, instructionSet, hooks = false) => {
-  while(!system.registers.B) {
-    fetchDecodeExecute(system, instructionSet, hooks);
+const start = (system, instructionSet, hooks = false, maxBreakCount = 0) => {
+  let breakCount = 0;
+  while(breakCount <= maxBreakCount) {
+    breakCount += fetchDecodeExecute(system, instructionSet, hooks);
   }
 };
 
