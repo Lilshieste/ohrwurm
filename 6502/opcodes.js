@@ -100,7 +100,7 @@ OpCodes.BRK = (/* IMPLIED addressing mode */) => (system) => {
   const isrLowByte = system.peek(system.memory, 0xFFFE);
   const isrHighByte = system.peek(system.memory, 0xFFFF);
 
-  // PC + 1 because BRK instructions are 2 bytes even though only the first one is used
+  // PC + 1 because BRK instructions are 2 bytes even though only the first byte is typically used
   const { lowByte: pcLowByte, highByte: pcHighByte } = splitAddress(system.registers.PC + 1);
   
   system.registers.B = true;

@@ -3,13 +3,10 @@ const { createInstructionSet } = require('../../../6502/instructions');
 const { buildStatusByte, loadBytes, peek, setIRQVector } = require('../../../6502/memory');
 const { start } = require('../../../6502/execution');
 const { createBasicDevice } = require('../../../devices/basic');
-const { defaultCreateContext } = require('../../../6502/addressingModes');
 
 describe('Test ROMs', () => {
-  //const startingAddress = 0x0600;
-  //const startingAddress = 600;
   const startingAddress = 0xf000;
-  //const startingAddress = 0;
+  const vectorIRQ = 0xf005;
 
   const loadROM = (filename, system) => {
     const fullPath = `./tests/devices/roms/${filename}`;
@@ -41,7 +38,7 @@ describe('Test ROMs', () => {
       pokes = [];
     };
     const system = createBasicDevice();
-    setIRQVector(system.poke)(system.memory, 0xf005);
+    setIRQVector(system.poke)(system.memory, vectorIRQ);
 
     const originalPoke = system.poke;
     system.poke = (memory, address, value) =>
