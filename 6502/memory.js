@@ -1,5 +1,9 @@
 const { isNthBitSet } = require('./util');
 
+const VectorNMI = 0xfffa;
+const VectorReset = 0xfffc;
+const VectorIRQ = 0xfffe;
+
 const peek = (memory, address) => memory[address];
 const poke = (memory, address, value) => { memory[address] = value; };
 
@@ -52,26 +56,35 @@ const loadBytes = (memory, bytes, startingAddress) => {
 
 const read = (memory, registers) => peek(memory, registers.PC++);
 
-const getIRQVector = (peek) => (memory) => {
-  const lowByte = peek(memory, 0xfffe);
-  const highByte = peek(memory, 0xffff);
+const getVector = (vector) => (peek) => (memory) => {
+  const lowByte = peek(memory, vector);
+  const highByte = peek(memory, vector + 1);
   return buildAddress(lowByte, highByte);
 };
 
-const setIRQVector = (poke) => (memory, address) => {
+const setVector = (vector) => (poke) => (memory, address) => {
   const {
     lowByte,
     highByte,
    } = splitAddress(address);
-  poke(memory, 0xfffe, lowByte);
-  poke(memory, 0xffff, highByte);
+  poke(memory, vector, lowByte);
+  poke(memory, vector + 1, highByte);
 };
+
+const getIRQVector = getVector(VectorIRQ);
+const getNMIVector = getVector(VectorNMI);
+const getResetVector = getVector(VectorReset);
+const setIRQVector = setVector(VectorIRQ);
+const setNMIVector = setVector(VectorNMI);
+const setResetVector = setVector(VectorReset);
 
 module.exports = {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
   getIRQVector,
+  getNMIVector,
+  getResetVector,
   loadBytes,
   loadStatusByte,
   peek,
@@ -80,5 +93,7 @@ module.exports = {
   push,
   read,
   setIRQVector,
+  setNMIVector,
+  setResetVector,
   splitAddress,
 };

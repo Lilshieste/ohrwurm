@@ -2,6 +2,9 @@ const {
   buildAddress,
   buildStackAddress,
   buildStatusByte,
+  getIRQVector,
+  getNMIVector,
+  getResetVector,
   loadBytes,
   loadStatusByte,
   peek,
@@ -9,6 +12,9 @@ const {
   pull,
   push,
   read,
+  setIRQVector,
+  setNMIVector,
+  setResetVector,
   splitAddress,
 } = require('../../6502/memory');
 const { createMemory, createRegisters, createSystem } = require('../../6502/state');
@@ -244,5 +250,44 @@ describe('Memory', () => {
 
       expect(system.registers.PC).toBe(expected);
     });
+  });
+
+  describe('vectors', () => {
+    const system = createSystem();
+
+    describe('getters', () => {
+      const peek = jest.fn();
+      it('should get from the correct vector addresses', () => {
+        getIRQVector(peek)(system.memory);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xfffe);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xffff);
+  
+        getNMIVector(peek)(system.memory);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xfffa);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xfffb);
+  
+        getResetVector(peek)(system.memory);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xfffc);
+        expect(peek).toHaveBeenCalledWith(system.memory, 0xfffd);
+      });
+    });
+
+    describe('setters', () => {
+      const poke = jest.fn();
+      it('should store data in the correct vector addresses', () => {
+        setIRQVector(poke)(system.memory, 0x1234);
+        expect(poke).toHaveBeenCalledWith(expect.anything(), 0xfffe, 0x34);
+        expect(poke).toHaveBeenCalledWith(expect.anything(), 0xffff, 0x12);
+  
+        setNMIVector(poke)(system.memory, 0x2234);
+        expect(poke).toHaveBeenCalledWith(system.memory, 0xfffa, 0x34);
+        expect(poke).toHaveBeenCalledWith(system.memory, 0xfffb, 0x22);
+  
+        setResetVector(poke)(system.memory, 0x3234);
+        expect(poke).toHaveBeenCalledWith(system.memory, 0xfffc, 0x34);
+        expect(poke).toHaveBeenCalledWith(system.memory, 0xfffd, 0x32);
+      });
+    });
+    
   });
 });
