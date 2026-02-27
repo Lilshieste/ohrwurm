@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ohrwurm</title>
+</head>
+<body>
+  <h1>Ohrwurm</h1>
+  <p>Steel Thread: plays a hardcoded NSF file, using  existing NSF player code. I'll incrementally hook up my emulator as I hit critical milestones...</p>
+  <button id="play">Play</button>
+  <button id="stop">Stop</button>
+
+  <script src="lib/libgme.js"></script>
+  <script src="lib/nsf-player.js"></script>
+  <script>
+    const player = createNsfPlayer();
+
+    document.getElementById('play').addEventListener('click', () => {
+      player.play('music.nsf', 0);
+    });
+
+    document.getElementById('stop').addEventListener('click', () => {
+      player.stop();
+    });
+  </script>
+</body>
+</html>
