@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "esbuild web/src/player.js --bundle --outfile=web/bundle.js",
+    "watch": "esbuild web/src/player.js --bundle --outfile=web/bundle.js --watch",
+    "serve": "npx serve web --symlinks"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "esbuild": "^0.27.3",
     "jest": "^27.3.1",
     "jest-when": "^3.4.2"
   }

@@ -6,21 +6,38 @@
 </head>
 <body>
   <h1>Ohrwurm</h1>
-  <p>Steel Thread: plays a hardcoded NSF file, using  existing NSF player code. I'll incrementally hook up my emulator as I hit critical milestones...</p>
+  <p>Steel Thread: plays a hardcoded NSF file, using existing NSF player code. I'll incrementally hook up my emulator as I hit critical milestones...</p>
+
+  <div id="metadata">
+    <p><strong>Title:</strong> <span id="title">-</span></p>
+    <p><strong>Artist:</strong> <span id="artist">-</span></p>
+    <p><strong>Songs:</strong> <span id="songs">-</span></p>
+  </div>
+
   <button id="play">Play</button>
   <button id="stop">Stop</button>
 
+  <script src="bundle.js"></script>
   <script src="external_lib/libgme.js"></script>
   <script src="external_lib/nsf-player.js"></script>
   <script>
-    const player = createNsfPlayer();
+    const nsfFile = 'music.nsf';
+    const nsfPlayer = createNsfPlayer();
+    const player = createPlayer();
+
+    // Load metadata using our parser
+    player.loadFile(nsfFile).then((metadata) => {
+      document.getElementById('title').textContent = metadata.title;
+      document.getElementById('artist').textContent = metadata.artist;
+      document.getElementById('songs').textContent = metadata.totalSongs;
+    });
 
     document.getElementById('play').addEventListener('click', () => {
-      player.play('music.nsf', 0);
+      nsfPlayer.play(nsfFile, 0);
     });
 
     document.getElementById('stop').addEventListener('click', () => {
-      player.stop();
+      nsfPlayer.stop();
     });
   </script>
 </body>
