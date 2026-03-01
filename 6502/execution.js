@@ -1,4 +1,4 @@
-const fetchDecodeExecute = (system, instructionSet, { preFetch, preDecode, preExecute, postExecute }) => {
+const fetchDecodeExecute = (system, instructionSet, { preFetch, preDecode, preExecute, postExecute, cycles: cycleTable } = {}) => {
   const fetch = () => {
     if(preFetch)
       preFetch();
@@ -18,16 +18,20 @@ const fetchDecodeExecute = (system, instructionSet, { preFetch, preDecode, preEx
     return decoded.opCode;
   }
 
-  return execute(decode(fetch())) === 0x00;
+  const opCode = execute(decode(fetch()));
+  const cycles = cycleTable ? cycleTable[opCode] : 0;
+  return { isBrk: opCode === 0x00, cycles };
 };
 
-const start = (system, instructionSet, hooks = false, maxBreakCount = 0) => {
+const start = (system, instructionSet, hooks = {}, maxBreakCount = 0) => {
   let breakCount = 0;
   while(breakCount <= maxBreakCount) {
-    breakCount += fetchDecodeExecute(system, instructionSet, hooks);
+    const { isBrk } = fetchDecodeExecute(system, instructionSet, hooks);
+    if (isBrk) breakCount++;
   }
 };
 
 module.exports = {
+  fetchDecodeExecute,
   start,
 };
