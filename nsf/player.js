@@ -9,7 +9,7 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
     }
   };
 
-  const callRoutine = (address) => {
+  const callRoutine = (address, { maxInstructions = 1000000 } = {}) => {
     // Push sentinel return address (high byte first, then low byte)
     system.push(system.memory, system.registers, (sentinelAddress >> 8) & 0xFF);
     system.push(system.memory, system.registers, sentinelAddress & 0xFF);
@@ -17,15 +17,22 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
     system.registers.PC = address;
 
     // Execute until RTS returns to sentinel
+    let count = 0;
     while (system.registers.PC !== sentinelAddress) {
+      if (count >= maxInstructions) {
+        const pc = system.registers.PC.toString(16).padStart(4, '0');
+        const opcode = system.peek(system.memory, system.registers.PC).toString(16).padStart(2, '0');
+        throw new Error(`Exceeded ${maxInstructions} instructions. Stuck at PC=$${pc}, opcode=$${opcode}`);
+      }
       fetchDecodeExecute(system, instructionSet, { cycles: cycleCounts });
+      count++;
     }
   };
 
-  const loadNSF = (nsf, songNumber) => {
+  const loadNSF = (nsf, songIndex = 0) => {
     loadMusicData(nsf);
 
-    system.registers.A = songNumber - 1;
+    system.registers.A = songIndex;
     system.registers.X = nsf.isPAL ? 1 : 0; // 0 = NTSC, 1 = PAL
 
     callRoutine(nsf.initAddress);

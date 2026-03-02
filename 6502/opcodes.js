@@ -6,11 +6,12 @@ const {
 const {
   isNthBitSet,
   isOverflow,
-  isNegativeBitSet, 
+  isNegativeBitSet,
   isCarryBitSet,
   isZero,
   onesComplement,
-  toByte } = require('./util');
+  toByte,
+  toSignedByte } = require('./util');
 
 const OpCodes = module.exports;
 
@@ -49,21 +50,21 @@ OpCodes.ASL = (addressingMode) => (system) => {
 OpCodes.BCC = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(!system.registers.C) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
 OpCodes.BCS = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(system.registers.C) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
 OpCodes.BEQ = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(system.registers.Z) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
@@ -78,21 +79,21 @@ OpCodes.BIT = (addressingMode) => (system) => {
 OpCodes.BMI = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(system.registers.N) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
 OpCodes.BNE = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(!system.registers.Z) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
 OpCodes.BPL = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(!system.registers.N) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
@@ -116,14 +117,14 @@ OpCodes.BRK = (/* IMPLIED addressing mode */) => (system) => {
 OpCodes.BVC = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(!system.registers.V) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 
 OpCodes.BVS = (addressingMode) => (system) => {
   const operand = addressingMode(system);
   if(system.registers.V) {
-    system.registers.PC += operand.read();
+    system.registers.PC += toSignedByte(operand.read());
   }
 };
 

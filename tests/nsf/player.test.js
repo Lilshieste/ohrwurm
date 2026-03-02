@@ -16,14 +16,14 @@ describe('NSF Player', () => {
   });
 
   describe('When loading an NSF', () => {
-    it('sets A register to songNumber - 1', () => {
+    it('sets A register to songIndex', () => {
       const nsf = {
         loadAddress: 0x8000,
         initAddress: 0x8000,
         musicData: new Uint8Array(),
       };
 
-      player.loadNSF(nsf, 3);
+      player.loadNSF(nsf, 2);
 
       expect(system.registers.A).toBe(2);
     });
@@ -35,7 +35,7 @@ describe('NSF Player', () => {
         musicData: [],
       };
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       expect(system.registers.X).toBe(0);
     });
@@ -48,7 +48,7 @@ describe('NSF Player', () => {
         musicData: [],
       };
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       expect(system.registers.X).toBe(1);
     });
@@ -65,7 +65,7 @@ describe('NSF Player', () => {
         ]),
       };
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       expect(system.peek(system.memory, 0x0200)).toBe(0x42);
     });
@@ -77,7 +77,7 @@ describe('NSF Player', () => {
         musicData: new Uint8Array([0x60]), // Just RTS
       };
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       expect(system.registers.PC).toBe(sentinelAddress);
     });
@@ -98,7 +98,7 @@ describe('NSF Player', () => {
         ]),
       };
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       expect(system.peek(system.memory, 0x0200)).toBe(0x99);
       expect(system.registers.PC).toBe(sentinelAddress);
@@ -124,7 +124,7 @@ describe('NSF Player', () => {
       nsf.musicData[0x12] = targetAddressHighByte;
       nsf.musicData[0x13] = 0x60; // RTS
 
-      player.loadNSF(nsf, 1);
+      player.loadNSF(nsf, 0);
 
       player.play(nsf);
       expect(system.peek(system.memory, targetAddress)).toBe(1);

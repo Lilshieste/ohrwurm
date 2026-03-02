@@ -170,10 +170,21 @@ describe('with test system', () => {
       system.registers.C = false;
       OpCodes.BCC(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8010;
+      const operand = 0xF0; // -16 as signed byte
+
+      system.registers.C = false; // branch taken
+      OpCodes.BCC(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8010 - 16); // 0x8000
     });
   });
-  
+
   describe('BCS', () => {
     it('should add the operand to the Program Counter if the (C)arry flag is set', () => {
       const system = createTestSystem();
@@ -187,27 +198,48 @@ describe('with test system', () => {
       system.registers.C = true;
       OpCodes.BCS(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8020;
+      const operand = 0xE0; // -32 as signed byte
+
+      system.registers.C = true; // branch taken
+      OpCodes.BCS(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8020 - 32); // 0x8000
     });
   });
-  
+
   describe('BEQ', () => {
-    it('should add the operand to the Program Counter if the (Z)ero flag is not set', () => {
+    it('should add the operand to the Program Counter if the (Z)ero flag is set', () => {
       const system = createTestSystem();
       const startingPC = system.registers.PC;
       const operand = 0xa;
-      
+
       system.registers.Z = false;
       OpCodes.BEQ(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC);
-  
+
       system.registers.Z = true;
       OpCodes.BEQ(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8020;
+      const operand = 0xFC; // -4 as signed byte
+
+      system.registers.Z = true; // branch taken
+      OpCodes.BEQ(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8020 - 4); // 0x801C
     });
   });
-  
+
   describe('BIT', () => {
     it('should set (N)egative flag properly after bitwise-AND between accumulator and operand', () => {
       const system = createTestSystem();
@@ -256,27 +288,48 @@ describe('with test system', () => {
       system.registers.N = true;
       OpCodes.BMI(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8008;
+      const operand = 0xF8; // -8 as signed byte
+
+      system.registers.N = true; // branch taken
+      OpCodes.BMI(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8008 - 8); // 0x8000
     });
   });
-  
+
   describe('BNE', () => {
-    it('should add the operand to the Program Counter if the (Z)ero flag is set', () => {
+    it('should add the operand to the Program Counter if the (Z)ero flag is not set', () => {
       const system = createTestSystem();
       const startingPC = system.registers.PC;
       const operand = 0xa;
-      
+
       system.registers.Z = true;
       OpCodes.BNE(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC);
-  
+
       system.registers.Z = false;
       OpCodes.BNE(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8010;
+      const operand = 0xF8; // -8 as signed byte
+
+      system.registers.Z = false; // branch taken
+      OpCodes.BNE(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8010 - 8); // 0x8008
     });
   });
-  
+
   describe('BPL', () => {
     it('should add the operand to the Program Counter if the (N)egative flag is not set', () => {
       const system = createTestSystem();
@@ -290,10 +343,21 @@ describe('with test system', () => {
       system.registers.N = false;
       OpCodes.BPL(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8040;
+      const operand = 0xC0; // -64 as signed byte
+
+      system.registers.N = false; // branch taken
+      OpCodes.BPL(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8040 - 64); // 0x8000
     });
   });
-  
+
   describe('BRK', () => {
     it('should push the high and low bytes of the Program Counter (+1 because BRK is still 2 bytes even though only one is used) onto the stack, followed by the Status flags with the (B)reak flag set', () => {
       const system = createTestSystem();
@@ -348,10 +412,21 @@ describe('with test system', () => {
       system.registers.V = false;
       OpCodes.BVC(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8080;
+      const operand = 0x80; // -128 as signed byte (max negative)
+
+      system.registers.V = false; // branch taken
+      OpCodes.BVC(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8080 - 128); // 0x8000
     });
   });
-  
+
   describe('BVS', () => {
     it('should add the operand to the Program Counter if the o(V)erflow flag is set', () => {
       const system = createTestSystem();
@@ -365,10 +440,21 @@ describe('with test system', () => {
       system.registers.V = true;
       OpCodes.BVS(direct(operand))(system);
       expect(system.registers.PC).toBe(startingPC + operand);
-  
+
+    });
+
+    it('should handle negative offsets (backward branch)', () => {
+      const system = createTestSystem();
+      system.registers.PC = 0x8004;
+      const operand = 0xFC; // -4 as signed byte
+
+      system.registers.V = true; // branch taken
+      OpCodes.BVS(direct(operand))(system);
+
+      expect(system.registers.PC).toBe(0x8004 - 4); // 0x8000
     });
   });
-  
+
   describe('CLC', () => {
     it('should clear the (C)arry flag', () => {
       const system = createTestSystem();
