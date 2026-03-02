@@ -1,5 +1,6 @@
 const { fetchDecodeExecute } = require('../6502/execution');
 const { cycleCounts } = require('../6502/cycleCounts');
+const { splitAddress } = require('../6502/memory');
 
 const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
   const loadMusicData = (nsf) => {
@@ -10,9 +11,9 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
   };
 
   const callRoutine = (address, { maxInstructions = 1000000 } = {}) => {
-    // Push sentinel return address (high byte first, then low byte)
-    system.push(system.memory, system.registers, (sentinelAddress >> 8) & 0xFF);
-    system.push(system.memory, system.registers, sentinelAddress & 0xFF);
+    const splitSentinelAddress = splitAddress(sentinelAddress);
+    system.push(system.memory, system.registers, splitSentinelAddress.highByte);
+    system.push(system.memory, system.registers, splitSentinelAddress.lowByte);
 
     system.registers.PC = address;
 
