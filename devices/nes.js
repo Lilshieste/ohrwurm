@@ -1,7 +1,9 @@
 const { createRegisters } = require('../6502/registers');
 const { pull, push } = require('../6502/memory');
 
-const peek = (memory, address) => {
+// TODO: Implement memory mirroring for RAM, PPU, and Cartridge memory regions,
+//  and deprecate the peek/poke functions in favor of a more robust memory bus implementation.
+const createPeek = (apu) => (memory, address) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) return memory.RAM[address];
@@ -12,6 +14,7 @@ const peek = (memory, address) => {
   else if(address <= 0x2007) return memory.PPU[address - 0x2000];
   else if(address <= 0x3FFF) return memory.PPU[(address % 8)];
 
+  else if(address === 0x4015 && apu) return apu.readStatus();
   else if(address <= 0x4017) return memory.APU[address - 0x4000];
 
   else if(address <= 0x401F) return memory.APUTestMode[address - 0x4018];
@@ -19,7 +22,7 @@ const peek = (memory, address) => {
   else /* if(address <= 0xFFFF) */ return memory.Cartridge[address - 0x4020];
 };
 
-const poke = (memory, address, value) => {
+const createPoke = (apu) => (memory, address, value) => {
   if(address < 0x0 || address > 0xFFFF) throw new Error(`Address '${address} (${address.toString(16)})' is outside the addressable range (0x0000-0xFFFF)`);
 
   else if(address <= 0x07FF) memory.RAM[address] = value;
@@ -30,7 +33,10 @@ const poke = (memory, address, value) => {
   else if(address <= 0x2007) memory.PPU[address - 0x2000] = value;
   else if(address <= 0x3FFF) memory.PPU[(address % 8)] = value;
 
-  else if(address <= 0x4017) memory.APU[address - 0x4000] = value;
+  else if(address <= 0x4017) {
+    memory.APU[address - 0x4000] = value;
+    if (apu) apu.writeRegister(address, value);
+  }
 
   else if(address <= 0x401F) memory.APUTestMode[address - 0x4018] = value;
 
@@ -45,13 +51,17 @@ const createMemory = () => ({
   RAM: new Array(0x0800).fill(0),
 });
 
-const createNES = () => {
+const createNES = (apu = null) => {
+  const peek = createPeek(apu);
+  const poke = createPoke(apu);
+
   return {
     registers: createRegisters(),
     memory: createMemory(),
+    apu,
 
-    peek: peek,
-    poke: poke,
+    peek,
+    poke,
     pull: pull(peek),
     push: push(poke),
   };

@@ -17,8 +17,10 @@
   <button id="play">Play (libgme)</button>
   <button id="stop">Stop</button>
   <button id="init-emulator">Run Init (Emulator)</button>
+  <button id="play-emulator">Run Play Frame (Emulator)</button>
 
   <div id="emulator-status" style="margin-top: 1em; font-family: monospace;"></div>
+  <div id="apu-status" style="margin-top: 0.5em; font-family: monospace;"></div>
 
   <script src="bundle.js"></script>
   <script src="external_lib/libgme.js"></script>
@@ -28,6 +30,7 @@
     const nsfPlayer = createNsfPlayer();
     const player = createPlayer();
     const statusEl = document.getElementById('emulator-status');
+    const apuStatusEl = document.getElementById('apu-status');
 
     // Load metadata using our parser
     player.loadFile(nsfFile).then((metadata) => {
@@ -48,8 +51,20 @@
       statusEl.textContent = 'Running init routine...';
       try {
         const result = player.runInit();
-        statusEl.textContent = '✓ Init completed! Emulator executed NSF init routine successfully.';
+        statusEl.textContent = '✓ Init completed! APU is now active.';
+        apuStatusEl.textContent = 'APU sample: ' + player.getAPU().getSample().toFixed(4);
         console.log('Emulator state after init:', result.system.registers);
+      } catch (err) {
+        statusEl.textContent = '✗ Error: ' + err.message;
+        console.error(err);
+      }
+    });
+
+    document.getElementById('play-emulator').addEventListener('click', () => {
+      try {
+        player.runPlay();
+        const sample = player.getAPU().getSample();
+        apuStatusEl.textContent = 'APU sample after play: ' + sample.toFixed(4) + (sample > 0 ? ' (producing audio!)' : '');
       } catch (err) {
         statusEl.textContent = '✗ Error: ' + err.message;
         console.error(err);

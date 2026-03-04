@@ -25,7 +25,13 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
         const opcode = system.peek(system.memory, system.registers.PC).toString(16).padStart(2, '0');
         throw new Error(`Exceeded ${maxInstructions} instructions. Stuck at PC=$${pc}, opcode=$${opcode}`);
       }
-      fetchDecodeExecute(system, instructionSet, { cycles: cycleCounts });
+      const { cycles } = fetchDecodeExecute(system, instructionSet, { cycles: cycleCounts });
+
+      // Clock APU by the number of CPU cycles consumed
+      if (system.apu) {
+        system.apu.clock(cycles);
+      }
+
       count++;
     }
   };
