@@ -10,9 +10,14 @@ describe('Pulse Channel', () => {
     // 3: 75%   - [1,0,0,1,1,1,1,1]
 
     const getOutputsForPulseChannel = (pulse, steps) => {
+      const period = pulse.getTimerPeriod();
+      const clocksPerStep = period + 1; // Timer fires after counting down from period to 0
       return Array.from({ length: steps }, () => {
         const output = pulse.getOutput() > 0 ? 1 : 0;
-        pulse.clockTimer();
+        // Clock enough times to advance duty position by 1
+        for (let i = 0; i < clocksPerStep; i++) {
+          pulse.clockTimer();
+        }
         return output;
       });
     }
@@ -21,7 +26,7 @@ describe('Pulse Channel', () => {
       it('should produce 12.5% duty cycle', () => {
         const pulse = createPulseChannel(1);
         pulse.writeControl(0x0F); // duty = 0, volume = 15
-        pulse.writeTimerLow(0x00);
+        pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
 
         const outputs = getOutputsForPulseChannel(pulse, 8);
@@ -29,16 +34,16 @@ describe('Pulse Channel', () => {
         expect(outputs).toEqual([0, 1, 0, 0, 0, 0, 0, 0]);
       });
     });
-    
+
     describe('when duty sequence (mode) is 1', () => {
       it('should produce 25% duty cycle', () => {
         const pulse = createPulseChannel(1);
         pulse.writeControl(0x4F); // duty = 1, volume = 15
-        pulse.writeTimerLow(0x00);
+        pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
 
         const outputs = getOutputsForPulseChannel(pulse, 8);
-        
+
         expect(outputs).toEqual([0, 1, 1, 0, 0, 0, 0, 0]);
       });
     });
@@ -47,7 +52,7 @@ describe('Pulse Channel', () => {
       it('should produce 50% duty cycle', () => {
         const pulse = createPulseChannel(1);
         pulse.writeControl(0x8F); // duty = 2, volume = 15
-        pulse.writeTimerLow(0x00);
+        pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
 
         const outputs = getOutputsForPulseChannel(pulse, 8);
@@ -55,12 +60,12 @@ describe('Pulse Channel', () => {
         expect(outputs).toEqual([0, 1, 1, 1, 1, 0, 0, 0]);
       });
     });
-    
+
     describe('when duty sequence (mode) is 3', () => {
       it('should produce 75% duty cycle', () => {
         const pulse = createPulseChannel(1);
         pulse.writeControl(0xCF); // duty = 3, volume = 15
-        pulse.writeTimerLow(0x00);
+        pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
 
         const outputs = getOutputsForPulseChannel(pulse, 8);
@@ -103,12 +108,15 @@ describe('Pulse Channel', () => {
   describe('volume', () => {
     it('should output constant volume from control register', () => {
       const pulse = createPulseChannel(1);
-      pulse.writeControl(0x3F); // constant volume flag set, volume = 15
-      pulse.writeTimerLow(0x00);
+      pulse.writeControl(0x3F); // duty mode 0, constant volume = 15
+      pulse.writeTimerLow(0x08); // period = 8
       pulse.writeTimerHigh(0x00);
 
-      // Advance to a "high" position in duty cycle
-      pulse.clockTimer();
+      // Advance to duty position 1 (high for mode 0)
+      // Need to clock period+1 times to advance duty position
+      for (let i = 0; i < 9; i++) {
+        pulse.clockTimer();
+      }
 
       expect(pulse.getOutput()).toBe(15);
     });
@@ -116,7 +124,7 @@ describe('Pulse Channel', () => {
     it('should output 0 when at low position in duty cycle', () => {
       const pulse = createPulseChannel(1);
       pulse.writeControl(0x3F); // constant volume = 15
-      pulse.writeTimerLow(0x00);
+      pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
       pulse.writeTimerHigh(0x00);
 
       // Position 0 is low for 50% duty (mode 2 = 0x80)
@@ -129,7 +137,7 @@ describe('Pulse Channel', () => {
     it('should output 0 when channel is disabled', () => {
       const pulse = createPulseChannel(1);
       pulse.writeControl(0xBF); // 50% duty, volume 15
-      pulse.writeTimerLow(0x00);
+      pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
       pulse.writeTimerHigh(0x00);
       pulse.clockTimer(); // move to high position
 
@@ -140,10 +148,14 @@ describe('Pulse Channel', () => {
 
     it('should output normally when channel is enabled', () => {
       const pulse = createPulseChannel(1);
-      pulse.writeControl(0xBF); // 50% duty, constant volume 15
-      pulse.writeTimerLow(0x00);
+      pulse.writeControl(0xBF); // 50% duty (mode 2), constant volume 15
+      pulse.writeTimerLow(0x08); // period = 8
       pulse.writeTimerHigh(0x00);
-      pulse.clockTimer(); // move to high position
+
+      // Advance to duty position 1 (high for mode 2)
+      for (let i = 0; i < 9; i++) {
+        pulse.clockTimer();
+      }
 
       pulse.setEnabled(true);
 

@@ -19,6 +19,7 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
 
     // Execute until RTS returns to sentinel
     let count = 0;
+    let totalCycles = 0;
     while (system.registers.PC !== sentinelAddress) {
       if (count >= maxInstructions) {
         const pc = system.registers.PC.toString(16).padStart(4, '0');
@@ -32,8 +33,11 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
         system.apu.clock(cycles);
       }
 
+      totalCycles += cycles;
       count++;
     }
+
+    return totalCycles;
   };
 
   const loadNSF = (nsf, songIndex = 0) => {
@@ -46,7 +50,7 @@ const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
   };
 
   const play = (nsf) => {
-    callRoutine(nsf.playAddress);
+    return callRoutine(nsf.playAddress);
   };
 
   return {

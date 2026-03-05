@@ -16,15 +16,27 @@ const createPulseChannel = (channelNumber) => {
 
   let dutyMode = 0;
   let dutyPosition = 0;
-  let constantVolume = 0;
+  let constantVolumeFlag = false;
+  let volumeOrEnvelopePeriod = 0;
   let enabled = true;
 
   // DDlc vvvv
-  // DD = duty mode, l = length counter halt, c = constant volume flag, vvvv = volume
+  // DD = duty mode, l = length counter halt, c = constant volume flag, vvvv = volume/envelope period
   const writeControl = (value) => {
     dutyMode = (value >> 6) & 0x03;
-    constantVolume = value & 0x0F;
+    constantVolumeFlag = (value & 0x10) !== 0;
+    volumeOrEnvelopePeriod = value & 0x0F;
     // Note: length counter halt and envelope are not implemented in minimal version
+  };
+
+  // Get effective volume (uses envelope when implemented, for now defaults to 15 if not constant)
+  const getVolume = () => {
+    if (constantVolumeFlag) {
+      return volumeOrEnvelopePeriod;
+    }
+    // TODO: return envelope output when implemented
+    // For now, default to full volume since we don't have envelope
+    return 15;
   };
 
   // Sweep (not implemented in minimal version)
@@ -65,12 +77,23 @@ const createPulseChannel = (channelNumber) => {
       return 0;
     }
 
+    // Silence channel if period < 8 (would be ultrasonic, causes aliasing)
+    // The frequency formula is: Freq = 1,789,773 / (32 × (period + 1))
+    //    - Period 7: 1,789,773 / (32 × 8) = ~6,991 Hz (audible)
+    //    - Period 0: 1,789,773 / (32 × 1) = ~55,930 Hz (ultrasonic!)
+    // Per the Nyquist theorem, since our sample rate is 44,100 Hz we can only accurately
+    //  represent frequencies up to ~22,050 Hz. So going above that could cause aliasing (and clicks).
+    //  The NES APU silences the channel when period < 8, so we do the same here.
+    if (timer.getPeriod() < 8) {
+      return 0;
+    }
+
     const dutyValue = DutyCycleTable[dutyMode][dutyPosition];
     if (dutyValue === 0) {
       return 0;
     }
 
-    return constantVolume;
+    return getVolume();
   };
 
   const setEnabled = (value) => {
