@@ -76,8 +76,7 @@ const createNoiseChannel = () => {
       return 0;
     }
 
-    // Silenced when length counter is 0
-    if (!lengthCounter.isActive()) {
+    if (lengthCounter.isSilenced()) {
       return 0;
     }
 

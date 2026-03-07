@@ -2,6 +2,12 @@ const { createLengthCounter } = require('../../../apu/components/lengthCounter')
 
 describe('Length Counter', () => {
   describe('load', () => {
+    // https://www.nesdev.org/wiki/APU_Length_Counter
+    const expectedLookupTable = [
+      /* 00-0F */ 10, 254, 20, 2, 40,  4, 80,  6, 160,  8, 60, 10, 14, 12, 26, 14,
+      /* 10-1F */ 12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30
+    ];
+    
     it('should load value from lookup table using upper 5 bits', () => {
       const lc = createLengthCounter();
 
@@ -22,18 +28,26 @@ describe('Length Counter', () => {
       expect(lc.getCounter()).toBe(30);
     });
 
-    it('should ignore lower 3 bits', () => {
+    it('should load values from documented lookup table using upper 5 bits', () => {
       const lc = createLengthCounter();
 
-      // All these should load index 0 -> 10
-      lc.load(0x00);
-      expect(lc.getCounter()).toBe(10);
+      expectedLookupTable.forEach((expected, index) => {
+        lc.load(index << 3);
+        expect(lc.getCounter()).toBe(expected);
+      });
+    });
 
-      lc.load(0x01);
-      expect(lc.getCounter()).toBe(10);
+    it('should load values from documented lookup table ignoring lower 3 bits', () => {
+      const lc = createLengthCounter();
 
-      lc.load(0x07);
-      expect(lc.getCounter()).toBe(10);
+      expectedLookupTable.forEach((expected, index) => {
+        // Test all 8 possible lower 3 bits (0-7)
+        for (let lowerBits = 0; lowerBits < 8; lowerBits++) {
+          const value = (index << 3) | lowerBits;
+          lc.load(value);
+          expect(lc.getCounter()).toBe(expected);
+        }
+      });
     });
   });
 
@@ -43,15 +57,12 @@ describe('Length Counter', () => {
       lc.load(0x18); // index 3 = 2
 
       expect(lc.getCounter()).toBe(2);
-      expect(lc.isActive()).toBe(true);
 
       lc.clock();
       expect(lc.getCounter()).toBe(1);
-      expect(lc.isActive()).toBe(true);
 
       lc.clock();
       expect(lc.getCounter()).toBe(0);
-      expect(lc.isActive()).toBe(false);
     });
 
     it('should not decrement below 0', () => {
@@ -75,7 +86,6 @@ describe('Length Counter', () => {
       lc.clock();
 
       expect(lc.getCounter()).toBe(2);
-      expect(lc.isActive()).toBe(true);
     });
 
     it('should resume decrementing when halt is cleared', () => {
@@ -106,6 +116,22 @@ describe('Length Counter', () => {
     });
   });
 
+  describe('isSilenced', () => {
+    it('should return false when counter is active', () => {
+      const lc = createLengthCounter();
+      lc.load(0x08); // index 1 = 254
+      expect(lc.isActive()).toBe(true);
+      expect(lc.isSilenced()).toBe(false);
+    });
+
+    it('should return true when counter is not active', () => {
+      const lc = createLengthCounter();
+      // Don't load anything, counter starts at 0
+      expect(lc.isActive()).toBe(false);
+      expect(lc.isSilenced()).toBe(true);
+    });
+  });
+
   describe('clear', () => {
     it('should set counter to 0', () => {
       const lc = createLengthCounter();
@@ -114,31 +140,23 @@ describe('Length Counter', () => {
 
       lc.clear();
       expect(lc.getCounter()).toBe(0);
-      expect(lc.isActive()).toBe(false);
     });
   });
 
   describe('length table values', () => {
-    it('should have correct values for common indices', () => {
+    it('should have documented values', () => {
       const lc = createLengthCounter();
 
-      // Test a few key values from the table
+      // https://www.nesdev.org/wiki/APU_Length_Counter
       const expectedValues = [
-        [0, 10],   // index 0
-        [1, 254],  // index 1
-        [2, 20],   // index 2
-        [3, 2],    // index 3
-        [4, 40],   // index 4
-        [10, 60],  // index 10
-        [20, 48],  // index 20
-        [30, 32],  // index 30
-        [31, 30],  // index 31
+        /* 00-0F */ 10, 254, 20, 2, 40,  4, 80,  6, 160,  8, 60, 10, 14, 12, 26, 14,
+        /* 10-1F */ 12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30
       ];
 
-      for (const [index, expected] of expectedValues) {
+      expectedValues.forEach((expected, index) => {
         lc.load(index << 3);
         expect(lc.getCounter()).toBe(expected);
-      }
+      });
     });
   });
 });

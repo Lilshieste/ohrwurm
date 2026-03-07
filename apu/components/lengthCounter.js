@@ -1,5 +1,4 @@
-// Length counter lookup table (indexed by upper 5 bits of $4003/$4007/$400F/$400B)
-// From: https://www.nesdev.org/wiki/APU_Length_Counter
+// https://www.nesdev.org/wiki/APU_Length_Counter
 const LENGTH_TABLE = [
   10, 254, 20, 2, 40, 4, 80, 6, 160, 8, 60, 10, 14, 12, 26, 14,
   12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30
@@ -28,13 +27,12 @@ const createLengthCounter = () => {
     }
   };
 
-  // Channel should be silenced when counter is 0
   const isActive = () => counter > 0;
+  const isSilenced = () => !isActive();
 
-  // For $4015 status reads
   const getCounter = () => counter;
 
-  // Clear counter (when channel disabled via $4015)
+  // Clear counter (e.g., when channel has been disabled)
   const clear = () => {
     counter = 0;
   };
@@ -44,6 +42,7 @@ const createLengthCounter = () => {
     setHalt,
     clock,
     isActive,
+    isSilenced,
     getCounter,
     clear,
   };

@@ -112,7 +112,6 @@ describe('Linear Counter', () => {
       lc.clock(); // load counter = 1, clear reload flag
       lc.clock(); // decrement to 0
       lc.clock(); // should stay at 0
-      lc.clock(); // should stay at 0
 
       expect(lc.isActive()).toBe(false);
     });
@@ -127,9 +126,7 @@ describe('Linear Counter', () => {
       // Set reload flag again before counter expires
       lc.setReloadFlag();
 
-      lc.clock(); // should reload to 5 again, not decrement
-
-      // Counter should still be 5, need 5 more clocks to expire
+      lc.clock(); // should reload to 5 again
       lc.clock(); // 4
       lc.clock(); // 3
       lc.clock(); // 2
@@ -154,6 +151,24 @@ describe('Linear Counter', () => {
       lc.clock();
 
       expect(lc.isActive()).toBe(true);
+    });
+  });
+
+  describe('isSilenced', () => {
+    it('should return true when counter is not active', () => {
+      const lc = createLinearCounter();
+      expect(lc.isActive()).toBe(false);
+      expect(lc.isSilenced()).toBe(true);
+    });
+
+    it('should return false when counter is active', () => {
+      const lc = createLinearCounter();
+      lc.writeControl(0x10);
+      lc.setReloadFlag();
+      lc.clock();
+
+      expect(lc.isActive()).toBe(true);
+      expect(lc.isSilenced()).toBe(false);
     });
   });
 

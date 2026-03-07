@@ -1,20 +1,16 @@
-// Linear counter for triangle channel
-// Clocked at quarter-frame rate (~240Hz)
-// From: https://www.nesdev.org/wiki/APU_Triangle
-
+// https://www.nesdev.org/wiki/APU_Triangle
 const createLinearCounter = () => {
   let counter = 0;
   let reloadValue = 0;
   let reloadFlag = false;
   let controlFlag = false; // Also serves as length counter halt
 
-  // $4008: CRRR RRRR (C = control flag, R = reload value)
+  // CRRR RRRR (C = control flag, R = reload value)
   const writeControl = (value) => {
     controlFlag = (value & 0x80) !== 0;
     reloadValue = value & 0x7F;
   };
 
-  // Called when $400B is written
   const setReloadFlag = () => {
     reloadFlag = true;
   };
@@ -27,14 +23,13 @@ const createLinearCounter = () => {
       counter--;
     }
 
-    // Clear reload flag if control flag is clear
     if (!controlFlag) {
       reloadFlag = false;
     }
   };
 
-  // Channel should be silenced when counter is 0
   const isActive = () => counter > 0;
+  const isSilenced = () => !isActive();
 
   // Control flag also serves as length counter halt
   const getControlFlag = () => controlFlag;
@@ -44,6 +39,7 @@ const createLinearCounter = () => {
     setReloadFlag,
     clock,
     isActive,
+    isSilenced,
     getControlFlag,
   };
 };
