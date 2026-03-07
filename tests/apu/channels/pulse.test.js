@@ -25,6 +25,7 @@ describe('Pulse Channel', () => {
     describe('when duty sequence (mode) is 0', () => {
       it('should produce 12.5% duty cycle', () => {
         const pulse = createPulseChannel(1);
+        pulse.setEnabled(true);
         pulse.writeControl(0x0F); // duty = 0, volume = 15
         pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
@@ -38,6 +39,7 @@ describe('Pulse Channel', () => {
     describe('when duty sequence (mode) is 1', () => {
       it('should produce 25% duty cycle', () => {
         const pulse = createPulseChannel(1);
+        pulse.setEnabled(true);
         pulse.writeControl(0x4F); // duty = 1, volume = 15
         pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
@@ -51,6 +53,7 @@ describe('Pulse Channel', () => {
     describe('when duty sequence (mode) is 2', () => {
       it('should produce 50% duty cycle', () => {
         const pulse = createPulseChannel(1);
+        pulse.setEnabled(true);
         pulse.writeControl(0x8F); // duty = 2, volume = 15
         pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
@@ -64,6 +67,7 @@ describe('Pulse Channel', () => {
     describe('when duty sequence (mode) is 3', () => {
       it('should produce 75% duty cycle', () => {
         const pulse = createPulseChannel(1);
+        pulse.setEnabled(true);
         pulse.writeControl(0xCF); // duty = 3, volume = 15
         pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
         pulse.writeTimerHigh(0x00);
@@ -72,12 +76,13 @@ describe('Pulse Channel', () => {
 
         expect(outputs).toEqual([1, 0, 0, 1, 1, 1, 1, 1]);
       });
-    });    
+    });
   });
 
   describe('timer', () => {
     it('should use timer period to control frequency', () => {
       const pulse = createPulseChannel(1);
+      pulse.setEnabled(true);
       pulse.writeControl(0x8F); // 50% duty, volume 15
       pulse.writeTimerLow(0x02); // period low = 2
       pulse.writeTimerHigh(0x00); // period high = 0, so period = 2
@@ -108,6 +113,7 @@ describe('Pulse Channel', () => {
   describe('volume', () => {
     it('should output constant volume from control register', () => {
       const pulse = createPulseChannel(1);
+      pulse.setEnabled(true);
       pulse.writeControl(0x3F); // duty mode 0, constant volume = 15
       pulse.writeTimerLow(0x08); // period = 8
       pulse.writeTimerHigh(0x00);
@@ -123,6 +129,7 @@ describe('Pulse Channel', () => {
 
     it('should output 0 when at low position in duty cycle', () => {
       const pulse = createPulseChannel(1);
+      pulse.setEnabled(true);
       pulse.writeControl(0x3F); // constant volume = 15
       pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
       pulse.writeTimerHigh(0x00);
@@ -136,10 +143,15 @@ describe('Pulse Channel', () => {
   describe('enable', () => {
     it('should output 0 when channel is disabled', () => {
       const pulse = createPulseChannel(1);
+      pulse.setEnabled(true);
       pulse.writeControl(0xBF); // 50% duty, volume 15
       pulse.writeTimerLow(0x08); // period >= 8 to avoid silence
       pulse.writeTimerHigh(0x00);
-      pulse.clockTimer(); // move to high position
+
+      // Advance to duty position 1 (high for mode 2)
+      for (let i = 0; i < 9; i++) {
+        pulse.clockTimer();
+      }
 
       pulse.setEnabled(false);
 

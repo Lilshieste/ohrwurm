@@ -6,27 +6,65 @@
 //  and thus produce only even periods.
 
 const { createPulseChannel } = require('./channels/pulse');
+const { createNoiseChannel } = require('./channels/noise');
+const { createWatcher } = require('./components/watcher');
 
 const CpuClockRate = 1789773; // NTSC CPU clock rate
 const SampleRate = 44100;
 const CyclesPerSample = CpuClockRate / SampleRate; // ~40.58
+const CyclesPerHalfFrame = 14914; // CpuClockRate / 120Hz
 
 const createAPU = () => {
   const pulse1 = createPulseChannel(1);
+  const noise = createNoiseChannel();
 
   // Sample buffer for Web Audio
   const sampleBuffer = [];
-  let cycleAccumulator = 0;
 
-  // APU timer runs at half CPU rate (clocked every other CPU cycle)
-  let apuCycleDivider = false;
+  // Helper for sample generation (needed before watchers are defined)
+  const generateSample = () => {
+    // Simple additive mixing for now
+    // TODO: Use proper NES mixer formula when all channels are implemented
+    const pulseOut = pulse1.getOutput();
+    const noiseOut = noise.getOutput();
+
+    // Clamp combined output to 0-15 range
+    return Math.min(15, pulseOut + noiseOut);
+  };
+
+  // Watchers: clock dividers that fire actions at specific rates
+  const watchers = [
+    // APU timers: pulse/noise clocked at half CPU rate
+    createWatcher(2, () => {
+      pulse1.clockTimer();
+      noise.clockTimer();
+    }),
+    // Frame counter: half-frame events at ~120Hz (length counter, sweep)
+    createWatcher(CyclesPerHalfFrame, () => {
+      noise.clockLengthCounter();
+      // TODO: pulse1.clockLengthCounter(), pulse1.clockSweep()
+    }),
+    // Sample generation at audio rate
+    createWatcher(CyclesPerSample, () => {
+      sampleBuffer.push(generateSample());
+    }),
+  ];
 
   const registerHandlers = {
+    // Pulse 1: $4000-$4003
     0x4000: (value) => pulse1.writeControl(value),
     0x4001: (value) => pulse1.writeSweep(value),
     0x4002: (value) => pulse1.writeTimerLow(value),
     0x4003: (value) => pulse1.writeTimerHigh(value),
-    0x4015: (value) => pulse1.setEnabled((value & 0x01) !== 0),
+    // Noise: $400C-$400F
+    0x400C: (value) => noise.writeControl(value),
+    0x400E: (value) => noise.writePeriod(value),
+    0x400F: (value) => noise.writeLength(value),
+    // Status: $4015
+    0x4015: (value) => {
+      pulse1.setEnabled((value & 0x01) !== 0);
+      noise.setEnabled((value & 0x08) !== 0);
+    },
   };
 
   const writeRegister = (address, value) => {
@@ -34,7 +72,7 @@ const createAPU = () => {
     if (handler) {
       handler(value);
     }
-    // TODO: Pulse 2 ($4004-$4007), Triangle ($4008-$400B), Noise ($400C-$400F)
+    // TODO: Pulse 2 ($4004-$4007), Triangle ($4008-$400B)
   };
 
   const readStatus = () => {
@@ -42,28 +80,12 @@ const createAPU = () => {
     return 0;
   };
 
-  const generateSample = () => {
-    // Return raw NES output (0-15 range)
-    // Normalization for Web Audio happens in the UI layer
-    return pulse1.getOutput();
-  };
-
   const clock = (cpuCycles) => {
     for (let i = 0; i < cpuCycles; i++) {
-      // Pulse timer clocked at half CPU rate
-      apuCycleDivider = !apuCycleDivider;
-      if (apuCycleDivider) {
-        pulse1.clockTimer();
-      }
-
-      // Accumulate cycles and generate samples at audio rate
-      cycleAccumulator++;
-      if (cycleAccumulator >= CyclesPerSample) {
-        sampleBuffer.push(generateSample());
-        cycleAccumulator -= CyclesPerSample;
+      for (const watcher of watchers) {
+        watcher.clock();
       }
     }
-    // TODO: Clock frame counter for envelope/length/sweep
   };
 
   // Get buffered samples (drains the buffer, may return fewer than requested)
@@ -73,9 +95,9 @@ const createAPU = () => {
 
   const reset = () => {
     pulse1.setEnabled(false);
+    noise.setEnabled(false);
     sampleBuffer.length = 0;
-    cycleAccumulator = 0;
-    apuCycleDivider = false;
+    watchers.forEach(w => w.reset());
   };
 
   return {

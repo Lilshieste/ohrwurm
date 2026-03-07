@@ -18,7 +18,7 @@ const createPulseChannel = (channelNumber) => {
   let dutyPosition = 0;
   let constantVolumeFlag = false;
   let volumeOrEnvelopePeriod = 0;
-  let enabled = true;
+  let enabled = false; // Disabled until $4015 enables it
 
   // DDlc vvvv
   // DD = duty mode, l = length counter halt, c = constant volume flag, vvvv = volume/envelope period

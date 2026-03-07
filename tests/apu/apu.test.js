@@ -5,6 +5,9 @@ describe('APU', () => {
     it('should dispatch $4000-$4003 to Pulse 1', () => {
       const apu = createAPU();
 
+      // Enable pulse 1
+      apu.writeRegister(0x4015, 0x01);
+
       // Write typical pulse setup (period >= 8 to avoid silence)
       apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
       apu.writeRegister(0x4002, 0x08); // timer low = 8
@@ -21,6 +24,9 @@ describe('APU', () => {
 
     it('should handle $4015 status register writes (channel enable)', () => {
       const apu = createAPU();
+
+      // Enable pulse 1
+      apu.writeRegister(0x4015, 0x01);
 
       // Set up pulse 1 (period >= 8 to avoid silence)
       apu.writeRegister(0x4000, 0x8F);
@@ -50,6 +56,9 @@ describe('APU', () => {
     it('should clock pulse channel timer and produce oscillating output', () => {
       const apu = createAPU();
 
+      // Enable pulse 1
+      apu.writeRegister(0x4015, 0x01);
+
       // Set up pulse with period 8
       apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
       apu.writeRegister(0x4002, 0x08); // timer low = 8
@@ -69,6 +78,7 @@ describe('APU', () => {
     it('should accept multiple cycles at once', () => {
       const apu = createAPU();
 
+      apu.writeRegister(0x4015, 0x01);
       apu.writeRegister(0x4000, 0x8F);
       apu.writeRegister(0x4002, 0x08);
       apu.writeRegister(0x4003, 0x00);
@@ -82,6 +92,9 @@ describe('APU', () => {
     it('should return raw NES samples (0-15 range)', () => {
       const apu = createAPU();
 
+      // Enable pulse 1
+      apu.writeRegister(0x4015, 0x01);
+
       apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
       apu.writeRegister(0x4002, 0x08); // period >= 8
       apu.writeRegister(0x4003, 0x00);
@@ -94,10 +107,10 @@ describe('APU', () => {
       }
     });
 
-    it('should return 0 when no channels are active', () => {
+    it('should return 0 when no channels are enabled', () => {
       const apu = createAPU();
 
-      // Don't set up any channels, just clock
+      // Don't enable any channels, just clock
       apu.clock(100);
       const samples = apu.getSamples(10);
       expect(samples.every(s => s === 0)).toBe(true);
