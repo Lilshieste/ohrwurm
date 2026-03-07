@@ -9,6 +9,7 @@ const { createPulseChannel } = require('./channels/pulse');
 const { createNoiseChannel } = require('./channels/noise');
 const { createTriangleChannel } = require('./channels/triangle');
 const { createWatcher } = require('./components/watcher');
+const { mixScaled } = require('./mixer');
 
 const CpuClockRate = 1789773; // NTSC CPU clock rate
 const SampleRate = 44100;
@@ -27,15 +28,13 @@ const createAPU = () => {
 
   // Helper for sample generation (needed before watchers are defined)
   const generateSample = () => {
-    // Simple additive mixing for now
-    // TODO: Use proper NES mixer formula when all channels are implemented
-    const pulse1Out = pulse1.getOutput();
-    const pulse2Out = pulse2.getOutput();
-    const triangleOut = triangle.getOutput();
-    const noiseOut = noise.getOutput();
-
-    // Clamp combined output to 0-15 range
-    return Math.min(15, pulse1Out + pulse2Out + triangleOut + noiseOut);
+    return mixScaled(
+      pulse1.getOutput(),
+      pulse2.getOutput(),
+      triangle.getOutput(),
+      noise.getOutput()
+      // TODO: dmc.getOutput()
+    );
   };
 
   // Watchers: clock dividers that fire actions at specific rates
