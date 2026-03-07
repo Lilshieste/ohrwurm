@@ -26,14 +26,23 @@ const createAPU = () => {
   // Sample buffer for Web Audio
   const sampleBuffer = [];
 
+  // Channel mute state (independent of NSF's $4015 enable/disable)
+  const channelMutes = {
+    pulse1: false,
+    pulse2: false,
+    triangle: false,
+    noise: false,
+    dmc: false,
+  };
+
   // Helper for sample generation (needed before watchers are defined)
   const generateSample = () => {
     return mixScaled(
-      pulse1.getOutput(),
-      pulse2.getOutput(),
-      triangle.getOutput(),
-      noise.getOutput()
-      // TODO: dmc.getOutput()
+      channelMutes.pulse1 ? 0 : pulse1.getOutput(),
+      channelMutes.pulse2 ? 0 : pulse2.getOutput(),
+      channelMutes.triangle ? 0 : triangle.getOutput(),
+      channelMutes.noise ? 0 : noise.getOutput()
+      // TODO: channelMutes.dmc ? 0 : dmc.getOutput()
     );
   };
 
@@ -129,12 +138,23 @@ const createAPU = () => {
     watchers.forEach(w => w.reset());
   };
 
+  // Channel mute controls (for UI - independent of NSF's $4015)
+  const setChannelMute = (channel, muted) => {
+    if (channel in channelMutes) {
+      channelMutes[channel] = muted;
+    }
+  };
+
+  const getChannelMutes = () => ({ ...channelMutes });
+
   return {
     writeRegister,
     readStatus,
     clock,
     getSamples,
     reset,
+    setChannelMute,
+    getChannelMutes,
   };
 };
 

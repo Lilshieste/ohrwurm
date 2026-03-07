@@ -22,6 +22,15 @@
   <button id="play-emulator">Play (Emulator)</button>
   <button id="stop-emulator">Stop (Emulator)</button>
 
+  <div id="channel-controls" style="margin-top: 1em;">
+    <strong>Channels:</strong>
+    <label><input type="checkbox" data-channel="pulse1" checked> Pulse 1</label>
+    <label><input type="checkbox" data-channel="pulse2" checked> Pulse 2</label>
+    <label><input type="checkbox" data-channel="triangle" checked> Triangle</label>
+    <label><input type="checkbox" data-channel="noise" checked> Noise</label>
+    <label><input type="checkbox" data-channel="dmc" checked disabled> DMC</label>
+  </div>
+
   <div id="emulator-status" style="margin-top: 1em; font-family: monospace;"></div>
 
   <script src="bundle.js"></script>
@@ -52,8 +61,16 @@
       statusEl.textContent = 'Starting emulator...';
       try {
         player.runInit();
+
+        // Apply current checkbox states to the player
+        document.querySelectorAll('#channel-controls input[data-channel]').forEach(checkbox => {
+          const channel = checkbox.dataset.channel;
+          const muted = !checkbox.checked;
+          player.setChannelMute(channel, muted);
+        });
+
         player.startPlayLoop();
-        statusEl.textContent = '♪ Playing via emulator (single pulse channel)';
+        statusEl.textContent = '♪ Playing via emulator';
       } catch (err) {
         statusEl.textContent = '✗ Error: ' + err.message;
         console.error(err);
@@ -63,6 +80,15 @@
     document.getElementById('stop-emulator').addEventListener('click', () => {
       player.stopPlayLoop();
       statusEl.textContent = 'Emulator stopped.';
+    });
+
+    // Channel mute controls
+    document.querySelectorAll('#channel-controls input[data-channel]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const channel = e.target.dataset.channel;
+        const muted = !e.target.checked;
+        player.setChannelMute(channel, muted);
+      });
     });
   </script>
 </body>

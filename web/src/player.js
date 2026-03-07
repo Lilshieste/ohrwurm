@@ -125,6 +125,17 @@ const createPlayer = () => {
 
   const getAPU = () => apu;
 
+  // Channel mute controls
+  const setChannelMute = (channel, muted) => {
+    if (apu) {
+      apu.setChannelMute(channel, muted);
+    }
+  };
+
+  const getChannelMutes = () => {
+    return apu ? apu.getChannelMutes() : {};
+  };
+
   return {
     loadFile,
     getMetadata,
@@ -134,6 +145,8 @@ const createPlayer = () => {
     stopPlayLoop,
     isPlaying,
     getAPU,
+    setChannelMute,
+    getChannelMutes,
   };
 };
 
