@@ -8,6 +8,11 @@
   <h1>Ohrwurm</h1>
   <p>Steel Thread: plays a hardcoded NSF file, using existing NSF player code. I'll incrementally hook up my emulator as I hit critical milestones...</p>
 
+  <div id="file-picker" style="margin-bottom: 1em;">
+    <label for="nsf-file"><strong>Load NSF:</strong></label>
+    <input type="file" id="nsf-file" accept=".nsf">
+  </div>
+
   <div id="metadata">
     <p><strong>Title:</strong> <span id="title">-</span></p>
     <p><strong>Artist:</strong> <span id="artist">-</span></p>
@@ -19,8 +24,12 @@
 
   <hr>
   <h3>Emulator (Steel Thread)</h3>
-  <button id="play-emulator">Play (Emulator)</button>
-  <button id="stop-emulator">Stop (Emulator)</button>
+  <div id="playback-controls">
+    <button id="prev-song">⏮ Prev</button>
+    <button id="play-pause">▶ Play</button>
+    <button id="next-song">Next ⏭</button>
+    <span id="song-display" style="margin-left: 1em; font-family: monospace;">Song 1 / -</span>
+  </div>
 
   <div id="channel-controls" style="margin-top: 1em;">
     <strong>Channels:</strong>
@@ -37,30 +46,63 @@
   <script src="external_lib/libgme.js"></script>
   <script src="external_lib/nsf-player.js"></script>
   <script>
-    const nsfFile = 'music.nsf';
+    let currentNsfUrl = 'music.nsf';
+    let currentSong = 0;
+    let totalSongs = 1;
     const nsfPlayer = createNsfPlayer();
     const player = createPlayer();
     const statusEl = document.getElementById('emulator-status');
+    const playPauseBtn = document.getElementById('play-pause');
+    const songDisplay = document.getElementById('song-display');
 
-    // Load metadata using our parser
-    player.loadFile(nsfFile).then((metadata) => {
+    const updateSongDisplay = () => {
+      songDisplay.textContent = `Song ${currentSong + 1} / ${totalSongs}`;
+    };
+
+    const updateMetadata = (metadata) => {
       document.getElementById('title').textContent = metadata.title;
       document.getElementById('artist').textContent = metadata.artist;
       document.getElementById('songs').textContent = metadata.totalSongs;
+      totalSongs = metadata.totalSongs;
+      currentSong = 0;
+      updateSongDisplay();
+    };
+
+    // Load default file on startup
+    player.loadFile(currentNsfUrl).then(updateMetadata);
+
+    // File picker handler
+    document.getElementById('nsf-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Stop any current playback
+      stopPlayback();
+      nsfPlayer.stop();
+
+      // Create object URL and load
+      currentNsfUrl = URL.createObjectURL(file);
+      try {
+        const metadata = await player.loadFile(currentNsfUrl);
+        updateMetadata(metadata);
+        statusEl.textContent = `Loaded: ${file.name}`;
+      } catch (err) {
+        statusEl.textContent = `Error loading file: ${err.message}`;
+      }
     });
 
     document.getElementById('play').addEventListener('click', () => {
-      nsfPlayer.play(nsfFile, 0);
+      nsfPlayer.play(currentNsfUrl, 0);
     });
 
     document.getElementById('stop').addEventListener('click', () => {
       nsfPlayer.stop();
     });
 
-    document.getElementById('play-emulator').addEventListener('click', () => {
+    const startPlayback = () => {
       statusEl.textContent = 'Starting emulator...';
       try {
-        player.runInit();
+        player.runInit(currentSong);
 
         // Apply current checkbox states to the player
         document.querySelectorAll('#channel-controls input[data-channel]').forEach(checkbox => {
@@ -70,16 +112,48 @@
         });
 
         player.startPlayLoop();
+        playPauseBtn.textContent = '⏸ Pause';
         statusEl.textContent = '♪ Playing via emulator';
       } catch (err) {
         statusEl.textContent = '✗ Error: ' + err.message;
         console.error(err);
       }
+    };
+
+    const stopPlayback = () => {
+      player.stopPlayLoop();
+      playPauseBtn.textContent = '▶ Play';
+      statusEl.textContent = 'Stopped.';
+    };
+
+    document.getElementById('play-pause').addEventListener('click', () => {
+      if (player.isPlaying()) {
+        stopPlayback();
+      } else {
+        startPlayback();
+      }
     });
 
-    document.getElementById('stop-emulator').addEventListener('click', () => {
-      player.stopPlayLoop();
-      statusEl.textContent = 'Emulator stopped.';
+    document.getElementById('prev-song').addEventListener('click', () => {
+      if (currentSong > 0) {
+        currentSong--;
+        updateSongDisplay();
+        if (player.isPlaying()) {
+          stopPlayback();
+          startPlayback();
+        }
+      }
+    });
+
+    document.getElementById('next-song').addEventListener('click', () => {
+      if (currentSong < totalSongs - 1) {
+        currentSong++;
+        updateSongDisplay();
+        if (player.isPlaying()) {
+          stopPlayback();
+          startPlayback();
+        }
+      }
     });
 
     // Channel mute controls
