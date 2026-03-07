@@ -18,6 +18,7 @@ const CyclesPerHalfFrame = 14914; // CpuClockRate / 120Hz (length counter, sweep
 
 const createAPU = () => {
   const pulse1 = createPulseChannel(1);
+  const pulse2 = createPulseChannel(2);
   const triangle = createTriangleChannel();
   const noise = createNoiseChannel();
 
@@ -28,12 +29,13 @@ const createAPU = () => {
   const generateSample = () => {
     // Simple additive mixing for now
     // TODO: Use proper NES mixer formula when all channels are implemented
-    const pulseOut = pulse1.getOutput();
+    const pulse1Out = pulse1.getOutput();
+    const pulse2Out = pulse2.getOutput();
     const triangleOut = triangle.getOutput();
     const noiseOut = noise.getOutput();
 
     // Clamp combined output to 0-15 range
-    return Math.min(15, pulseOut + triangleOut + noiseOut);
+    return Math.min(15, pulse1Out + pulse2Out + triangleOut + noiseOut);
   };
 
   // Watchers: clock dividers that fire actions at specific rates
@@ -45,6 +47,7 @@ const createAPU = () => {
     // APU timers: pulse/noise clocked at half CPU rate
     createWatcher(2, () => {
       pulse1.clockTimer();
+      pulse2.clockTimer();
       noise.clockTimer();
     }),
     // Frame counter: quarter-frame events at ~240Hz (envelope, linear counter)
@@ -70,6 +73,11 @@ const createAPU = () => {
     0x4001: (value) => pulse1.writeSweep(value),
     0x4002: (value) => pulse1.writeTimerLow(value),
     0x4003: (value) => pulse1.writeTimerHigh(value),
+    // Pulse 2: $4004-$4007
+    0x4004: (value) => pulse2.writeControl(value),
+    0x4005: (value) => pulse2.writeSweep(value),
+    0x4006: (value) => pulse2.writeTimerLow(value),
+    0x4007: (value) => pulse2.writeTimerHigh(value),
     // Triangle: $4008-$400B
     0x4008: (value) => triangle.writeLinearCounter(value),
     0x400A: (value) => triangle.writeTimerLow(value),
@@ -81,6 +89,7 @@ const createAPU = () => {
     // Status: $4015
     0x4015: (value) => {
       pulse1.setEnabled((value & 0x01) !== 0);
+      pulse2.setEnabled((value & 0x02) !== 0);
       triangle.setEnabled((value & 0x04) !== 0);
       noise.setEnabled((value & 0x08) !== 0);
     },
@@ -91,7 +100,7 @@ const createAPU = () => {
     if (handler) {
       handler(value);
     }
-    // TODO: Pulse 2 ($4004-$4007)
+    // TODO: DMC ($4010-$4013)
   };
 
   const readStatus = () => {
@@ -114,6 +123,7 @@ const createAPU = () => {
 
   const reset = () => {
     pulse1.setEnabled(false);
+    pulse2.setEnabled(false);
     triangle.setEnabled(false);
     noise.setEnabled(false);
     sampleBuffer.length = 0;
