@@ -7,15 +7,18 @@
 
 const { createPulseChannel } = require('./channels/pulse');
 const { createNoiseChannel } = require('./channels/noise');
+const { createTriangleChannel } = require('./channels/triangle');
 const { createWatcher } = require('./components/watcher');
 
 const CpuClockRate = 1789773; // NTSC CPU clock rate
 const SampleRate = 44100;
 const CyclesPerSample = CpuClockRate / SampleRate; // ~40.58
-const CyclesPerHalfFrame = 14914; // CpuClockRate / 120Hz
+const CyclesPerQuarterFrame = 7457; // CpuClockRate / 240Hz (envelope, linear counter)
+const CyclesPerHalfFrame = 14914; // CpuClockRate / 120Hz (length counter, sweep)
 
 const createAPU = () => {
   const pulse1 = createPulseChannel(1);
+  const triangle = createTriangleChannel();
   const noise = createNoiseChannel();
 
   // Sample buffer for Web Audio
@@ -26,21 +29,32 @@ const createAPU = () => {
     // Simple additive mixing for now
     // TODO: Use proper NES mixer formula when all channels are implemented
     const pulseOut = pulse1.getOutput();
+    const triangleOut = triangle.getOutput();
     const noiseOut = noise.getOutput();
 
     // Clamp combined output to 0-15 range
-    return Math.min(15, pulseOut + noiseOut);
+    return Math.min(15, pulseOut + triangleOut + noiseOut);
   };
 
   // Watchers: clock dividers that fire actions at specific rates
   const watchers = [
+    // Triangle timer: clocked at full CPU rate
+    createWatcher(1, () => {
+      triangle.clockTimer();
+    }),
     // APU timers: pulse/noise clocked at half CPU rate
     createWatcher(2, () => {
       pulse1.clockTimer();
       noise.clockTimer();
     }),
+    // Frame counter: quarter-frame events at ~240Hz (envelope, linear counter)
+    createWatcher(CyclesPerQuarterFrame, () => {
+      triangle.clockLinearCounter();
+      // TODO: pulse1.clockEnvelope(), noise.clockEnvelope()
+    }),
     // Frame counter: half-frame events at ~120Hz (length counter, sweep)
     createWatcher(CyclesPerHalfFrame, () => {
+      triangle.clockLengthCounter();
       noise.clockLengthCounter();
       // TODO: pulse1.clockLengthCounter(), pulse1.clockSweep()
     }),
@@ -56,6 +70,10 @@ const createAPU = () => {
     0x4001: (value) => pulse1.writeSweep(value),
     0x4002: (value) => pulse1.writeTimerLow(value),
     0x4003: (value) => pulse1.writeTimerHigh(value),
+    // Triangle: $4008-$400B
+    0x4008: (value) => triangle.writeLinearCounter(value),
+    0x400A: (value) => triangle.writeTimerLow(value),
+    0x400B: (value) => triangle.writeTimerHigh(value),
     // Noise: $400C-$400F
     0x400C: (value) => noise.writeControl(value),
     0x400E: (value) => noise.writePeriod(value),
@@ -63,6 +81,7 @@ const createAPU = () => {
     // Status: $4015
     0x4015: (value) => {
       pulse1.setEnabled((value & 0x01) !== 0);
+      triangle.setEnabled((value & 0x04) !== 0);
       noise.setEnabled((value & 0x08) !== 0);
     },
   };
@@ -72,7 +91,7 @@ const createAPU = () => {
     if (handler) {
       handler(value);
     }
-    // TODO: Pulse 2 ($4004-$4007), Triangle ($4008-$400B)
+    // TODO: Pulse 2 ($4004-$4007)
   };
 
   const readStatus = () => {
@@ -95,6 +114,7 @@ const createAPU = () => {
 
   const reset = () => {
     pulse1.setEnabled(false);
+    triangle.setEnabled(false);
     noise.setEnabled(false);
     sampleBuffer.length = 0;
     watchers.forEach(w => w.reset());
