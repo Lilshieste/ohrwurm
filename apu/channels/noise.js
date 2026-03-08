@@ -1,4 +1,5 @@
 const { createLengthCounter } = require('../components/lengthCounter');
+const { createEnvelope } = require('../components/envelope');
 
 // NTSC period lookup table (indexed by lower 4 bits of $400E)
 const PeriodTable = [
@@ -7,6 +8,7 @@ const PeriodTable = [
 
 const createNoiseChannel = () => {
   const lengthCounter = createLengthCounter();
+  const envelope = createEnvelope();
 
   // Timer - initialize to PeriodTable[0] so unconfigured channel doesn't produce max-rate noise
   let timerPeriod = PeriodTable[0];
@@ -21,11 +23,15 @@ const createNoiseChannel = () => {
   let volumeOrEnvelopePeriod = 0;
   let enabled = false; // Disabled until $4015 enables it
 
-  // $400C: --lc vvvv (l = length counter halt, c = constant volume, v = volume/envelope)
+  // $400C: --lc vvvv (l = length counter halt / envelope loop, c = constant volume, v = volume/envelope)
   const writeControl = (value) => {
-    lengthCounter.setHalt((value & 0x20) !== 0);
+    const loopFlag = (value & 0x20) !== 0; // Also serves as length counter halt
+    lengthCounter.setHalt(loopFlag);
     constantVolumeFlag = (value & 0x10) !== 0;
     volumeOrEnvelopePeriod = value & 0x0F;
+
+    envelope.setLoopFlag(loopFlag);
+    envelope.writePeriod(volumeOrEnvelopePeriod);
   };
 
   // $400E: M--- PPPP
@@ -40,15 +46,15 @@ const createNoiseChannel = () => {
     if (enabled) {
       lengthCounter.load(value);
     }
-    // TODO: Writing here also restarts envelope
+    // Writing here restarts envelope
+    envelope.restart();
   };
 
   const getVolume = () => {
     if (constantVolumeFlag) {
       return volumeOrEnvelopePeriod;
     }
-    // TODO: return envelope output when implemented
-    return 15;
+    return envelope.getOutput();
   };
 
   const clockTimer = () => {
@@ -100,12 +106,18 @@ const createNoiseChannel = () => {
     lengthCounter.clock();
   };
 
+  // Clock envelope at quarter-frame rate (~240Hz)
+  const clockEnvelope = () => {
+    envelope.clock();
+  };
+
   return {
     writeControl,
     writePeriod,
     writeLength,
     clockTimer,
     clockLengthCounter,
+    clockEnvelope,
     getOutput,
     setEnabled,
   };

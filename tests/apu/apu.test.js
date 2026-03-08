@@ -9,7 +9,7 @@ describe('APU', () => {
       apu.writeRegister(0x4015, 0x01);
 
       // Write typical pulse setup (period >= 8 to avoid silence)
-      apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
+      apu.writeRegister(0x4000, 0x9F); // 50% duty, constant volume 15
       apu.writeRegister(0x4002, 0x08); // timer low = 8
       apu.writeRegister(0x4003, 0x00); // timer high = 0
 
@@ -29,7 +29,7 @@ describe('APU', () => {
       apu.writeRegister(0x4015, 0x01);
 
       // Set up pulse 1 (period >= 8 to avoid silence)
-      apu.writeRegister(0x4000, 0x8F);
+      apu.writeRegister(0x4000, 0x9F); // constant volume
       apu.writeRegister(0x4002, 0x08);
       apu.writeRegister(0x4003, 0x00);
       apu.clock(100);
@@ -60,7 +60,7 @@ describe('APU', () => {
       apu.writeRegister(0x4015, 0x01);
 
       // Set up pulse with period 8
-      apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
+      apu.writeRegister(0x4000, 0x9F); // 50% duty, constant volume 15
       apu.writeRegister(0x4002, 0x08); // timer low = 8
       apu.writeRegister(0x4003, 0x00); // timer high = 0
 
@@ -79,7 +79,7 @@ describe('APU', () => {
       const apu = createAPU();
 
       apu.writeRegister(0x4015, 0x01);
-      apu.writeRegister(0x4000, 0x8F);
+      apu.writeRegister(0x4000, 0x9F); // constant volume
       apu.writeRegister(0x4002, 0x08);
       apu.writeRegister(0x4003, 0x00);
 
@@ -95,7 +95,7 @@ describe('APU', () => {
       // Enable pulse 1
       apu.writeRegister(0x4015, 0x01);
 
-      apu.writeRegister(0x4000, 0x8F); // 50% duty, volume 15
+      apu.writeRegister(0x4000, 0x9F); // 50% duty, constant volume 15
       apu.writeRegister(0x4002, 0x08); // period >= 8
       apu.writeRegister(0x4003, 0x00);
       apu.clock(100);

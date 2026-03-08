@@ -1,4 +1,5 @@
 const { createTimer } = require('../components/timer');
+const { createEnvelope } = require('../components/envelope');
 
 // Duty cycle table from NES APU documentation: https://www.nesdev.org/wiki/APU_Pulse#Sequencer_behavior
 // dutyMode -> position
@@ -11,8 +12,7 @@ const DutyCycleTable = [
 
 const createPulseChannel = (channelNumber) => {
   const timer = createTimer();
-
-
+  const envelope = createEnvelope();
 
   let dutyMode = 0;
   let dutyPosition = 0;
@@ -24,19 +24,20 @@ const createPulseChannel = (channelNumber) => {
   // DD = duty mode, l = length counter halt, c = constant volume flag, vvvv = volume/envelope period
   const writeControl = (value) => {
     dutyMode = (value >> 6) & 0x03;
+    const loopFlag = (value & 0x20) !== 0; // Also serves as length counter halt
     constantVolumeFlag = (value & 0x10) !== 0;
     volumeOrEnvelopePeriod = value & 0x0F;
-    // Note: length counter halt and envelope are not implemented in minimal version
+
+    envelope.setLoopFlag(loopFlag);
+    envelope.writePeriod(volumeOrEnvelopePeriod);
   };
 
-  // Get effective volume (uses envelope when implemented, for now defaults to 15 if not constant)
+  // Get effective volume (uses envelope output when not in constant volume mode)
   const getVolume = () => {
     if (constantVolumeFlag) {
       return volumeOrEnvelopePeriod;
     }
-    // TODO: return envelope output when implemented
-    // For now, default to full volume since we don't have envelope
-    return 15;
+    return envelope.getOutput();
   };
 
   // Sweep (not implemented in minimal version)
@@ -60,6 +61,9 @@ const createPulseChannel = (channelNumber) => {
 
     // Writing to this register resets duty position
     dutyPosition = 0;
+
+    // Writing to this register restarts the envelope
+    envelope.restart();
 
     // Note: length counter load not implemented in minimal version
   };
@@ -102,12 +106,17 @@ const createPulseChannel = (channelNumber) => {
 
   const getTimerPeriod = () => timer.getPeriod();
 
+  const clockEnvelope = () => {
+    envelope.clock();
+  };
+
   return {
     writeControl,
     writeSweep,
     writeTimerLow,
     writeTimerHigh,
     clockTimer,
+    clockEnvelope,
     getOutput,
     setEnabled,
     getTimerPeriod,

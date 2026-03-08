@@ -61,7 +61,9 @@ const createAPU = () => {
     // Frame counter: quarter-frame events at ~240Hz (envelope, linear counter)
     createWatcher(CyclesPerQuarterFrame, () => {
       triangle.clockLinearCounter();
-      // TODO: pulse1.clockEnvelope(), noise.clockEnvelope()
+      pulse1.clockEnvelope();
+      pulse2.clockEnvelope();
+      noise.clockEnvelope();
     }),
     // Frame counter: half-frame events at ~120Hz (length counter, sweep)
     createWatcher(CyclesPerHalfFrame, () => {
