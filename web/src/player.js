@@ -2,7 +2,10 @@ const { parse } = require('../../nsf/parser');
 const { createNsfPlayer } = require('../../nsf/player');
 const { createNES } = require('../../devices/nes');
 const { createInstructionSet } = require('../../6502/instructions');
-const { createAPU } = require('../../apu/apu');
+
+// TODO: Refactor player to not reach directly into APU internals.
+// Consider exposing needed functionality (clock, getSamples, mute controls)
+// through a cleaner interface on the system or a dedicated audio controller.
 
 const SENTINEL_ADDRESS = 0x0000;
 const SAMPLE_RATE = 44100;
@@ -36,8 +39,8 @@ const createPlayer = () => {
       throw new Error('No NSF loaded. Call loadFile first.');
     }
 
-    apu = createAPU();
-    system = createNES(apu);
+    system = createNES();
+    apu = system.apu;
     const instructionSet = createInstructionSet();
     nsfPlayer = createNsfPlayer(system, instructionSet, SENTINEL_ADDRESS);
 

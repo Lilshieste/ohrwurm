@@ -35,20 +35,20 @@ describe('APU', () => {
       apu.clock(100);
 
       // Verify we have sound initially
-      let samples = apu.getSamples(10);
-      expect(samples.some(s => s > 0)).toBe(true);
+      const enabledSamples = apu.getSamples(10);
+      expect(enabledSamples.some(s => s > 0)).toBe(true);
 
       // Disable pulse 1 and generate more samples
       apu.writeRegister(0x4015, 0x00);
       apu.clock(100);
-      samples = apu.getSamples(10);
-      expect(samples.every(s => s === 0)).toBe(true);
+      const disabledSamples = apu.getSamples(10);
+      expect(disabledSamples.every(s => s === 0)).toBe(true);
 
       // Re-enable pulse 1
       apu.writeRegister(0x4015, 0x01);
       apu.clock(100);
-      samples = apu.getSamples(10);
-      expect(samples.some(s => s > 0)).toBe(true);
+      const reenabledSamples = apu.getSamples(10);
+      expect(reenabledSamples.some(s => s > 0)).toBe(true);
     });
   });
 

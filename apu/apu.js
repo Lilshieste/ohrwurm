@@ -110,7 +110,6 @@ const createAPU = () => {
     if (handler) {
       handler(value);
     }
-    // TODO: DMC ($4010-$4013)
   };
 
   const readStatus = () => {

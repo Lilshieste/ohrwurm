@@ -5,15 +5,9 @@ const { buildAddress } = require('../../6502/memory');
 
 describe('NSF Player', () => {
   const sentinelAddress = 0x0000;
-  let system;
-  let instructionSet;
-  let player;
-
-  beforeEach(() => {
-    system = createNES();
-    instructionSet = createInstructionSet();
-    player = createNsfPlayer(system, instructionSet, sentinelAddress);
-  });
+  const system = createNES();
+  const instructionSet = createInstructionSet();
+  const player = createNsfPlayer(system, instructionSet, sentinelAddress);
 
   describe('When loading an NSF', () => {
     it('sets A register to songIndex', () => {
