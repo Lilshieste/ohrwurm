@@ -1,6 +1,6 @@
-const { createTimer } = require('../components/timer');
-const { createLengthCounter } = require('../components/lengthCounter');
-const { createLinearCounter } = require('../components/linearCounter');
+const { createTimer } = require('../timer');
+const { createLengthCounter } = require('../lengthCounter');
+const { createLinearCounter } = require('../linearCounter');
 
 // https://www.nesdev.org/wiki/APU_Triangle
 const TriangleWaveform = [

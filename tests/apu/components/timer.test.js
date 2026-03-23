@@ -1,4 +1,4 @@
-const { createTimer } = require('../../../systems/nes/apu/components/timer');
+const { createTimer } = require('../../../systems/nes/apu/timer');
 
 describe('When clock is invoked', () => {
   it('should count down from period value before firing', () => {

@@ -1,4 +1,4 @@
-const { createEnvelope } = require('../../../systems/nes/apu/components/envelope');
+const { createEnvelope } = require('../../../systems/nes/apu/envelope');
 
 describe('Envelope', () => {
   describe('initial state', () => {

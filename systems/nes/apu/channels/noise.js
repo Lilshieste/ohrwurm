@@ -1,5 +1,5 @@
-const { createLengthCounter } = require('../components/lengthCounter');
-const { createEnvelope } = require('../components/envelope');
+const { createLengthCounter } = require('../lengthCounter');
+const { createEnvelope } = require('../envelope');
 
 // NTSC period lookup table (indexed by lower 4 bits of $400E)
 const PeriodTable = [

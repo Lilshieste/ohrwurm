@@ -8,7 +8,7 @@
 const { createPulseChannel } = require('./channels/pulse');
 const { createNoiseChannel } = require('./channels/noise');
 const { createTriangleChannel } = require('./channels/triangle');
-const { createWatcher } = require('./components/watcher');
+const { createWatcher } = require('./watcher');
 const { mixScaled } = require('./mixer');
 
 const CpuClockRate = 1789773; // NTSC CPU clock rate

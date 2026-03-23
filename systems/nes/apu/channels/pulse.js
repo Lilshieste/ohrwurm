@@ -1,5 +1,5 @@
-const { createTimer } = require('../components/timer');
-const { createEnvelope } = require('../components/envelope');
+const { createTimer } = require('../timer');
+const { createEnvelope } = require('../envelope');
 
 // Duty cycle table from NES APU documentation: https://www.nesdev.org/wiki/APU_Pulse#Sequencer_behavior
 // dutyMode -> position

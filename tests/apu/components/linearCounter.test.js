@@ -1,4 +1,4 @@
-const { createLinearCounter } = require('../../../systems/nes/apu/components/linearCounter');
+const { createLinearCounter } = require('../../../systems/nes/apu/linearCounter');
 
 describe('Linear Counter', () => {
   describe('writeControl', () => {
