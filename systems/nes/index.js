@@ -5,7 +5,7 @@ const { createRAMDevice } = require('./ram');
 const { createPPUDevice } = require('./ppu/ppu');
 const { createAPUDevice } = require('./apu/apuDevice');
 const { createAPUTestModeDevice } = require('./apuTestMode');
-const { createCartridgeDevice } = require('./cartridge/cartridge');
+const { createCartridgeDevice } = require('./cartridge');
 
 const createNES = (deps = {}) => {
   // Create devices (allow injection for testing)

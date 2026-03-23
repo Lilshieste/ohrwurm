@@ -1,4 +1,4 @@
-const { createCartridgeDevice } = require('../../systems/nes/cartridge/cartridge');
+const { createCartridgeDevice } = require('../../systems/nes/cartridge');
 
 describe('Cartridge Device', () => {
   const cartridge = createCartridgeDevice();
