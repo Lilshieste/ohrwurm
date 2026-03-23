@@ -1,4 +1,4 @@
-const { createAPUDevice } = require('../../apu/apuDevice');
+const { createAPUDevice } = require('../../cores/apu/apuDevice');
 const { createMockAPU } = require('../mocks/apu');
 
 describe('APU Device', () => {

@@ -1,6 +1,6 @@
-const { fetchDecodeExecute } = require('../6502/execution');
-const { cycleCounts } = require('../6502/cycleCounts');
-const { splitAddress } = require('../6502/memory');
+const { fetchDecodeExecute } = require('../cores/cpu_6502/execution');
+const { cycleCounts } = require('../cores/cpu_6502/cycleCounts');
+const { splitAddress } = require('../cores/cpu_6502/memory');
 
 const createNsfPlayer = (system, instructionSet, sentinelAddress) => {
   const loadMusicData = (nsf) => {

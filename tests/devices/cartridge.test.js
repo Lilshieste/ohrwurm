@@ -1,4 +1,4 @@
-const { createCartridgeDevice } = require('../../devices/cartridge');
+const { createCartridgeDevice } = require('../../cartridge/cartridge');
 
 describe('Cartridge Device', () => {
   const cartridge = createCartridgeDevice();

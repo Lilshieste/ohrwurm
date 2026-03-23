@@ -1,4 +1,4 @@
-const { createNES } = require('../../devices/nes');
+const { createNES } = require('../../systems/nes');
 const { createMockBus } = require('../mocks/bus');
 const { createMockAPU } = require('../mocks/apu');
 

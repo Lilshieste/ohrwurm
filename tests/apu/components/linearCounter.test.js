@@ -1,4 +1,4 @@
-const { createLinearCounter } = require('../../../apu/components/linearCounter');
+const { createLinearCounter } = require('../../../cores/apu/components/linearCounter');
 
 describe('Linear Counter', () => {
   describe('writeControl', () => {

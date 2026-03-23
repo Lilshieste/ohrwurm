@@ -1,7 +1,7 @@
 const { createNsfPlayer } = require('../../nsf/player');
-const { createNES } = require('../../devices/nes');
-const { createInstructionSet } = require('../../6502/instructions');
-const { buildAddress } = require('../../6502/memory');
+const { createNES } = require('../../systems/nes');
+const { createInstructionSet } = require('../../cores/cpu_6502/instructions');
+const { buildAddress } = require('../../cores/cpu_6502/memory');
 
 describe('NSF Player', () => {
   const sentinelAddress = 0x0000;

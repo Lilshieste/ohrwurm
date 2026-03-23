@@ -1,4 +1,4 @@
-const { createWatcher } = require('../../../apu/components/watcher');
+const { createWatcher } = require('../../../cores/apu/components/watcher');
 
 describe('Watcher', () => {
   describe('clock', () => {

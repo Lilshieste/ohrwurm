@@ -1,4 +1,4 @@
-const { createNoiseChannel } = require('../../../apu/channels/noise');
+const { createNoiseChannel } = require('../../../cores/apu/channels/noise');
 
 describe('Noise Channel', () => {
   describe('LFSR (Linear Feedback Shift Register)', () => {

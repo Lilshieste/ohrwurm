@@ -1,11 +1,11 @@
-const { createRegisters } = require('../6502/registers');
-const { pull, push } = require('../6502/memory');
-const { createBus } = require('./bus');
-const { createRAMDevice } = require('./ram');
-const { createPPUDevice } = require('./ppu');
-const { createAPUDevice } = require('../apu/apuDevice');
-const { createAPUTestModeDevice } = require('./apuTestMode');
-const { createCartridgeDevice } = require('./cartridge');
+const { createRegisters } = require('../cores/cpu_6502/registers');
+const { pull, push } = require('../cores/cpu_6502/memory');
+const { createBus } = require('../memory/bus');
+const { createRAMDevice } = require('../memory/ram');
+const { createPPUDevice } = require('../cores/ppu/ppu');
+const { createAPUDevice } = require('../cores/apu/apuDevice');
+const { createAPUTestModeDevice } = require('../memory/apuTestMode');
+const { createCartridgeDevice } = require('../cartridge/cartridge');
 
 const createNES = (deps = {}) => {
   // Create devices (allow injection for testing)

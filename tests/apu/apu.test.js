@@ -1,4 +1,4 @@
-const { createAPU } = require('../../apu/apu');
+const { createAPU } = require('../../cores/apu/apu');
 
 describe('APU', () => {
   describe('register writes', () => {

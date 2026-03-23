@@ -1,5 +1,5 @@
-const { createRegisters } = require('../6502/registers');
-const { peek, poke, pull, push } = require('../6502/memory');
+const { createRegisters } = require('../cores/cpu_6502/registers');
+const { peek, poke, pull, push } = require('../cores/cpu_6502/memory');
 
 const createMemory = () => new Array(0xFFFF).fill(0);
 

@@ -1,4 +1,4 @@
-const { mixPulse, mixTND, mix, mixScaled, mixLinear, mixScaledLinear } = require('../../apu/mixer');
+const { mixPulse, mixTND, mix, mixScaled, mixLinear, mixScaledLinear } = require('../../cores/apu/mixer');
 
 describe('APU Mixer', () => {
   describe('mixPulse', () => {

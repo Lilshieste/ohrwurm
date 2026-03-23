@@ -1,5 +1,5 @@
 
-const { createPulseChannel } = require('../../../apu/channels/pulse');
+const { createPulseChannel } = require('../../../cores/apu/channels/pulse');
 
 describe('Pulse Channel', () => {
   describe('duty cycle', () => {

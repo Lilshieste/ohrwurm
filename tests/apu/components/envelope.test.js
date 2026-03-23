@@ -1,4 +1,4 @@
-const { createEnvelope } = require('../../../apu/components/envelope');
+const { createEnvelope } = require('../../../cores/apu/components/envelope');
 
 describe('Envelope', () => {
   describe('initial state', () => {

@@ -1,4 +1,4 @@
-const { cycleCounts } = require('../../6502/cycleCounts');
+const { cycleCounts } = require('../../cores/cpu_6502/cycleCounts');
 
 describe('Cycle counts', () => {
   describe('basic opcodes', () => {

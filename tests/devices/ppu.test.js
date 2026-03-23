@@ -1,4 +1,4 @@
-const { createPPUDevice } = require('../../devices/ppu');
+const { createPPUDevice } = require('../../cores/ppu/ppu');
 
 describe('PPU Device', () => {
   const ppu = createPPUDevice();
