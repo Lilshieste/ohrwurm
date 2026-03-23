@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "esbuild web/src/player.js --bundle --outfile=web/bundle.js",
-    "watch": "esbuild web/src/player.js --bundle --outfile=web/bundle.js --watch",
+    "build": "esbuild web/src/index.js --bundle --outfile=web/bundle.js",
+    "watch": "esbuild web/src/index.js --bundle --outfile=web/bundle.js --watch",
     "serve": "npx serve web --symlinks"
   },
   "keywords": [],

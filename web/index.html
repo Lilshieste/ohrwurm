@@ -42,6 +42,26 @@
 
   <div id="emulator-status" style="margin-top: 1em; font-family: monospace;"></div>
 
+  <hr>
+  <h3>Emulator V2 (Demand-Driven Audio)</h3>
+  <div id="v2-playback-controls">
+    <button id="v2-prev-song">⏮ Prev</button>
+    <button id="v2-play-pause">▶ Play</button>
+    <button id="v2-next-song">Next ⏭</button>
+    <span id="v2-song-display" style="margin-left: 1em; font-family: monospace;">Song 1 / -</span>
+  </div>
+
+  <div id="v2-channel-controls" style="margin-top: 1em;">
+    <strong>Channels:</strong>
+    <label><input type="checkbox" data-channel="pulse1" checked> Pulse 1</label>
+    <label><input type="checkbox" data-channel="pulse2" checked> Pulse 2</label>
+    <label><input type="checkbox" data-channel="triangle" checked> Triangle</label>
+    <label><input type="checkbox" data-channel="noise" checked> Noise</label>
+    <label><input type="checkbox" data-channel="dmc" checked disabled> DMC</label>
+  </div>
+
+  <div id="v2-status" style="margin-top: 1em; font-family: monospace;"></div>
+
   <script src="bundle.js"></script>
   <script src="external_lib/libgme.js"></script>
   <script src="external_lib/nsf-player.js"></script>
@@ -162,6 +182,108 @@
         const channel = e.target.dataset.channel;
         const muted = !e.target.checked;
         player.setChannelMute(channel, muted);
+      });
+    });
+
+    // ========== V2 Player (Demand-Driven Audio) ==========
+    const playerV2 = createPlayerV2();
+    let v2CurrentSong = 0;
+    let v2TotalSongs = 1;
+    const v2StatusEl = document.getElementById('v2-status');
+    const v2PlayPauseBtn = document.getElementById('v2-play-pause');
+    const v2SongDisplay = document.getElementById('v2-song-display');
+
+    const updateV2SongDisplay = () => {
+      v2SongDisplay.textContent = `Song ${v2CurrentSong + 1} / ${v2TotalSongs}`;
+    };
+
+    const loadV2Player = async (url) => {
+      try {
+        const metadata = await playerV2.loadFile(url);
+        v2TotalSongs = metadata.totalSongs;
+        v2CurrentSong = 0;
+        updateV2SongDisplay();
+        v2StatusEl.textContent = 'V2 loaded and ready.';
+      } catch (err) {
+        v2StatusEl.textContent = `V2 Error: ${err.message}`;
+      }
+    };
+
+    // Load default file for V2 on startup
+    loadV2Player(currentNsfUrl);
+
+    // Update V2 when file picker changes
+    document.getElementById('nsf-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      // V2 will reload when file changes (URL already updated by V1 handler)
+      // Small delay to ensure URL is set
+      setTimeout(() => loadV2Player(currentNsfUrl), 100);
+    });
+
+    const startV2Playback = () => {
+      v2StatusEl.textContent = 'Starting V2 emulator...';
+      try {
+        playerV2.selectSong(v2CurrentSong);
+
+        // Apply current checkbox states
+        document.querySelectorAll('#v2-channel-controls input[data-channel]').forEach(checkbox => {
+          const channel = checkbox.dataset.channel;
+          const muted = !checkbox.checked;
+          playerV2.setChannelMute(channel, muted);
+        });
+
+        playerV2.play();
+        v2PlayPauseBtn.textContent = '⏸ Pause';
+        v2StatusEl.textContent = '♪ Playing via V2 (demand-driven)';
+      } catch (err) {
+        v2StatusEl.textContent = '✗ V2 Error: ' + err.message;
+        console.error(err);
+      }
+    };
+
+    const stopV2Playback = () => {
+      playerV2.stop();
+      v2PlayPauseBtn.textContent = '▶ Play';
+      v2StatusEl.textContent = 'V2 Stopped.';
+    };
+
+    document.getElementById('v2-play-pause').addEventListener('click', () => {
+      if (playerV2.isPlaying()) {
+        stopV2Playback();
+      } else {
+        startV2Playback();
+      }
+    });
+
+    document.getElementById('v2-prev-song').addEventListener('click', () => {
+      if (v2CurrentSong > 0) {
+        v2CurrentSong--;
+        updateV2SongDisplay();
+        if (playerV2.isPlaying()) {
+          playerV2.selectSong(v2CurrentSong);
+          v2StatusEl.textContent = `♪ Playing song ${v2CurrentSong + 1} via V2`;
+        }
+      }
+    });
+
+    document.getElementById('v2-next-song').addEventListener('click', () => {
+      if (v2CurrentSong < v2TotalSongs - 1) {
+        v2CurrentSong++;
+        updateV2SongDisplay();
+        if (playerV2.isPlaying()) {
+          playerV2.selectSong(v2CurrentSong);
+          v2StatusEl.textContent = `♪ Playing song ${v2CurrentSong + 1} via V2`;
+        }
+      }
+    });
+
+    // V2 Channel mute controls
+    document.querySelectorAll('#v2-channel-controls input[data-channel]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const channel = e.target.dataset.channel;
+        const muted = !e.target.checked;
+        playerV2.setChannelMute(channel, muted);
       });
     });
   </script>

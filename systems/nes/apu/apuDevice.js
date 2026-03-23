@@ -28,6 +28,7 @@ const createAPUDevice = (apu = createAPU()) => {
     // Pass through APU methods for direct access
     clock: apu.clock,
     getSamples: apu.getSamples,
+    getSampleCount: apu.getSampleCount,
     reset: apu.reset,
     setChannelMute: apu.setChannelMute,
     getChannelMutes: apu.getChannelMutes,

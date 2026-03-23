@@ -130,6 +130,9 @@ const createAPU = () => {
     return sampleBuffer.splice(0, Math.min(count, sampleBuffer.length));
   };
 
+  // Get count without draining (for flow control)
+  const getSampleCount = () => sampleBuffer.length;
+
   const reset = () => {
     pulse1.setEnabled(false);
     pulse2.setEnabled(false);
@@ -153,6 +156,7 @@ const createAPU = () => {
     readStatus,
     clock,
     getSamples,
+    getSampleCount,
     reset,
     setChannelMute,
     getChannelMutes,
