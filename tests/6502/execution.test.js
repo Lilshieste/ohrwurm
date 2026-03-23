@@ -1,7 +1,7 @@
-const { fetchDecodeExecute } = require('../../cores/cpu_6502/execution');
-const { cycleCounts } = require('../../cores/cpu_6502/cycleCounts');
+const { fetchDecodeExecute } = require('../../cpu_6502/execution');
+const { cycleCounts } = require('../../cpu_6502/cycleCounts');
 const { createBasicDevice } = require('../../systems/basic');
-const { createInstructionSet } = require('../../cores/cpu_6502/instructions');
+const { createInstructionSet } = require('../../cpu_6502/instructions');
 
 describe('fetchDecodeExecute', () => {
   const system = createBasicDevice();

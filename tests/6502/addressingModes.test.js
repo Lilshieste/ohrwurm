@@ -1,4 +1,4 @@
-const Modes = require('../../cores/cpu_6502/addressingModes');
+const Modes = require('../../cpu_6502/addressingModes');
 const { when } = require('jest-when');
 
 describe('addressingModes', () => {

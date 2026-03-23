@@ -1,7 +1,7 @@
 const { parse } = require('../../nsf/parser');
 const { createNsfPlayer } = require('../../nsf/player');
 const { createNES } = require('../../systems/nes');
-const { createInstructionSet } = require('../../cores/cpu_6502/instructions');
+const { createInstructionSet } = require('../../cpu_6502/instructions');
 
 // TODO: Refactor player to not reach directly into APU internals.
 // Consider exposing needed functionality (clock, getSamples, mute controls)

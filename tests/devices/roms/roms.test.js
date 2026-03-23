@@ -1,7 +1,7 @@
 const fs = require('fs');
-const { createInstructionSet } = require('../../../cores/cpu_6502/instructions');
-const { buildStatusByte, loadBytes, peek, setIRQVector } = require('../../../cores/cpu_6502/memory');
-const { start } = require('../../../cores/cpu_6502/execution');
+const { createInstructionSet } = require('../../../cpu_6502/instructions');
+const { buildStatusByte, loadBytes, peek, setIRQVector } = require('../../../cpu_6502/memory');
+const { start } = require('../../../cpu_6502/execution');
 const { createBasicDevice } = require('../../../systems/basic');
 
 describe('Test ROMs', () => {

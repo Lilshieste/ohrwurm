@@ -16,8 +16,8 @@ const {
   setNMIVector,
   setResetVector,
   splitAddress,
-} = require('../../cores/cpu_6502/memory');
-const { createMemory, createRegisters, createSystem } = require('../../cores/cpu_6502/state');
+} = require('../../cpu_6502/memory');
+const { createMemory, createRegisters, createSystem } = require('../../cpu_6502/state');
 
 describe('Memory', () => {
   const system = createSystem();

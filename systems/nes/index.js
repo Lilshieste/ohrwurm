@@ -1,5 +1,5 @@
-const { createRegisters } = require('../../cores/cpu_6502/registers');
-const { pull, push } = require('../../cores/cpu_6502/memory');
+const { createRegisters } = require('../../cpu_6502/registers');
+const { pull, push } = require('../../cpu_6502/memory');
 const { createBus } = require('./bus');
 const { createRAMDevice } = require('./ram');
 const { createPPUDevice } = require('./ppu/ppu');

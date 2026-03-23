@@ -1,5 +1,5 @@
-const OpCodes = require('../../cores/cpu_6502/opcodes');
-const { createSystem } = require('../../cores/cpu_6502/state');
+const OpCodes = require('../../cpu_6502/opcodes');
+const { createSystem } = require('../../cpu_6502/state');
 const {
   buildStackAddress,
   buildStatusByte,
@@ -7,7 +7,7 @@ const {
   peek,
   poke,
   pull,
-  push } = require('../../cores/cpu_6502/memory');
+  push } = require('../../cpu_6502/memory');
 
 const implied = () => () => {};
 const direct = (operand) => (system) => ({ read: () => operand, write: jest.fn() });

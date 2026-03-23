@@ -1,4 +1,4 @@
-const Util = require('../../cores/cpu_6502/util');
+const Util = require('../../cpu_6502/util');
 
 describe('util', () => {
   test('isNthBitSet should return true if the bit at the Nth index is set', () => {

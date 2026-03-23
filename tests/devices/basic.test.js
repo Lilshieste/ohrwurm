@@ -1,9 +1,9 @@
 const {
   start
-} = require('../../cores/cpu_6502/execution');
+} = require('../../cpu_6502/execution');
 const { createBasicDevice } = require('../../systems/basic');
-const { createInstructionSet } = require('../../cores/cpu_6502/instructions');
-const { buildStackAddress } = require('../../cores/cpu_6502/memory');
+const { createInstructionSet } = require('../../cpu_6502/instructions');
+const { buildStackAddress } = require('../../cpu_6502/memory');
 
 describe('A basic 6502 device with a pool of RAM', () => {
   const system = createBasicDevice();

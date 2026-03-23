@@ -1,6 +1,6 @@
-const NES = require('../../cores/cpu_6502/instructions');
-const { createSystem } = require('../../cores/cpu_6502/state');
-const { peek, poke } = require('../../cores/cpu_6502/memory');
+const NES = require('../../cpu_6502/instructions');
+const { createSystem } = require('../../cpu_6502/state');
+const { peek, poke } = require('../../cpu_6502/memory');
 
 describe('Instructions', () => {
   NES.INSTRUCTION_SET = NES.createInstructionSet();
