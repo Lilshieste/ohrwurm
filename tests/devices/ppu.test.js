@@ -1,4 +1,4 @@
-const { createPPUDevice } = require('../../systems/nes/ppu/ppu');
+const { createPPUDevice } = require('../../systems/nes/ppu');
 
 describe('PPU Device', () => {
   const ppu = createPPUDevice();
