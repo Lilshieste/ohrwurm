@@ -1,6 +1,6 @@
 const { parse } = require('../../nsf/parser');
 const { createNsfPlayer } = require('../../nsf/player');
-const { createNES } = require('../../systems/nes/nes');
+const { createNES } = require('../../systems/nes');
 const { createInstructionSet } = require('../../cores/cpu_6502/instructions');
 
 // TODO: Refactor player to not reach directly into APU internals.

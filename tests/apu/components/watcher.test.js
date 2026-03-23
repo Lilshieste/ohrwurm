@@ -1,4 +1,4 @@
-const { createWatcher } = require('../../../cores/apu/components/watcher');
+const { createWatcher } = require('../../../systems/nes/apu/components/watcher');
 
 describe('Watcher', () => {
   describe('clock', () => {

@@ -1,4 +1,4 @@
-const { createAPUDevice } = require('../../cores/apu/apuDevice');
+const { createAPUDevice } = require('../../systems/nes/apu/apuDevice');
 const { createMockAPU } = require('../mocks/apu');
 
 describe('APU Device', () => {

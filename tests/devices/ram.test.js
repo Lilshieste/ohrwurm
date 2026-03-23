@@ -1,4 +1,4 @@
-const { createRAMDevice } = require('../../memory/ram');
+const { createRAMDevice } = require('../../systems/nes/ram');
 
 describe('RAM Device', () => {
   const ram = createRAMDevice();

@@ -1,4 +1,4 @@
-const { mixPulse, mixTND, mix, mixScaled, mixLinear, mixScaledLinear } = require('../../cores/apu/mixer');
+const { mixPulse, mixTND, mix, mixScaled, mixLinear, mixScaledLinear } = require('../../systems/nes/apu/mixer');
 
 describe('APU Mixer', () => {
   describe('mixPulse', () => {

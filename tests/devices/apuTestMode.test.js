@@ -1,4 +1,4 @@
-const { createAPUTestModeDevice } = require('../../memory/apuTestMode');
+const { createAPUTestModeDevice } = require('../../systems/nes/apuTestMode');
 
 describe('APU Test Mode Device', () => {
   const apuTestMode = createAPUTestModeDevice();

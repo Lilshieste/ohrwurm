@@ -1,4 +1,4 @@
-const { createBus } = require('../../memory/bus');
+const { createBus } = require('../../systems/nes/bus');
 const { createMockDevice } = require('../mocks/device');
 
 describe('Memory Bus', () => {

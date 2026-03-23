@@ -1,4 +1,4 @@
-const { createTriangleChannel } = require('../../../cores/apu/channels/triangle');
+const { createTriangleChannel } = require('../../../systems/nes/apu/channels/triangle');
 
 describe('Triangle Channel', () => {
   describe('waveform', () => {

@@ -1,4 +1,4 @@
-const { createLengthCounter } = require('../../../cores/apu/components/lengthCounter');
+const { createLengthCounter } = require('../../../systems/nes/apu/components/lengthCounter');
 
 describe('Length Counter', () => {
   describe('load', () => {
