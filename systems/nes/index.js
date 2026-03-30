@@ -18,6 +18,9 @@ const createNES = (deps = {}) => {
   // Create bus with all devices (allow injection for testing)
   const bus = deps.bus ?? createBus({ ram, ppu, apu, apuTestMode, cartridge });
 
+  // Wire up DMC memory reader (DMC fetches sample bytes from ROM via bus)
+  apu.setDMCMemoryReader((address) => bus.read(address));
+
   // Wrapper functions that maintain existing API signature
   const peek = (memory, address) => memory.read(address);
   const poke = (memory, address, value) => memory.write(address, value);

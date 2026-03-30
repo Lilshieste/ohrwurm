@@ -8,8 +8,9 @@
 const { createPulseChannel } = require('./channels/pulse');
 const { createNoiseChannel } = require('./channels/noise');
 const { createTriangleChannel } = require('./channels/triangle');
+const { createDMCChannel } = require('./channels/dmc');
 const { createWatcher } = require('./watcher');
-const { mixScaled } = require('./mixer');
+const { mixScaled, mixScaledLinear } = require('./mixer');
 
 const CpuClockRate = 1789773; // NTSC CPU clock rate
 const SampleRate = 44100;
@@ -22,6 +23,7 @@ const createAPU = () => {
   const pulse2 = createPulseChannel(2);
   const triangle = createTriangleChannel();
   const noise = createNoiseChannel();
+  const dmc = createDMCChannel();
 
   // Sample buffer for Web Audio
   const sampleBuffer = [];
@@ -41,8 +43,8 @@ const createAPU = () => {
       channelMutes.pulse1 ? 0 : pulse1.getOutput(),
       channelMutes.pulse2 ? 0 : pulse2.getOutput(),
       channelMutes.triangle ? 0 : triangle.getOutput(),
-      channelMutes.noise ? 0 : noise.getOutput()
-      // TODO: channelMutes.dmc ? 0 : dmc.getOutput()
+      channelMutes.noise ? 0 : noise.getOutput(),
+      channelMutes.dmc ? 0 : dmc.getOutput()
     );
   };
 
@@ -52,11 +54,12 @@ const createAPU = () => {
     createWatcher(1, () => {
       triangle.clockTimer();
     }),
-    // APU timers: pulse/noise clocked at half CPU rate
+    // APU timers: pulse/noise/dmc clocked at half CPU rate
     createWatcher(2, () => {
       pulse1.clockTimer();
       pulse2.clockTimer();
       noise.clockTimer();
+      dmc.clockTimer();
     }),
     // Frame counter: quarter-frame events at ~240Hz (envelope, linear counter)
     createWatcher(CyclesPerQuarterFrame, () => {
@@ -96,12 +99,18 @@ const createAPU = () => {
     0x400C: (value) => noise.writeControl(value),
     0x400E: (value) => noise.writePeriod(value),
     0x400F: (value) => noise.writeLength(value),
+    // DMC: $4010-$4013
+    0x4010: (value) => dmc.writeControl(value),
+    0x4011: (value) => dmc.writeDirectLoad(value),
+    0x4012: (value) => dmc.writeSampleAddress(value),
+    0x4013: (value) => dmc.writeSampleLength(value),
     // Status: $4015
     0x4015: (value) => {
       pulse1.setEnabled((value & 0x01) !== 0);
       pulse2.setEnabled((value & 0x02) !== 0);
       triangle.setEnabled((value & 0x04) !== 0);
       noise.setEnabled((value & 0x08) !== 0);
+      dmc.setEnabled((value & 0x10) !== 0);
     },
   };
 
@@ -113,8 +122,11 @@ const createAPU = () => {
   };
 
   const readStatus = () => {
-    // TODO: Return length counter status for each channel
-    return 0;
+    let status = 0;
+    // Bit 4: DMC active (bytes remaining > 0)
+    if (dmc.isActive()) status |= 0x10;
+    // TODO: Add other channel length counter status bits (0-3)
+    return status;
   };
 
   const clock = (cpuCycles) => {
@@ -138,6 +150,7 @@ const createAPU = () => {
     pulse2.setEnabled(false);
     triangle.setEnabled(false);
     noise.setEnabled(false);
+    dmc.setEnabled(false);
     sampleBuffer.length = 0;
     watchers.forEach(w => w.reset());
   };
@@ -151,6 +164,11 @@ const createAPU = () => {
 
   const getChannelMutes = () => ({ ...channelMutes });
 
+  // Set memory reader for DMC channel (must be called after system creation)
+  const setDMCMemoryReader = (reader) => {
+    dmc.setMemoryReader(reader);
+  };
+
   return {
     writeRegister,
     readStatus,
@@ -160,6 +178,7 @@ const createAPU = () => {
     reset,
     setChannelMute,
     getChannelMutes,
+    setDMCMemoryReader,
   };
 };
 

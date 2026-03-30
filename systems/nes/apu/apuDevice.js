@@ -32,6 +32,7 @@ const createAPUDevice = (apu = createAPU()) => {
     reset: apu.reset,
     setChannelMute: apu.setChannelMute,
     getChannelMutes: apu.getChannelMutes,
+    setDMCMemoryReader: apu.setDMCMemoryReader,
   };
 };
 
